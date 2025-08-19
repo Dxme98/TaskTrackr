@@ -1,3 +1,8 @@
 spring:
     profiles:
-      active: test
+      active: dev
+    security:
+      oauth2:
+        resourceserver:
+          jwt:
+            issuer-uri: "http://localhost:8180/realms/tasktrackr-realm"

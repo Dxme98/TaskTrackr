@@ -28,7 +28,7 @@ services:
       - backend
   keycloak_tasktrackr:
     image: quay.io/keycloak/keycloak:26.2.5
-    container_name: keycloak_tasktrackrdoc
+    container_name: keycloak_tasktrackr
     environment:
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://keycloak_postgres:5432/${KEYCLOAK_DB}
