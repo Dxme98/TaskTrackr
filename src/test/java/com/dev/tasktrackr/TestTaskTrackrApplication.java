@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.dev.tasktrackr;
 
 import org.springframework.boot.SpringApplication;
 

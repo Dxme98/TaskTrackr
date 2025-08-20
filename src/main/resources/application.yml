@@ -1,8 +1,11 @@
 spring:
-    profiles:
+  profiles:
       active: dev
-    security:
+  security:
       oauth2:
         resourceserver:
-          jwt:
-            issuer-uri: "http://localhost:8180/realms/tasktrackr-realm"
+            jwt:
+              issuer-uri: "http://localhost:8180/realms/tasktrackr-realm"
+  jpa:
+      hibernate:
+        ddl-auto: none
