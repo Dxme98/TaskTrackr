@@ -15,4 +15,11 @@ public class ProjectType {
 
     @Column(length = 32, unique = true, nullable = false)
     private String name;
+
+    // Statische Konstanten für Typsicherheit
+    public static final int BASIC_ID = 1;
+    public static final int SCRUM_ID = 2;
+
+    public static final String BASIC_NAME = "BASIC";
+    public static final String SCRUM_NAME = "SCRUM";
 }

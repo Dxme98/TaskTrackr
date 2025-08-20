@@ -14,7 +14,12 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
-@Table(name = "users")
+@Table(
+        name = "users",
+        indexes = {
+                @Index(name = "idx_users_username", columnList = "username")
+        }
+)
 @Getter
 @Setter
 public class UserEntity {
@@ -25,10 +30,10 @@ public class UserEntity {
     private String username;
     @Column(name = "created_at", updatable = false, insertable = false)
     private LocalDateTime createdAt; // Default by Database
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY,  cascade = CascadeType.REMOVE)
     private Set<ProjectMember> projectMemberships = new HashSet<>();
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "receiver")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "receiver", cascade = CascadeType.REMOVE)
     private Set<ProjectInvite> receivedInvites = new HashSet<>();
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "sender")
-    private Set<ProjectInvite> sendInvites = new HashSet<>();
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "sender", cascade = CascadeType.REMOVE)
+    private Set<ProjectInvite> sentInvites = new HashSet<>();
 }

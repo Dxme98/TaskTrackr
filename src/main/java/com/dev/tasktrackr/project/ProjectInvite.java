@@ -8,7 +8,16 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "project_invite")
+@Table(
+        name = "project_invite",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"receiver_id", "sender_id", "project_id"}
+        ),
+        indexes = {
+                @Index(name = "idx_project_invite_receiver_id", columnList = "receiver_id, invite_status_id"),
+                @Index(name = "idx_project_invite_sender_id", columnList = "sender_id, invite_status_id")
+        }
+)
 @Getter
 @Setter
 public class ProjectInvite {
@@ -28,11 +37,16 @@ public class ProjectInvite {
     @JoinColumn(name = "sender_id") // optional, da ON DELETE SET NULL
     private UserEntity sender;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "invite_status_id", nullable = false)
     private ProjectInviteStatus projectInviteStatus;
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }
