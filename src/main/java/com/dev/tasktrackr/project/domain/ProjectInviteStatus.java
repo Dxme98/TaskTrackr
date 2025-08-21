@@ -1,4 +1,4 @@
-package com.dev.tasktrackr.project;
+package com.dev.tasktrackr.project.domain;
 
 
 import jakarta.persistence.*;
@@ -8,7 +8,6 @@ import lombok.Setter;
 @Entity
 @Table(name = "invite_status")
 @Getter
-@Setter
 public class ProjectInviteStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

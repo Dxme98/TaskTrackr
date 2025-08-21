@@ -1,5 +1,6 @@
-package com.dev.tasktrackr.project;
+package com.dev.tasktrackr.project.domain;
 
+import com.dev.tasktrackr.user.UserId;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
@@ -10,7 +11,6 @@ import java.io.Serializable;
 
 @Embeddable
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class ProjectMemberId implements Serializable {
 
@@ -19,4 +19,10 @@ public class ProjectMemberId implements Serializable {
 
     @Column(name = "project_id")
     private Long projectId;
+
+
+    public ProjectMemberId(UserId userId, ProjectId projectId) {
+        this.userId = userId.value();
+        this.projectId = projectId.value();
+    }
 }

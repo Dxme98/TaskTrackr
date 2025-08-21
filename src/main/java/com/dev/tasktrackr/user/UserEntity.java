@@ -1,16 +1,14 @@
 package com.dev.tasktrackr.user;
 
-import com.dev.tasktrackr.project.Project;
-import com.dev.tasktrackr.project.ProjectInvite;
-import com.dev.tasktrackr.project.ProjectMember;
+import com.dev.tasktrackr.project.domain.ProjectInvite;
+import com.dev.tasktrackr.project.domain.ProjectMember;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -21,10 +19,10 @@ import java.util.Set;
         }
 )
 @Getter
-@Setter
 public class UserEntity {
     @Id
     @Column(length = 36)
+    @Getter(AccessLevel.NONE)
     private String id;
     @Column(length = 32, nullable = false, unique = true)
     private String username;
@@ -36,4 +34,9 @@ public class UserEntity {
     private Set<ProjectInvite> receivedInvites = new HashSet<>();
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "sender", cascade = CascadeType.REMOVE)
     private Set<ProjectInvite> sentInvites = new HashSet<>();
+
+
+    public UserId getId() {
+        return new UserId(id);
+    }
 }

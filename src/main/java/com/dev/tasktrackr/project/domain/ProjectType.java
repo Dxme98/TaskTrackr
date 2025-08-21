@@ -1,4 +1,4 @@
-package com.dev.tasktrackr.project;
+package com.dev.tasktrackr.project.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;

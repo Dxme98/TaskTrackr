@@ -1,11 +1,10 @@
-package com.dev.tasktrackr.project;
+package com.dev.tasktrackr.project.domain;
 
 import com.dev.tasktrackr.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.apache.catalina.User;
 
 @Entity
 @Table(
@@ -15,7 +14,6 @@ import org.apache.catalina.User;
         }
 )
 @Getter
-@Setter
 @NoArgsConstructor
 public class ProjectMember {
 

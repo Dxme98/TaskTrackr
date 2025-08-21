@@ -1,7 +1,9 @@
-package com.dev.tasktrackr.project;
+package com.dev.tasktrackr.project.domain;
 
+import com.dev.tasktrackr.project.ProjectInviteId;
 import com.dev.tasktrackr.user.UserEntity;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,10 +21,10 @@ import java.time.LocalDateTime;
         }
 )
 @Getter
-@Setter
 public class ProjectInvite {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Getter(AccessLevel.NONE)
     private Long id;
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -48,5 +50,10 @@ public class ProjectInvite {
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+
+    public ProjectInviteId getId() {
+        return new ProjectInviteId(id);
     }
 }
