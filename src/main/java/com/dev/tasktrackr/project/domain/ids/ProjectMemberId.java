@@ -1,9 +1,8 @@
-package com.dev.tasktrackr.project.domain;
+package com.dev.tasktrackr.project.domain.ids;
 
 import com.dev.tasktrackr.user.UserId;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

@@ -1,10 +1,10 @@
 package com.dev.tasktrackr.project.domain;
 
+import com.dev.tasktrackr.project.domain.ids.ProjectMemberId;
 import com.dev.tasktrackr.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(

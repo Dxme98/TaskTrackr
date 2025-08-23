@@ -1,10 +1,10 @@
 package com.dev.tasktrackr.project.domain;
 
+import com.dev.tasktrackr.project.domain.ids.ProjectId;
 import com.dev.tasktrackr.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;

@@ -1,4 +1,4 @@
-package com.dev.tasktrackr.project.domain;
+package com.dev.tasktrackr.project.domain.ids;
 
 public record ProjectId(Long value) {
     public ProjectId {
