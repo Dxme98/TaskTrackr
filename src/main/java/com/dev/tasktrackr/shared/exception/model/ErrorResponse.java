@@ -1,5 +1,6 @@
-package com.dev.tasktrackr.shared;
+package com.dev.tasktrackr.shared.exception.model;
 
+import com.dev.tasktrackr.shared.exception.ErrorCode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,5 +1,7 @@
 package com.dev.tasktrackr.auth;
 
+import com.dev.tasktrackr.shared.exception.annotation.ApiErrorResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -12,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "TestAuthEndpoint", description = "Endpoints für Authentication Testing")
+@ApiErrorResponses.CommonErrors
 public class AuthController {
 
     @GetMapping("/open")

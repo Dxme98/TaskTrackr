@@ -1,5 +1,7 @@
-package com.dev.tasktrackr.shared;
+package com.dev.tasktrackr.config.security;
 
+import com.dev.tasktrackr.shared.exception.ErrorCode;
+import com.dev.tasktrackr.shared.exception.model.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;

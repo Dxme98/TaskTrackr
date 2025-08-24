@@ -1,7 +1,5 @@
-package com.dev.tasktrackr.config;
+package com.dev.tasktrackr.config.security;
 
-import com.dev.tasktrackr.shared.CustomAccessDeniedHandler;
-import com.dev.tasktrackr.shared.CustomAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;

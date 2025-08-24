@@ -1,5 +1,6 @@
-package com.dev.tasktrackr.shared;
+package com.dev.tasktrackr.shared.exception.custom;
 
+import com.dev.tasktrackr.shared.exception.ErrorCode;
 import lombok.Getter;
 
 @Getter
