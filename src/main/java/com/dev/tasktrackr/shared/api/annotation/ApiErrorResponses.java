@@ -1,4 +1,4 @@
-package com.dev.tasktrackr.shared.exception.annotation;
+package com.dev.tasktrackr.shared.api.annotation;
 
 import com.dev.tasktrackr.shared.exception.model.ErrorResponse;
 import com.dev.tasktrackr.shared.exception.model.ValidationErrorResponse;

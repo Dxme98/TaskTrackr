@@ -1,6 +1,6 @@
 package com.dev.tasktrackr.auth;
 
-import com.dev.tasktrackr.shared.exception.annotation.ApiErrorResponses;
+import com.dev.tasktrackr.shared.api.annotation.ApiErrorResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;

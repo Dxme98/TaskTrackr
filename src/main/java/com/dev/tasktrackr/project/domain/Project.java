@@ -3,8 +3,7 @@ package com.dev.tasktrackr.project.domain;
 import com.dev.tasktrackr.project.domain.ids.ProjectId;
 import com.dev.tasktrackr.user.UserEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -13,6 +12,9 @@ import java.util.Set;
 @Entity
 @Table(name = "projects")
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

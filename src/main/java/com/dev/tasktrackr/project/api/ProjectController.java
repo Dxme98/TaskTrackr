@@ -2,7 +2,8 @@ package com.dev.tasktrackr.project.api;
 
 import com.dev.tasktrackr.project.api.dtos.ProjectDto;
 import com.dev.tasktrackr.project.service.ProjectService;
-import com.dev.tasktrackr.shared.exception.annotation.ApiErrorResponses;
+import com.dev.tasktrackr.shared.api.annotation.ApiErrorResponses;
+import com.dev.tasktrackr.user.UserId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,14 +13,15 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/projects")
-//@PreAuthorize("hasAuthority('USER')")
-//@Validated // BEST PRACTICE: Enable validation
+@PreAuthorize("hasAuthority('USER')")
 @Tag(name = "Projects", description = "Project management operations")
 @Slf4j
 @ApiErrorResponses.CommonErrors
@@ -31,8 +33,7 @@ public class ProjectController {
     }
 
     @PostMapping
-    @Operation(summary = "Create a new project",
-            description = "Creates a new project with the authenticated user as owner")
+    @Operation(summary = "Create a new project", description = "Creates a new project with the authenticated user as owner")
     @ApiResponse(responseCode = "201", description = "Project created successfully",
             content = @Content(schema = @Schema(implementation = ProjectDto.Response.class)))
     @ApiErrorResponses.BadRequest
@@ -42,8 +43,13 @@ public class ProjectController {
 
         log.info("Creating project request from user: {}", jwt.getClaimAsString("preferred_username"));
 
-        ProjectDto.Response response = projectService.createProject(jwt.getClaim("sub"), request);
+        UserId userId = extractUserId(jwt.getClaim("sub"));
+        ProjectDto.Response response = projectService.createProject(userId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    private UserId extractUserId(String userId) {
+        return new UserId(userId);
     }
 }
