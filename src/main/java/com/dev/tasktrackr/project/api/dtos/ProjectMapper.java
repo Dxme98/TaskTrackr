@@ -5,8 +5,10 @@ import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.ProjectType;
 import com.dev.tasktrackr.user.UserDto;
 import com.dev.tasktrackr.user.UserEntity;
+import com.dev.tasktrackr.user.UserId;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Set;
@@ -30,4 +32,9 @@ public interface ProjectMapper {
 
     // Liste von ProjectMembers
     List<ProjectMemberDto> toProjectMemberDtos(Set<ProjectMember> projectMembers);
+
+
+    default String map(UserId userId) {
+        return userId != null ? userId.value() : null;
+    }
 }
