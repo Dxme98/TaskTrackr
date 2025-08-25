@@ -5,15 +5,18 @@ import com.dev.tasktrackr.user.UserDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public class ProjectDto {
     @Schema(name = "ProjectRequest")
     @Getter
+    @Setter
     public static class Request {
         @Schema(
                 example = "Mein Projektname",
@@ -37,7 +40,9 @@ public class ProjectDto {
     }
 
     @Getter
+    @Setter
     @Schema(name = "ProjectResponse")
+    @Builder
     public static class Response {
         @Schema(example = "456")
         private Long id;
@@ -49,7 +54,7 @@ public class ProjectDto {
                 description = "Zeitpunkt der Projekterstellung im ISO-8601 Format",
                 example = "2024-01-15T14:30:00"
         )
-        private LocalDateTime createdAt;
+        private Instant createdAt;
 
         @Schema(description = "Ersteller des Projekts")
         private UserDto creator;

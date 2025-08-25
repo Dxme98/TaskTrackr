@@ -2,8 +2,10 @@ package com.dev.tasktrackr.project.api.dtos;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @Builder
 public class ProjectTypeDto {
     private Integer id;

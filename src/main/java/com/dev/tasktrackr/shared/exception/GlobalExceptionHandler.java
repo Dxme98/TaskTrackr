@@ -4,7 +4,9 @@ import com.dev.tasktrackr.shared.exception.model.ErrorResponse;
 import com.dev.tasktrackr.shared.exception.custom.ForbiddenException;
 import com.dev.tasktrackr.shared.exception.custom.ResourceNotFoundException;
 import com.dev.tasktrackr.shared.exception.model.ValidationErrorResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
@@ -19,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -109,6 +112,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleAuthenticationException(
             AuthenticationException ex, HttpServletRequest request) {
 
+        log.info("Authentication failed for {}: {}", request.getRequestURI(), ex.getMessage());
+
+
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.UNAUTHORIZED.value(),
@@ -123,6 +129,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(
             Exception ex, HttpServletRequest request) {
+
+        log.error("Unexpected error occurred for {}: {}", request.getRequestURI(), ex.getMessage(), ex);
 
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),

@@ -6,12 +6,16 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(
         name = "users",
         indexes = {
@@ -26,8 +30,9 @@ public class UserEntity {
     private String id;
     @Column(length = 32, nullable = false, unique = true)
     private String username;
-    @Column(name = "created_at", updatable = false, insertable = false)
-    private LocalDateTime createdAt; // Default by Database
+    @CreatedDate
+    @Column(name = "created_at", updatable = false, nullable = false)
+    private Instant createdAt;
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY,  cascade = CascadeType.REMOVE)
     private Set<ProjectMember> projectMemberships = new HashSet<>();
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "receiver", cascade = CascadeType.REMOVE)

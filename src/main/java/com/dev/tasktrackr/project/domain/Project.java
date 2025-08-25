@@ -4,7 +4,11 @@ import com.dev.tasktrackr.project.domain.ids.ProjectId;
 import com.dev.tasktrackr.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,9 +16,11 @@ import java.util.Set;
 @Entity
 @Table(name = "projects")
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,8 +28,11 @@ public class Project {
     private Long id;
     @Column(nullable = false, length = 255)
     private String name;
-    @Column(name = "created_at", updatable = false, insertable = false)
-    private LocalDateTime createdAt; // Default by Database
+    @CreatedDate
+    @Column(name = "created_at", updatable = false, nullable = false)
+    private Instant createdAt;
+    @LastModifiedDate
+    private Instant updatedAt;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id")
     private UserEntity creator;

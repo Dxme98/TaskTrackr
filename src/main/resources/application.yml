@@ -9,3 +9,7 @@ spring:
   jpa:
       hibernate:
         ddl-auto: none
+logging:
+  level:
+    root: INFO
+    com.dev.tasktrackr: INFO

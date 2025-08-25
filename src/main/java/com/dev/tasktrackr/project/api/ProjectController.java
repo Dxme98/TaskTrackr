@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/projects")
-@PreAuthorize("hasAuthority('USER')")
 @Tag(name = "Projects", description = "Project management operations")
 @Slf4j
 @ApiErrorResponses.CommonErrors

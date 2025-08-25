@@ -17,24 +17,24 @@ import java.util.Set;
 public interface ProjectMapper {
 
     // Hauptmapping für Project -> ProjectDto.Response
-    @Mapping(target = "projectMembers", source = "projectMembers")
+    @Mapping(target = "id", source = "id.value")
+    @Mapping(target = "createdAt", source = "createdAt")
     ProjectDto.Response toResponse(Project project);
 
     // User Mapping
+    @Mapping(target = "id", source = "id.value")
     UserDto toUserDto(UserEntity user);
 
     // ProjectType Mapping
     ProjectTypeDto toProjectTypeDto(ProjectType projectType);
 
-    // ProjectMember Mapping
-    @Mapping(target = "user", source = "user")
-    ProjectMemberDto toProjectMemberDto(ProjectMember projectMember);
-
     // Liste von ProjectMembers
     List<ProjectMemberDto> toProjectMemberDtos(Set<ProjectMember> projectMembers);
 
 
+    /**
     default String map(UserId userId) {
         return userId != null ? userId.value() : null;
     }
+     */
 }

@@ -5,6 +5,11 @@ import com.dev.tasktrackr.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(
@@ -15,6 +20,7 @@ import lombok.NoArgsConstructor;
 )
 @Getter
 @NoArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class ProjectMember {
 
     @EmbeddedId
@@ -30,6 +36,9 @@ public class ProjectMember {
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
 
     // Intuitiver Konstruktor
     public ProjectMember(UserEntity user, Project project) {

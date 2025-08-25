@@ -6,7 +6,12 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,15 +26,18 @@ import java.time.LocalDateTime;
         }
 )
 @Getter
+@EntityListeners(AuditingEntityListener.class)
 public class ProjectInvite {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter(AccessLevel.NONE)
     private Long id;
-    @Column(name = "created_at", insertable = false, updatable = false)
-    private LocalDateTime createdAt;
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
+    @LastModifiedDate
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receiver_id", nullable = false)
@@ -46,12 +54,6 @@ public class ProjectInvite {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "invite_status_id", nullable = false)
     private ProjectInviteStatus projectInviteStatus;
-
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
-
 
     public ProjectInviteId getId() {
         return new ProjectInviteId(id);

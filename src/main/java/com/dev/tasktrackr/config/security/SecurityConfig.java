@@ -43,13 +43,15 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                )
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint(authenticationEntryPoint) // 401 Handler
                         .accessDeniedHandler(accessDeniedHandler) // 403 Handler
                 )
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                )
+
 
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.NEVER))
                 .build();
