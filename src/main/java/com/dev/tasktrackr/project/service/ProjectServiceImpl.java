@@ -2,9 +2,11 @@ package com.dev.tasktrackr.project.service;
 
 import com.dev.tasktrackr.project.api.dtos.ProjectMapper;
 import com.dev.tasktrackr.project.api.dtos.request.ProjectRequest;
+import com.dev.tasktrackr.project.api.dtos.response.ProjectDetailsDto;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectOverviewDto;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectType;
+import com.dev.tasktrackr.project.domain.ids.ProjectId;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
 import com.dev.tasktrackr.project.repository.ProjectTypeRepository;
 import com.dev.tasktrackr.shared.exception.custom.ProjectTypeNotFoundException;
@@ -73,6 +75,13 @@ public class ProjectServiceImpl implements ProjectService {
     public List<ProjectOverviewDto> findProjectsByUserId(UserId userId) {
         List<Project> projectsByUserId = projectRepository.findProjectsByUserId(userId.value());
         return projectsByUserId.stream().map(projectMapper::toOverviewDto).toList();
+    }
+
+    @Override
+    public ProjectDetailsDto getProjectDetails(ProjectId projectId, UserId userId) {
+        projectMemberService.checkProjectMembership(projectId, userId);
+
+        return null;
     }
 
 

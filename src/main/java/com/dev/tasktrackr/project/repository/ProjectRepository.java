@@ -13,7 +13,6 @@ import java.util.List;
 public interface ProjectRepository extends JpaRepository<Project, Long> {
     @Query("SELECT DISTINCT p FROM Project p, ProjectMember pm LEFT JOIN FETCH p.projectType WHERE p.id = pm.project.id AND pm.user.id = :userId")
     List<Project> findProjectsByUserId(@Param("userId")String userId);
-
 }
 
 

@@ -4,6 +4,7 @@ import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.ids.ProjectId;
 import com.dev.tasktrackr.project.repository.ProjectMemberRepository;
+import com.dev.tasktrackr.shared.exception.custom.UserNotProjectMemberException;
 import com.dev.tasktrackr.user.UserEntity;
 import com.dev.tasktrackr.user.UserId;
 import jakarta.transaction.Transactional;
@@ -28,5 +29,13 @@ public class ProjectMemberService {
         log.info("ProjectMembership in Project {} created successfully for user: {}", project.getName(), userEntity.getUsername());
 
         return projectMemberRepository.save(createdProjectMember);
+    }
+
+
+    public boolean checkProjectMembership(ProjectId projectId, UserId userId) {
+        if(projectMemberRepository.existsByProjectIdAndUserId(projectId.value(), userId.value())) {
+            return true;
+        }
+        throw new UserNotProjectMemberException(userId.value());
     }
 }
