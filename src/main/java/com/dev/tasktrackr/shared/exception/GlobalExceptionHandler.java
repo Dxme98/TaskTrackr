@@ -32,6 +32,8 @@ public class GlobalExceptionHandler {
                 errors.put(error.getField(), error.getDefaultMessage())
         );
 
+        log.info("Validation error {}: {}", request.getRequestURI(), ex.getMessage());
+
         ErrorResponse error = new ValidationErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
@@ -47,6 +49,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleMissingServletRequestParameter(
             MissingServletRequestParameterException ex, HttpServletRequest request) {
 
+        log.info("Missing Request Paramater {}: {}", request.getRequestURI(), ex.getMessage());
+
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
@@ -61,6 +65,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleTypeMismatch(
             MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
+
+        log.info("Typemismatch {}: {}", request.getRequestURI(), ex.getMessage());
 
         String message = String.format("Parameter '%s' should be of type %s but received '%s'",
                 ex.getName(),
@@ -82,6 +88,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleForbidden(
             ForbiddenException ex, HttpServletRequest request) {
 
+        log.info("User is not allowed to access resource {}: {}", request.getRequestURI(), ex.getMessage());
+
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),
                 HttpStatus.FORBIDDEN.value(),
@@ -96,6 +104,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFound(
             ResourceNotFoundException ex, HttpServletRequest request) {
+
+        log.info("Resource not found for {}: {}", request.getRequestURI(), ex.getMessage());
 
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),

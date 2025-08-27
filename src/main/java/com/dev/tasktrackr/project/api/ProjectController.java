@@ -5,12 +5,14 @@ import com.dev.tasktrackr.project.service.ProjectService;
 import com.dev.tasktrackr.shared.api.annotation.ApiErrorResponses;
 import com.dev.tasktrackr.user.UserId;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,6 +20,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/projects")
@@ -47,6 +51,19 @@ public class ProjectController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    @GetMapping
+    @Operation(summary = "Get all projects where user is part of", description = "Returns a list of every project where User is part of")
+    @ApiResponse(responseCode = "200", description = "Projects loaded successfully",
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProjectDto.Response.class))))
+    public ResponseEntity<List<ProjectDto.Response>> findProjectsByUserId(@AuthenticationPrincipal Jwt jwt) {
+        UserId userId = extractUserId(jwt.getClaim("sub"));
+
+        List<ProjectDto.Response> response = projectService.findProjectsByUserId(userId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
 
     private UserId extractUserId(String userId) {
         return new UserId(userId);

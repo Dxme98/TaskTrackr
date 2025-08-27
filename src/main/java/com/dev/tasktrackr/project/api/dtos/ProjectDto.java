@@ -56,13 +56,14 @@ public class ProjectDto {
         )
         private Instant createdAt;
 
-        @Schema(description = "Ersteller des Projekts")
-        private UserDto creator;
-
+        // n+1
         @Schema(description = "Projekttyp Informationen")
         private ProjectTypeDto projectType;
 
+        // Load ONLY when opened! Useless at the overview.
+        /**
         @Schema(description = "Liste aller Projektmitglieder")
         private List<ProjectMemberDto> projectMembers;
+        */
     }
 }

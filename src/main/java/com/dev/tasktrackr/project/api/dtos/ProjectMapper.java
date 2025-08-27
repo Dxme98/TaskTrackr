@@ -18,7 +18,6 @@ public interface ProjectMapper {
 
     // Hauptmapping für Project -> ProjectDto.Response
     @Mapping(target = "id", source = "id.value")
-    @Mapping(target = "createdAt", source = "createdAt")
     ProjectDto.Response toResponse(Project project);
 
     // User Mapping
@@ -29,12 +28,5 @@ public interface ProjectMapper {
     ProjectTypeDto toProjectTypeDto(ProjectType projectType);
 
     // Liste von ProjectMembers
-    List<ProjectMemberDto> toProjectMemberDtos(Set<ProjectMember> projectMembers);
-
-
-    /**
-    default String map(UserId userId) {
-        return userId != null ? userId.value() : null;
-    }
-     */
+   // List<ProjectMemberDto> toProjectMemberDtos(Set<ProjectMember> projectMembers);
 }

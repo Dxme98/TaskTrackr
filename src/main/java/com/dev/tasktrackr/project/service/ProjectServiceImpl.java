@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -65,10 +66,19 @@ public class ProjectServiceImpl implements ProjectService {
         // 5. ProjectMember erstellen (Creator wird automatisch Member)
         projectMemberService.createProjectMember(creator, savedProject);
 
+        log.info("Project {} created successfully for user: {}", savedProject.getName(), creator.getUsername());
+
 
         // 6. Response mit MapStruct erstellen
         return projectMapper.toResponse(savedProject);
     }
+
+    @Override
+    public List<ProjectDto.Response> findProjectsByUserId(UserId userId) {
+        List<Project> projectsByUserId = projectRepository.findProjectsByUserId(userId.value());
+        return projectsByUserId.stream().map(projectMapper::toResponse).toList();
+    }
+
 
     private ProjectType findProjectTypeById(int projectTypeId) {
         return projectTypeRepository.findById(projectTypeId)
