@@ -1,24 +1,20 @@
 package com.dev.tasktrackr.project.service;
 
-import com.dev.tasktrackr.project.api.dtos.ProjectDto;
 import com.dev.tasktrackr.project.api.dtos.ProjectMapper;
+import com.dev.tasktrackr.project.api.dtos.request.ProjectRequest;
+import com.dev.tasktrackr.project.api.dtos.response.ProjectOverviewDto;
 import com.dev.tasktrackr.project.domain.Project;
-import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.ProjectType;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
 import com.dev.tasktrackr.project.repository.ProjectTypeRepository;
-import com.dev.tasktrackr.shared.exception.custom.ProjectNotFoundException;
 import com.dev.tasktrackr.shared.exception.custom.ProjectTypeNotFoundException;
-import com.dev.tasktrackr.shared.exception.custom.ResourceNotFoundException;
 import com.dev.tasktrackr.user.UserEntity;
 import com.dev.tasktrackr.user.UserId;
 import com.dev.tasktrackr.user.UserService;
-import com.dev.tasktrackr.user.UserServiceImpl;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 
@@ -45,11 +41,11 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     @Transactional
-    public ProjectDto.Response createProject(UserId userId, ProjectDto.Request projectDto){
+    public ProjectOverviewDto createProject(UserId userId, ProjectRequest projectDto){
         // 1. User laden
         UserEntity creator = userService.findUserById(userId);
 
-        // 2. ProjectType laden (mit optimierter Validation)
+        // 2. ProjectType laden
         ProjectType projectType = findProjectTypeById(projectDto.getProjectTypeId());
 
         // 3. Project erstellen
@@ -70,13 +66,13 @@ public class ProjectServiceImpl implements ProjectService {
 
 
         // 6. Response mit MapStruct erstellen
-        return projectMapper.toResponse(savedProject);
+        return projectMapper.toOverviewDto(savedProject);
     }
 
     @Override
-    public List<ProjectDto.Response> findProjectsByUserId(UserId userId) {
+    public List<ProjectOverviewDto> findProjectsByUserId(UserId userId) {
         List<Project> projectsByUserId = projectRepository.findProjectsByUserId(userId.value());
-        return projectsByUserId.stream().map(projectMapper::toResponse).toList();
+        return projectsByUserId.stream().map(projectMapper::toOverviewDto).toList();
     }
 
 
