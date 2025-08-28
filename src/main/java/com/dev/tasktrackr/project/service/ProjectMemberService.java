@@ -1,26 +1,20 @@
 package com.dev.tasktrackr.project.service;
 
-import com.dev.tasktrackr.project.domain.Project;
-import com.dev.tasktrackr.project.domain.ProjectMember;
-import com.dev.tasktrackr.project.domain.ids.ProjectId;
-import com.dev.tasktrackr.project.repository.ProjectMemberRepository;
-import com.dev.tasktrackr.shared.exception.custom.UserNotProjectMemberException;
-import com.dev.tasktrackr.user.UserEntity;
-import com.dev.tasktrackr.user.UserId;
-import jakarta.transaction.Transactional;
+import com.dev.tasktrackr.project.repository.ProjectMemberQueryRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
 public class ProjectMemberService {
-    private final ProjectMemberRepository projectMemberRepository;
+    private final ProjectMemberQueryRepository projectMemberQueryRepository;
 
-    public ProjectMemberService(ProjectMemberRepository projectMemberRepository) {
-        this.projectMemberRepository = projectMemberRepository;
+    public ProjectMemberService(ProjectMemberQueryRepository projectMemberQueryRepository) {
+        this.projectMemberQueryRepository = projectMemberQueryRepository;
     }
 
 
+/**
     @Transactional
     public ProjectMember createProjectMember(UserEntity userEntity, Project project)  {
         ProjectMember createdProjectMember = new ProjectMember(userEntity, project);
@@ -30,12 +24,15 @@ public class ProjectMemberService {
 
         return projectMemberRepository.save(createdProjectMember);
     }
+    */
 
 
+/**
     public boolean checkProjectMembership(ProjectId projectId, UserId userId) {
         if(projectMemberRepository.existsByProjectIdAndUserId(projectId.value(), userId.value())) {
             return true;
         }
         throw new UserNotProjectMemberException(userId.value());
     }
+ */
 }

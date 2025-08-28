@@ -4,13 +4,17 @@ import com.dev.tasktrackr.user.UserId;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
 
 @Embeddable
 @Data
 @NoArgsConstructor
+@Setter
+@Getter
 public class ProjectMemberId implements Serializable {
 
     @Column(name = "user_id", length = 36)

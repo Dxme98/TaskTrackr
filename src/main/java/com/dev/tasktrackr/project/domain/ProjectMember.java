@@ -22,7 +22,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class ProjectMember {
-
     @EmbeddedId
     private ProjectMemberId id;
 
@@ -46,4 +45,10 @@ public class ProjectMember {
         this.project = project;
         this.id = new ProjectMemberId(user.getId(), project.getId());
     }
+
+    public static ProjectMember createMember(UserEntity user, Project project) {
+        return new ProjectMember(user, project);
+    }
+
+
 }

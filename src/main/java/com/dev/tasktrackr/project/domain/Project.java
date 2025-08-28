@@ -1,5 +1,6 @@
 package com.dev.tasktrackr.project.domain;
 
+import com.dev.tasktrackr.project.api.dtos.request.ProjectRequest;
 import com.dev.tasktrackr.project.domain.ids.ProjectId;
 import com.dev.tasktrackr.user.UserEntity;
 import jakarta.persistence.*;
@@ -38,13 +39,26 @@ public class Project {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_type_id")
     private ProjectType projectType;
-    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProjectMember> projectMembers = new HashSet<>();
-    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProjectInvite> projectInvites = new HashSet<>();
 
 
     public ProjectId getId() {
         return new ProjectId(id);
+    }
+
+    public static Project create(ProjectRequest projectRequest, UserEntity creator, ProjectType projectType) {
+        Project project = new Project();
+        project.name = projectRequest.getName().trim();
+        project.creator = creator;
+        project.projectType = projectType;
+
+        return project;
+    }
+
+    public void addMember(UserEntity userEntity) {
+        projectMembers.add(ProjectMember.createMember(userEntity, this));
     }
 }
