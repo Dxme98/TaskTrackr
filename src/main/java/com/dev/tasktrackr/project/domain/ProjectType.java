@@ -7,7 +7,6 @@ import lombok.Setter;
 @Entity
 @Table(name = "project_type")
 @Getter
-@Setter
 public class ProjectType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // SERIAL in Postgres

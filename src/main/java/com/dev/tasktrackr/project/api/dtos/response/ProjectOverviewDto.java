@@ -10,13 +10,14 @@ import java.time.Instant;
 
 @Getter
 @Setter
-@Schema(name = "ProjectOverviewResponse")
 @Builder
+@Schema(name = "ProjectOverviewResponse", description = "Übersichtsinformationen eines Projekts")
 public class ProjectOverviewDto {
-    @Schema(example = "456")
+
+    @Schema(description = "ID des Projekts", example = "456")
     private Long id;
 
-    @Schema(example = "Mein Projektname")
+    @Schema(description = "Name des Projekts", example = "Mein Projektname")
     private String name;
 
     @Schema(
@@ -25,13 +26,9 @@ public class ProjectOverviewDto {
     )
     private Instant createdAt;
 
-    // n+1
-    @Schema(description = "Projekttyp Informationen")
+    @Schema(
+            description = "Informationen zum Projekttyp, BASIC oder SCRUM",
+            implementation = ProjectTypeDto.class
+    )
     private ProjectTypeDto projectType;
-
-    // Load ONLY when opened! Useless at the overview.
-    /**
-     @Schema(description = "Liste aller Projektmitglieder")
-     private List<ProjectMemberDto> projectMembers;
-     */
 }

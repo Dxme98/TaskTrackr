@@ -16,7 +16,6 @@ import java.util.Set;
 @Entity
 @Table(name = "projects")
 @Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
