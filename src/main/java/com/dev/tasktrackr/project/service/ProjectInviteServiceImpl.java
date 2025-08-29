@@ -6,10 +6,10 @@ import com.dev.tasktrackr.project.api.dtos.response.ProjectInviteResponseDto;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectInvite;
 import com.dev.tasktrackr.project.domain.enums.ProjectInviteStatus;
+import com.dev.tasktrackr.project.repository.ProjectInviteQueryRepository;
+import com.dev.tasktrackr.project.repository.ProjectMemberQueryRepository;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
-import com.dev.tasktrackr.shared.exception.custom.ProjectNotFoundException;
-import com.dev.tasktrackr.shared.exception.custom.UnauthorizedInviteAttemptException;
-import com.dev.tasktrackr.shared.exception.custom.UserNotFoundException;
+import com.dev.tasktrackr.shared.exception.custom.*;
 import com.dev.tasktrackr.user.UserEntity;
 import com.dev.tasktrackr.user.UserRepository;
 import jakarta.transaction.Transactional;
@@ -22,11 +22,13 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final ProjectInviteMapper projectInviteMapper;
+    private final ProjectInviteQueryRepository projectInviteQueryRepository;
+    private final ProjectMemberQueryRepository projectMemberQueryRepository;
 
     @Override
     @Transactional
     public ProjectInviteResponseDto createProjectInvite(ProjectInviteRequest request, String senderJwtUserId) {
-        validateInviteCreation(request.getProjectId(), request.getReceiverId(), request.getSenderId(),senderJwtUserId);
+        validateInviteCreation(request.getProjectId(), request.getReceiverId(), request.getSenderId(), senderJwtUserId);
 
         Project project = findProjectById(request.getProjectId());
         UserEntity sender =  findUserById(senderJwtUserId);
@@ -62,10 +64,14 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
             throw new UnauthorizedInviteAttemptException(senderJwtUserId, requestSenderId);
         }
 
-        // Self Invite
-
         // Check if einladung bereits existiiert
+        if(projectInviteQueryRepository.existsByReceiverIdAndProjectId(receiverId, projectId)) {
+            throw new ProjectInviteAlreadyExistsException(receiverId, projectId);
+        }
 
         // Check if user is already part of project
+        if(projectMemberQueryRepository.existsByUserIdAndProjectId(receiverId, projectId)) {
+            throw new UserAlreadyPartOfProjectException(receiverId, projectId);
+        }
     }
  }

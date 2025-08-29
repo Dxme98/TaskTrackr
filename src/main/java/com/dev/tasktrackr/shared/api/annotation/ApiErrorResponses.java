@@ -143,6 +143,49 @@ public final class ApiErrorResponses {
     @Retention(RetentionPolicy.RUNTIME)
     @ApiResponses({
             @ApiResponse(
+                    responseCode = "409",
+                    description = "Conflict - Resource state prevents this operation",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = {
+                                    @ExampleObject(
+                                            name = "InviteAlreadyExists",
+                                            summary = "User already has a pending invite for the project",
+                                            value = """
+                                        {
+                                          "timestamp": "2025-08-23T10:15:30",
+                                          "status": 409,
+                                          "code": "INVITE_ALREADY_EXISTS",
+                                          "message": "User with ID 42 already got an invite for project: 123",
+                                          "path": "/api/v1/projects/123/invites"
+                                        }
+                                        """
+                                    ),
+                                    @ExampleObject(
+                                            name = "UserAlreadyInProject",
+                                            summary = "User is already a project member",
+                                            value = """
+                                        {
+                                          "timestamp": "2025-08-23T10:15:30",
+                                          "status": 409,
+                                          "code": "USER_ALREADY_IN_PROJECT",
+                                          "message": "User with ID 42 is already part of project: 123",
+                                          "path": "/api/v1/projects/123/invites"
+                                        }
+                                        """
+                                    )
+                            }
+                    )
+            )
+    })
+    public @interface Conflict {
+    }
+
+    @Target({ElementType.METHOD, ElementType.TYPE})
+    @Retention(RetentionPolicy.RUNTIME)
+    @ApiResponses({
+            @ApiResponse(
                     responseCode = "500",
                     description = "Internal Server Error - Unexpected error occurred",
                     content = @Content(

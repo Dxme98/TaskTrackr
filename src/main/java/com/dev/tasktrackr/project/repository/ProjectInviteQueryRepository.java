@@ -5,4 +5,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProjectInviteQueryRepository extends ReadOnlyRepository<ProjectInvite, Long> {
+    boolean existsByReceiverIdAndProjectId(String receiverId, long projectId);
 }

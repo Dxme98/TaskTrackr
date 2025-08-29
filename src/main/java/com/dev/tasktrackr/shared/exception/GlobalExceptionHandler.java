@@ -1,5 +1,6 @@
 package com.dev.tasktrackr.shared.exception;
 
+import com.dev.tasktrackr.shared.exception.custom.ConflictException;
 import com.dev.tasktrackr.shared.exception.model.ErrorResponse;
 import com.dev.tasktrackr.shared.exception.custom.ForbiddenException;
 import com.dev.tasktrackr.shared.exception.custom.ResourceNotFoundException;
@@ -116,6 +117,23 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ErrorResponse> handleConflict(
+            ConflictException ex, HttpServletRequest request) {
+
+        log.info("Conflict on:  {}: {}", request.getRequestURI(), ex.getMessage());
+
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.CONFLICT.value(),
+                ex.getErrorCode(),
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
     @ExceptionHandler(AuthenticationException.class)

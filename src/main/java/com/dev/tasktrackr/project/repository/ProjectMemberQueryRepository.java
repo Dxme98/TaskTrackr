@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProjectMemberQueryRepository extends ReadOnlyRepository<ProjectMember, ProjectMemberId> {
+    boolean existsByUserIdAndProjectId(String userId, long projectId);
 }
