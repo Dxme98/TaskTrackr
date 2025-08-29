@@ -26,7 +26,6 @@ import java.util.Set;
 public class UserEntity {
     @Id
     @Column(length = 36)
-    @Getter(AccessLevel.NONE)
     private String id;
     @Column(length = 32, nullable = false, unique = true)
     private String username;
@@ -39,9 +38,4 @@ public class UserEntity {
     private Set<ProjectInvite> receivedInvites = new HashSet<>();
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "sender", cascade = CascadeType.REMOVE)
     private Set<ProjectInvite> sentInvites = new HashSet<>();
-
-
-    public UserId getId() {
-        return new UserId(id);
-    }
 }

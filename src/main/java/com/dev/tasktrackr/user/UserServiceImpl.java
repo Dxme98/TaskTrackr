@@ -7,15 +7,15 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserServiceImpl implements UserService {
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     @Override
-    public UserEntity findUserById(UserId userId) {
-        return userRepository.findById(userId.value()).orElseThrow(
-                () -> new UsernameNotFoundException(userId.value()));
+    public UserEntity findUserById(String userId) {
+        return userRepository.findById(userId).orElseThrow(
+                () -> new UsernameNotFoundException(userId));
     }
 }

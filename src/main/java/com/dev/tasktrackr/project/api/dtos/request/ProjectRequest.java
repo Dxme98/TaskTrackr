@@ -1,5 +1,6 @@
 package com.dev.tasktrackr.project.api.dtos.request;
 
+import com.dev.tasktrackr.project.domain.enums.ProjectType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -23,12 +24,11 @@ public class ProjectRequest {
     private String name;
 
     @Schema(
-            description = "Referenz auf den Projekttyp (1:BASIC, 2:SCRUM)",
-            example = "1",
-            allowableValues = {"1", "2"},
+            description = "Referenz auf den Projekttyp",
+            example = "BASIC",
+            allowableValues = {"BASIC", "SCRUM"},
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     @NotNull(message = "Projekttyp ist erforderlich")
-    @Min(value = 1, message = "Ungültige Projekttyp-ID")
-    private int projectTypeId;
+    private ProjectType projectType;
 }

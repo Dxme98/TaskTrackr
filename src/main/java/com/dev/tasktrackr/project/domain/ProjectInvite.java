@@ -1,6 +1,5 @@
 package com.dev.tasktrackr.project.domain;
 
-import com.dev.tasktrackr.project.ProjectInviteId;
 import com.dev.tasktrackr.project.domain.enums.ProjectInviteStatus;
 import com.dev.tasktrackr.user.UserEntity;
 import jakarta.persistence.*;
@@ -28,7 +27,6 @@ import java.time.Instant;
 public class ProjectInvite {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Getter(AccessLevel.NONE)
     private Long id;
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -51,10 +49,6 @@ public class ProjectInvite {
 
     @Enumerated(EnumType.STRING)
     private ProjectInviteStatus inviteStatus;
-
-    public ProjectInviteId getId() {
-        return new ProjectInviteId(id);
-    }
 
 
     public static ProjectInvite createInvite(UserEntity sender, UserEntity receiver, Project project) {

@@ -33,8 +33,7 @@ public class ProjectInviteResponseDto {
     private String projectName;
 
     @Schema(
-            description = "Status der Einladung. Mögliche Werte: PENDING, ACCEPTED, DECLINED",
-            implementation = InviteStatusResponseDto.class
+            description = "Status der Einladung. Mögliche Werte: PENDING, ACCEPTED, DECLINED"
     )
     private ProjectInviteStatus inviteStatus;
 

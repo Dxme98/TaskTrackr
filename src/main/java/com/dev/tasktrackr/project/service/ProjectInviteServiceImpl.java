@@ -64,7 +64,7 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
             throw new UnauthorizedInviteAttemptException(senderJwtUserId, requestSenderId);
         }
 
-        // Check if einladung bereits existiiert
+        // Check if einladung bereits existiert
         if(projectInviteQueryRepository.existsByReceiverIdAndProjectId(receiverId, projectId)) {
             throw new ProjectInviteAlreadyExistsException(receiverId, projectId);
         }

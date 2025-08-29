@@ -4,7 +4,6 @@ import com.dev.tasktrackr.project.api.dtos.request.ProjectRequest;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectOverviewDto;
 import com.dev.tasktrackr.project.service.ProjectService;
 import com.dev.tasktrackr.shared.api.annotation.ApiErrorResponses;
-import com.dev.tasktrackr.user.UserId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -44,7 +43,7 @@ public class ProjectController {
 
         log.info("Creating project request from user: {}", jwt.getClaimAsString("preferred_username"));
 
-        UserId userId = extractUserId(jwt.getClaim("sub"));
+        String userId = jwt.getClaim("sub");
         ProjectOverviewDto response = projectService.createProject(userId, request);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -55,15 +54,10 @@ public class ProjectController {
     @ApiResponse(responseCode = "200", description = "Projects loaded successfully",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProjectOverviewDto.class))))
     public ResponseEntity<List<ProjectOverviewDto>> findAllProjectsByUserId(@AuthenticationPrincipal Jwt jwt) {
-        UserId userId = extractUserId(jwt.getClaim("sub"));
+        String userId = jwt.getClaim("sub");
 
         List<ProjectOverviewDto> response = projectService.findProjectsByUserId(userId);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
-
-
-    private UserId extractUserId(String userId) {
-        return new UserId(userId);
     }
 }

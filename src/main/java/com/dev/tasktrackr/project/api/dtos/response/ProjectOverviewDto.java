@@ -1,6 +1,6 @@
 package com.dev.tasktrackr.project.api.dtos.response;
 
-import com.dev.tasktrackr.project.api.dtos.ProjectTypeDto;
+import com.dev.tasktrackr.project.domain.enums.ProjectType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,8 +27,7 @@ public class ProjectOverviewDto {
     private Instant createdAt;
 
     @Schema(
-            description = "Informationen zum Projekttyp, BASIC oder SCRUM",
-            implementation = ProjectTypeDto.class
+            description = "Informationen zum Projekttyp, BASIC oder SCRUM"
     )
-    private ProjectTypeDto projectType;
+    private ProjectType projectType;
 }

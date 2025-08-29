@@ -1,7 +1,7 @@
 package com.dev.tasktrackr.project.api.dtos.response;
 
 import com.dev.tasktrackr.project.api.dtos.ProjectMemberDto;
-import com.dev.tasktrackr.project.api.dtos.ProjectTypeDto;
+import com.dev.tasktrackr.project.domain.enums.ProjectType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,7 +20,7 @@ public class ProjectDetailsScrumDto implements ProjectDetailsDto {
     private String name;
 
     @Schema(description = "Projekttyp Informationen")
-    private ProjectTypeDto projectType;
+    private ProjectType projectType;
 
     @Schema(description = "Liste aller Projektmitglieder")
     private List<ProjectMemberDto> projectMembers; // Später Rollen adden

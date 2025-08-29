@@ -1,7 +1,7 @@
 package com.dev.tasktrackr.project.domain;
 
 import com.dev.tasktrackr.project.api.dtos.request.ProjectRequest;
-import com.dev.tasktrackr.project.domain.ids.ProjectId;
+import com.dev.tasktrackr.project.domain.enums.ProjectType;
 import com.dev.tasktrackr.shared.exception.custom.UserNotFoundException;
 import com.dev.tasktrackr.user.UserEntity;
 import jakarta.persistence.*;
@@ -25,7 +25,6 @@ import java.util.Set;
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Getter(AccessLevel.NONE)
     private Long id;
     @Column(nullable = false, length = 255)
     private String name;
@@ -37,18 +36,13 @@ public class Project {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id")
     private UserEntity creator;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_type_id")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type")
     private ProjectType projectType;
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProjectMember> projectMembers = new HashSet<>();
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProjectInvite> projectInvites = new HashSet<>();
-
-
-    public ProjectId getId() {
-        return new ProjectId(id);
-    }
 
     public static Project create(ProjectRequest projectRequest, UserEntity creator, ProjectType projectType) {
         Project project = new Project();

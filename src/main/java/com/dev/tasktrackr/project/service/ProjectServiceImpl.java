@@ -4,15 +4,11 @@ import com.dev.tasktrackr.project.api.dtos.ProjectMapper;
 import com.dev.tasktrackr.project.api.dtos.request.ProjectRequest;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectOverviewDto;
 import com.dev.tasktrackr.project.domain.Project;
-import com.dev.tasktrackr.project.domain.ProjectType;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
-import com.dev.tasktrackr.project.repository.ProjectTypeQueryRepository;
 import com.dev.tasktrackr.shared.exception.custom.ProjectTypeNotFoundException;
 import com.dev.tasktrackr.shared.exception.custom.UserNotFoundException;
 import com.dev.tasktrackr.user.UserEntity;
-import com.dev.tasktrackr.user.UserId;
 import com.dev.tasktrackr.user.UserRepository;
-import com.dev.tasktrackr.user.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,19 +21,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
-    private final ProjectTypeQueryRepository projectTypeQueryRepository;
     private final UserRepository userRepository;
     private final ProjectMapper projectMapper;
 
     @Override
     @Transactional
-    public ProjectOverviewDto createProject(UserId userId, ProjectRequest projectRequest){
-        UserEntity creator = userRepository.findById(userId.value())
-                .orElseThrow(() -> new UserNotFoundException(userId.value()));
+    public ProjectOverviewDto createProject(String userId, ProjectRequest projectRequest){
+        UserEntity creator = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
-        ProjectType projectType = findProjectTypeById(projectRequest.getProjectTypeId());
 
-        Project createdProject = Project.create(projectRequest, creator, projectType);
+        Project createdProject = Project.create(projectRequest, creator, projectRequest.getProjectType());
         Project savedProject = projectRepository.save(createdProject); // save before .addMember for ID
 
         savedProject.addMember(creator);
@@ -49,13 +43,8 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public List<ProjectOverviewDto> findProjectsByUserId(UserId userId) {
-        List<Project> projectsByUserId = projectRepository.findProjectsByUserId(userId.value());
+    public List<ProjectOverviewDto> findProjectsByUserId(String userId) {
+        List<Project> projectsByUserId = projectRepository.findProjectsByUserId(userId);
         return projectsByUserId.stream().map(projectMapper::toOverviewDto).toList();
-    }
-
-    private ProjectType findProjectTypeById(int projectTypeId) {
-        return projectTypeQueryRepository.findById(projectTypeId)
-                .orElseThrow(() -> new ProjectTypeNotFoundException(projectTypeId));
     }
 }
