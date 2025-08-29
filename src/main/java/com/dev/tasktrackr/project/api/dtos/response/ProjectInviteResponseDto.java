@@ -1,5 +1,6 @@
 package com.dev.tasktrackr.project.api.dtos.response;
 
+import com.dev.tasktrackr.project.domain.enums.ProjectInviteStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,7 +36,7 @@ public class ProjectInviteResponseDto {
             description = "Status der Einladung. Mögliche Werte: PENDING, ACCEPTED, DECLINED",
             implementation = InviteStatusResponseDto.class
     )
-    private InviteStatusResponseDto inviteStatusResponseDto;
+    private ProjectInviteStatus inviteStatus;
 
     @Schema(description = "Zeitpunkt der Erstellung", example = "2025-08-28T12:34:56Z")
     private Instant createdAt;

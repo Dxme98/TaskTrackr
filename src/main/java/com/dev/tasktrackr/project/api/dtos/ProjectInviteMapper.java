@@ -14,7 +14,5 @@ public interface ProjectInviteMapper {
     @Mapping(target = "receiverUsername", source = "receiver.username")
     @Mapping(target = "projectId", source = "project.id.value")
     @Mapping(target = "projectName", source = "project.name")
-    @Mapping(target = "inviteStatusResponseDto.id", source = "projectInviteStatus.id")
-    @Mapping(target = "inviteStatusResponseDto.name", source = "projectInviteStatus.name")
     ProjectInviteResponseDto toResponse(ProjectInvite invite);
 }

@@ -5,7 +5,7 @@ import com.dev.tasktrackr.project.api.dtos.request.ProjectInviteRequest;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectInviteResponseDto;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectInvite;
-import com.dev.tasktrackr.project.enums.InviteStatus;
+import com.dev.tasktrackr.project.domain.enums.ProjectInviteStatus;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
 import com.dev.tasktrackr.shared.exception.custom.ProjectNotFoundException;
 import com.dev.tasktrackr.shared.exception.custom.UnauthorizedInviteAttemptException;
@@ -41,7 +41,7 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
     }
 
     @Override
-    public ProjectInviteResponseDto updateProjectInvite(InviteStatus newInviteStatus, String receiverUserId) {
+    public ProjectInviteResponseDto updateProjectInvite(ProjectInviteStatus newProjectInviteStatus, String receiverUserId) {
         return null;
     }
 

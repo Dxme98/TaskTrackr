@@ -1,9 +1,9 @@
-package com.dev.tasktrackr.project.enums;
+package com.dev.tasktrackr.project.domain.enums;
 
 import lombok.Getter;
 
 @Getter
-public enum InviteStatus {
+public enum ProjectInviteStatus {
     PENDING(1, "PENDING"),
     ACCEPTED(2, "ACCEPTED"),
     DECLINED(3, "DECLINED");
@@ -11,7 +11,7 @@ public enum InviteStatus {
     private final int id;
     private final String name;
 
-    InviteStatus(int id, String name) {
+    ProjectInviteStatus(int id, String name) {
         this.id = id;
         this.name = name;
     }

@@ -1,19 +1,16 @@
 package com.dev.tasktrackr.project.domain;
 
 import com.dev.tasktrackr.project.ProjectInviteId;
-import com.dev.tasktrackr.project.api.dtos.request.ProjectInviteRequest;
+import com.dev.tasktrackr.project.domain.enums.ProjectInviteStatus;
 import com.dev.tasktrackr.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(
@@ -52,9 +49,8 @@ public class ProjectInvite {
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "invite_status_id", nullable = false)
-    private ProjectInviteStatus projectInviteStatus;
+    @Enumerated(EnumType.STRING)
+    private ProjectInviteStatus inviteStatus;
 
     public ProjectInviteId getId() {
         return new ProjectInviteId(id);
@@ -66,7 +62,7 @@ public class ProjectInvite {
         projectInvite.receiver = receiver;
         projectInvite.sender = sender;
         projectInvite.project = project;
-        projectInvite.projectInviteStatus = ProjectInviteStatus.createPendingInviteStatus();
+        projectInvite.inviteStatus = ProjectInviteStatus.PENDING;
 
         return projectInvite;
     }
