@@ -24,4 +24,12 @@ public class ProjectInviteStatus {
     public static final String PENDING_NAME = "PENDING";
     public static final String ACCEPTED_NAME = "ACCEPTED";
     public static final String DECLINED_NAME = "DECLINED";
+
+    public static ProjectInviteStatus createPendingInviteStatus() {
+        ProjectInviteStatus inviteStatus = new ProjectInviteStatus();
+        inviteStatus.id = PENDING_ID;
+        inviteStatus.name = PENDING_NAME;
+
+        return inviteStatus;
+    }
 }

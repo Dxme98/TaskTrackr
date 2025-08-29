@@ -2,6 +2,7 @@ package com.dev.tasktrackr.project.domain;
 
 import com.dev.tasktrackr.project.api.dtos.request.ProjectRequest;
 import com.dev.tasktrackr.project.domain.ids.ProjectId;
+import com.dev.tasktrackr.shared.exception.custom.UserNotFoundException;
 import com.dev.tasktrackr.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -60,5 +61,9 @@ public class Project {
 
     public void addMember(UserEntity userEntity) {
         projectMembers.add(ProjectMember.createMember(userEntity, this));
+    }
+
+    public void addInvite(ProjectInvite projectInvite) {
+        projectInvites.add(projectInvite);
     }
 }

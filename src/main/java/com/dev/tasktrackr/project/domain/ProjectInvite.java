@@ -1,6 +1,7 @@
 package com.dev.tasktrackr.project.domain;
 
 import com.dev.tasktrackr.project.ProjectInviteId;
+import com.dev.tasktrackr.project.api.dtos.request.ProjectInviteRequest;
 import com.dev.tasktrackr.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -58,4 +59,16 @@ public class ProjectInvite {
     public ProjectInviteId getId() {
         return new ProjectInviteId(id);
     }
+
+
+    public static ProjectInvite createInvite(UserEntity sender, UserEntity receiver, Project project) {
+        ProjectInvite projectInvite = new ProjectInvite();
+        projectInvite.receiver = receiver;
+        projectInvite.sender = sender;
+        projectInvite.project = project;
+        projectInvite.projectInviteStatus = ProjectInviteStatus.createPendingInviteStatus();
+
+        return projectInvite;
+    }
+
 }

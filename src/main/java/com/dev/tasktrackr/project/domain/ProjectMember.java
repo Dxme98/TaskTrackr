@@ -3,6 +3,7 @@ package com.dev.tasktrackr.project.domain;
 import com.dev.tasktrackr.project.domain.ids.ProjectMemberId;
 import com.dev.tasktrackr.user.UserEntity;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -45,6 +46,7 @@ public class ProjectMember {
         this.project = project;
         this.id = new ProjectMemberId(user.getId(), project.getId());
     }
+
 
     public static ProjectMember createMember(UserEntity user, Project project) {
         return new ProjectMember(user, project);
