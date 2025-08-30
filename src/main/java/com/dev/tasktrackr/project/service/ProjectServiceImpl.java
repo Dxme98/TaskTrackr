@@ -31,11 +31,10 @@ public class ProjectServiceImpl implements ProjectService {
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
 
-        Project createdProject = Project.create(projectRequest, creator, projectRequest.getProjectType());
-        Project savedProject = projectRepository.save(createdProject); // save before .addMember for ID
+        Project createdProject = Project.create(projectRequest, creator);
 
-        savedProject.addMember(creator);
-        projectRepository.save(savedProject);
+        createdProject.addMember(creator);
+        Project savedProject = projectRepository.save(createdProject);
 
         log.info("Project {} created successfully for user: {}", savedProject.getName(), creator.getUsername());
 

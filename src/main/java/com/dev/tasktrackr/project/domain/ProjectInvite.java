@@ -48,6 +48,7 @@ public class ProjectInvite {
     private Project project;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private ProjectInviteStatus inviteStatus;
 
 
@@ -59,6 +60,14 @@ public class ProjectInvite {
         projectInvite.inviteStatus = ProjectInviteStatus.PENDING;
 
         return projectInvite;
+    }
+
+    public void decline() {
+        this.inviteStatus = ProjectInviteStatus.DECLINED;
+    }
+
+    public void accept() {
+        this.inviteStatus = ProjectInviteStatus.ACCEPTED;
     }
 
 }

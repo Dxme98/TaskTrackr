@@ -6,5 +6,6 @@ import com.dev.tasktrackr.project.domain.enums.ProjectInviteStatus;
 
 public interface ProjectInviteService {
     ProjectInviteResponseDto createProjectInvite(ProjectInviteRequest request, String senderUserId);
-    ProjectInviteResponseDto updateProjectInvite(ProjectInviteStatus newProjectInviteStatus, String receiverUserId);
+    ProjectInviteResponseDto acceptProjectInvite(String receiverId, Long inviteId);
+    ProjectInviteResponseDto declineProjectInvite(String receiverId, Long inviteId);
 }

@@ -44,11 +44,11 @@ public class Project {
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProjectInvite> projectInvites = new HashSet<>();
 
-    public static Project create(ProjectRequest projectRequest, UserEntity creator, ProjectType projectType) {
+    public static Project create(ProjectRequest projectRequest, UserEntity creator) {
         Project project = new Project();
         project.name = projectRequest.getName().trim();
         project.creator = creator;
-        project.projectType = projectType;
+        project.projectType = projectRequest.getProjectType();
 
         return project;
     }
@@ -57,7 +57,12 @@ public class Project {
         projectMembers.add(ProjectMember.createMember(userEntity, this));
     }
 
-    public void addInvite(ProjectInvite projectInvite) {
-        projectInvites.add(projectInvite);
+    public ProjectInvite createInvite(UserEntity sender, UserEntity receiver, Project project) {
+        ProjectInvite createdInvite = ProjectInvite.createInvite(sender, receiver, project);
+        projectInvites.add(createdInvite);
+
+        return createdInvite;
     }
+
+
 }
