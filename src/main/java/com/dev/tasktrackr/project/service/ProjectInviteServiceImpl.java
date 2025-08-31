@@ -29,30 +29,23 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
     private final UserRepository userRepository;
     private final ProjectInviteMapper projectInviteMapper;
     private final ProjectInviteQueryRepository projectInviteQueryRepository;
-    private final ProjectMemberQueryRepository projectMemberQueryRepository;
-    private final EntityManager em;
 
 
     @Override
     @Transactional
     public ProjectInviteResponseDto createProjectInvite(ProjectInviteRequest request, String senderId) {
-        validateInviteCreation(request.getProjectId(), request.getReceiverId(), senderId);
+        Project project = projectRepository.findProjectWithInvitesAndMember(request.getProjectId())
+                .orElseThrow(() -> new ProjectNotFoundException(request.getProjectId()));
 
-        Project project = findProjectById(request.getProjectId());
+        validateInviteCreation(project, request.getReceiverId(), senderId);
+
         UserEntity sender =  findUserById(senderId);
         UserEntity receiver = findUserById(request.getReceiverId());
 
-        project.createInvite(sender,  receiver, project);
+        project.createInvite(sender,  receiver);
         Project savedProject = projectRepository.save(project);
 
-
-        // In-Memory Operation - keine extra Query
-        ProjectInvite persistedInvite = savedProject.getProjectInvites().stream()
-                .filter(invite -> invite.getReceiver().getId().equals(receiver.getId()))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Persisted invite not found in aggregate")); // Sollte nie passieren
-
-
+        ProjectInvite persistedInvite = project.findCreatedInvite();
         log.info("Invite to Project {} created successfully for user: {}", savedProject.getName(), receiver.getUsername());
 
        return projectInviteMapper.toResponse(persistedInvite);
@@ -93,41 +86,50 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
         return projectInviteMapper.toResponse(invite);
     }
 
-    private void validateInviteCreation(Long projectId, String receiverId, String senderId) {
-        // Check if einladung bereits existiert
-        if(projectInviteQueryRepository.existsByReceiverIdAndProjectId(receiverId, projectId)) {
-            throw new ProjectInviteAlreadyExistsException(receiverId, projectId);
+    private void validateInviteCreation(Project project, String receiverId, String senderId) {
+        // Check if Einladung bereits existiert
+        boolean inviteExists = project.getProjectInvites().stream()
+                .anyMatch(invite -> invite.getReceiver().getId().equals(receiverId));
+        if (inviteExists) {
+            throw new ProjectInviteAlreadyExistsException(receiverId, project.getId());
         }
 
-        // Check if user is already part of project
-        if(projectMemberQueryRepository.existsByUserIdAndProjectId(receiverId, projectId)) {
-            throw new UserAlreadyPartOfProjectException(receiverId, projectId);
+        // Check if User already part of project
+        boolean receiverIsMember = project.getProjectMembers().stream()
+                .anyMatch(member -> member.getUser().getId().equals(receiverId));
+        if (receiverIsMember) {
+            throw new UserAlreadyPartOfProjectException(receiverId, project.getId());
         }
 
-        // Check if sender  is  part of project
-        if(!projectMemberQueryRepository.existsByUserIdAndProjectId(senderId, projectId)) {
+        // Check if Sender is part of project
+        boolean senderIsMember = project.getProjectMembers().stream()
+                .anyMatch(member -> member.getUser().getId().equals(senderId));
+        if (!senderIsMember) {
             throw new UserNotProjectMemberException(senderId);
         }
     }
 
-    private void validateInviteResponse( String jwtUserId, ProjectInvite invite) {
+    private void validateInviteResponse(String jwtUserId, ProjectInvite invite) {
         String receiverId = invite.getReceiver().getId();
         Long inviteId = invite.getId();
-        Long projectId = invite.getProject().getId();
+        Project project = invite.getProject();
 
-        // receiverId = jwtUserId
-        if(!jwtUserId.equals(receiverId)) {
+        // receiverId muss mit jwtUserId übereinstimmen
+        if (!jwtUserId.equals(receiverId)) {
             throw new UnauthorizedInviteHandleAcception(jwtUserId, receiverId);
         }
 
-        // Check if Status == pending
-        if(invite.getInviteStatus() != ProjectInviteStatus.PENDING) {
+        // Status muss PENDING sein
+        if (invite.getInviteStatus() != ProjectInviteStatus.PENDING) {
             throw new InviteIsNotPendingException(inviteId);
         }
 
-        // Check if user is already part of project
-        if(projectMemberQueryRepository.existsByUserIdAndProjectId(receiverId, projectId)) {
-            throw new UserAlreadyPartOfProjectException(receiverId, projectId);
+        // Prüfen ob User bereits Teil des Projekts ist
+        boolean receiverIsMember = project.getProjectMembers().stream()
+                .anyMatch(member -> member.getUser().getId().equals(receiverId));
+
+        if (receiverIsMember) {
+            throw new UserAlreadyPartOfProjectException(receiverId, project.getId());
         }
     }
 
@@ -141,11 +143,5 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
     UserEntity findUserById(String userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
-    }
-
-
-    Project findProjectById(Long id) {
-        return projectRepository.findById(id)
-                .orElseThrow(() -> new ProjectNotFoundException(id));
     }
  }

@@ -2,7 +2,10 @@ package com.dev.tasktrackr.project.domain;
 
 import com.dev.tasktrackr.project.api.dtos.request.ProjectRequest;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
+import com.dev.tasktrackr.shared.exception.custom.ProjectInviteAlreadyExistsException;
+import com.dev.tasktrackr.shared.exception.custom.UserAlreadyPartOfProjectException;
 import com.dev.tasktrackr.shared.exception.custom.UserNotFoundException;
+import com.dev.tasktrackr.shared.exception.custom.UserNotProjectMemberException;
 import com.dev.tasktrackr.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,7 +15,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -42,7 +47,7 @@ public class Project {
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProjectMember> projectMembers = new HashSet<>();
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ProjectInvite> projectInvites = new HashSet<>();
+    private List<ProjectInvite> projectInvites = new ArrayList<>();
 
     public static Project create(ProjectRequest projectRequest, UserEntity creator) {
         Project project = new Project();
@@ -57,11 +62,18 @@ public class Project {
         projectMembers.add(ProjectMember.createMember(userEntity, this));
     }
 
-    public ProjectInvite createInvite(UserEntity sender, UserEntity receiver, Project project) {
-        ProjectInvite createdInvite = ProjectInvite.createInvite(sender, receiver, project);
+    public ProjectInvite createInvite(UserEntity sender, UserEntity receiver) {
+        ProjectInvite createdInvite = ProjectInvite.createInvite(sender, receiver, this);
         projectInvites.add(createdInvite);
 
         return createdInvite;
+    }
+
+    /**
+     * Methode wird verwendet, um den erstellten Invite aus dem Context zu laden -> keine extra Query!
+     */
+    public ProjectInvite findCreatedInvite() {
+        return this.projectInvites.get(projectInvites.size()-1);
     }
 
 

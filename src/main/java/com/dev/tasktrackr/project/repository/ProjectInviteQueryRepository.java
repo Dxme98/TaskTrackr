@@ -14,7 +14,7 @@ public interface ProjectInviteQueryRepository extends ReadOnlyRepository<Project
 
     ProjectInvite findByProjectIdAndReceiverId(long projectId, String receiverId);
 
-    @EntityGraph(attributePaths = {"receiver", "sender", "project"})
+    @EntityGraph(attributePaths = {"receiver", "sender", "project", "project.projectMembers"})
     @Query("SELECT pm FROM ProjectInvite pm WHERE pm.id = :inviteId")
     Optional<ProjectInvite> findByIdWithRelations(@Param("inviteId") Long inviteId);
 }
