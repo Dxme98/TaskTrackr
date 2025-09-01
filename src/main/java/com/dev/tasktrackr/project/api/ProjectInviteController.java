@@ -1,6 +1,8 @@
 package com.dev.tasktrackr.project.api;
 
 import com.dev.tasktrackr.project.api.dtos.request.ProjectInviteRequest;
+import com.dev.tasktrackr.project.api.dtos.response.PageResponse;
+import com.dev.tasktrackr.project.api.dtos.response.ProjectInvitePageResponse;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectInviteResponseDto;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectOverviewDto;
 import com.dev.tasktrackr.project.service.ProjectInviteService;
@@ -12,6 +14,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -66,5 +71,29 @@ public class ProjectInviteController {
         ProjectInviteResponseDto response = projectInviteService.declineProjectInvite(userId, inviteId);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+
+    @GetMapping
+    @Operation(
+            summary = "Get all pending project invites for the current user",
+            description = "Returns a paginated list of all project invites with status PENDING where the authenticated user is the receiver. " +
+                    "Results are sorted by creation date in descending order (newest first)."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Pending invites loaded successfully",
+            content = @Content(schema = @Schema(implementation = ProjectInvitePageResponse.class))
+    )
+    public ResponseEntity<PageResponse<ProjectInviteResponseDto>> findAllPendingInvitesByUserId(@AuthenticationPrincipal Jwt jwt,
+                                                                                @RequestParam(defaultValue = "0") int page ,
+                                                                                @RequestParam(defaultValue = "5") int size) {
+        log.info("Received request to list all PENDING invites from: : {}", jwt.getClaimAsString("preferred_username"));
+
+        String userId = jwt.getClaim("sub");
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<ProjectInviteResponseDto> response = projectInviteService.findAllPendingInvitesByUserId(userId, pageRequest);
+
+        return ResponseEntity.status(HttpStatus.OK).body(PageResponse.from(response));
     }
 }

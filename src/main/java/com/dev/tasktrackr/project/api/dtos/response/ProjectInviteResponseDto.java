@@ -2,6 +2,7 @@ package com.dev.tasktrackr.project.api.dtos.response;
 
 import com.dev.tasktrackr.project.domain.enums.ProjectInviteStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,6 +11,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Schema(name = "ProjectInviteResponse")
+@AllArgsConstructor
 public class ProjectInviteResponseDto {
     @Schema(description = "ID des Invites")
     private Long id;

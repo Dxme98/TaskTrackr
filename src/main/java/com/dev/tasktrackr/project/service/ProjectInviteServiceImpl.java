@@ -17,6 +17,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -59,8 +61,9 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
         validateInviteResponse(receiverId, invite);
 
         invite.accept();
-        Project project = invite.getProject(); // already in context
-        UserEntity receiver =  invite.getReceiver(); // already in context
+
+        Project project = invite.getProject();
+        UserEntity receiver =  invite.getReceiver();
 
         project.addMember(receiver);
         Project savedProject = projectRepository.save(project);
@@ -84,6 +87,12 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
         log.info("Invite to Project {} declined successfully for user: {}", savedProject.getName(), invite.getReceiver().getUsername());
 
         return projectInviteMapper.toResponse(invite);
+    }
+
+    @Override
+    public Page<ProjectInviteResponseDto> findAllPendingInvitesByUserId(String userId, PageRequest pageRequest) {
+        return projectInviteQueryRepository
+                .findProjectInvitesByReceiverIdAndInviteStatus(userId, ProjectInviteStatus.PENDING, pageRequest);
     }
 
     private void validateInviteCreation(Project project, String receiverId, String senderId) {

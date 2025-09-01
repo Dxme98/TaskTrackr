@@ -12,6 +12,8 @@ import com.dev.tasktrackr.user.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,8 +44,8 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public List<ProjectOverviewDto> findProjectsByUserId(String userId) {
-        List<Project> projectsByUserId = projectRepository.findProjectsByUserId(userId);
-        return projectsByUserId.stream().map(projectMapper::toOverviewDto).toList();
+    public Page<ProjectOverviewDto> findProjectsByUserId(String userId, PageRequest pageRequest) {
+        Page<Project> projectsByUserId = projectRepository.findProjectsByUserId(userId, pageRequest);
+        return projectsByUserId.map(projectMapper::toOverviewDto);
     }
 }

@@ -1,6 +1,8 @@
 package com.dev.tasktrackr.project.repository;
 
 import com.dev.tasktrackr.project.domain.Project;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,7 +16,7 @@ import java.util.Optional;
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
     @Query("SELECT DISTINCT p FROM Project p, ProjectMember pm  WHERE p.id = pm.project.id AND pm.user.id = :userId")
-    List<Project> findProjectsByUserId(@Param("userId")String userId);
+    Page<Project> findProjectsByUserId(@Param("userId")String userId, Pageable pageable);
 
 
     @EntityGraph(attributePaths = {"projectMembers", "projectInvites"})

@@ -1,7 +1,9 @@
 package com.dev.tasktrackr.project.api;
 
 import com.dev.tasktrackr.project.api.dtos.request.ProjectRequest;
+import com.dev.tasktrackr.project.api.dtos.response.PageResponse;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectOverviewDto;
+import com.dev.tasktrackr.project.api.dtos.response.ProjectPageResponse;
 import com.dev.tasktrackr.project.service.ProjectService;
 import com.dev.tasktrackr.shared.api.annotation.ApiErrorResponses;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,6 +14,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -50,14 +54,17 @@ public class ProjectController {
     }
 
     @GetMapping
-    @Operation(summary = "Get all projects where user is part of", description = "Returns a list of every project where User is part of")
+    @Operation(summary = "Get all projects where user is part of", description = "Returns a paginated list of projects where the user is part of")
     @ApiResponse(responseCode = "200", description = "Projects loaded successfully",
-            content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProjectOverviewDto.class))))
-    public ResponseEntity<List<ProjectOverviewDto>> findAllProjectsByUserId(@AuthenticationPrincipal Jwt jwt) {
+            content = @Content(schema = @Schema(implementation = ProjectPageResponse.class)))
+    public ResponseEntity<PageResponse<ProjectOverviewDto>> findAllProjectsByUserId(@AuthenticationPrincipal Jwt jwt,
+                                                                            @RequestParam(defaultValue = "0") int page,
+                                                                            @RequestParam(defaultValue = "20") int size) {
         String userId = jwt.getClaim("sub");
+        PageRequest pr = PageRequest.of(page, size);
 
-        List<ProjectOverviewDto> response = projectService.findProjectsByUserId(userId);
+        Page<ProjectOverviewDto> response = projectService.findProjectsByUserId(userId, pr);
 
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(PageResponse.from(response));
     }
 }
