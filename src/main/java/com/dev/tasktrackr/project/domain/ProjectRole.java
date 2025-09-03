@@ -17,18 +17,24 @@ public class ProjectRole {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     @Column(nullable = false, length = 36)
     private String name;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
+
+    // Enum direkt in der Join-Tabelle speichern
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
             name = "role_permissions",
             joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name = "permission_id")
+            foreignKey = @ForeignKey(name = "fk_role_permissions_role")
     )
-    private List<Permission> permissions = new ArrayList<>();
+    @Column(name = "permission_name", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Set<PermissionName> permissions = new HashSet<>();
 
     private ProjectRole(Project project, String name) {
         this.project = project;
@@ -38,45 +44,58 @@ public class ProjectRole {
     public static ProjectRole createOwnerRole(Project project, ProjectType type) {
         ProjectRole role = new ProjectRole(project, "OWNER");
 
-        List<Permission> allPermissions = initializeAllPermissions();
-
         if (type == ProjectType.BASIC) {
-            List<Permission> ownerPermissions = allPermissions.stream()
-                    .filter(p -> p.getType().equals("BASIC") || p.getType().equals("COMMON"))
-                    .toList();
-            role.permissions.addAll(ownerPermissions);
+            // BASIC und COMMON Permissions hinzufügen
+            role.permissions.addAll(getBasicPermissions());
+            role.permissions.addAll(getCommonPermissions());
         }
 
-        if(type == ProjectType.SCRUM) {}
-        // SCRUM FEHLT
+        if (type == ProjectType.SCRUM) {
+            // BASIC, COMMON und SCRUM Permissions hinzufügen
+            role.permissions.addAll(getBasicPermissions());
+            role.permissions.addAll(getCommonPermissions());
+            role.permissions.addAll(getScrumPermissions());
+        }
 
         return role;
     }
 
     public static ProjectRole createDefaultRole(Project project) {
-        return new ProjectRole(project, "DEFAULT");
+        ProjectRole role = new ProjectRole(project, "DEFAULT");
+        return role;
     }
 
     public boolean hasPermission(PermissionName permission) {
-        return permissions.stream()
-                .anyMatch(p -> p.getName() == permission);
+        return permissions.contains(permission);
     }
 
-    public static List<Permission> initializeAllPermissions() {
-        return Arrays.stream(PermissionName.values())
-                .map(name -> {
-                    Permission p = new Permission();
-                    p.setName(name);   // dein Enum PermissionName
-                    p.setType(extractType(name)); // BASIC, COMMON, SCRUM
-                    return p;
-                })
-                .toList();
+    // Helper Methods für Permission-Gruppen
+    private static Set<PermissionName> getBasicPermissions() {
+        return EnumSet.of(
+                PermissionName.BASIC_CREATE_TASK,
+                PermissionName.BASIC_DELETE_TASK,
+                PermissionName.BASIC_EDIT_INFORMATION
+        );
     }
 
-    private static String extractType(PermissionName name) {
-        if (name.name().startsWith("BASIC")) return "BASIC";
-        if (name.name().startsWith("COMMON")) return "COMMON";
-        if (name.name().startsWith("SCRUM")) return "SCRUM";
-        throw new IllegalArgumentException("Unbekannter PermissionName: " + name);
+    private static Set<PermissionName> getCommonPermissions() {
+        return EnumSet.of(
+                PermissionName.COMMON_INVITE_USER,
+                PermissionName.COMMON_REMOVE_USER,
+                PermissionName.COMMON_MANAGE_ROLES
+        );
+    }
+
+    private static Set<PermissionName> getScrumPermissions() {
+        // TODO
+        /**
+        return EnumSet.of(
+                PermissionName.SCRUM_SPRINT_CREATE,
+                PermissionName.SCRUM_SPRINT_EDIT,
+                PermissionName.SCRUM_BACKLOG_MANAGE
+        );
+         */
+
+        return null;
     }
 }

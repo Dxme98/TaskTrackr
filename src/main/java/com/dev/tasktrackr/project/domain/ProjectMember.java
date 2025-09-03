@@ -42,7 +42,7 @@ public class ProjectMember {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    @JoinColumn(nullable = false)
+    @JoinColumn(name = "role_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private ProjectRole projectRole;
 

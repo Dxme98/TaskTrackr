@@ -35,7 +35,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         Project createdProject = Project.create(projectRequest, creator);
 
-        createdProject.addMember(creator);
+       // createdProject.addMember(creator);
         Project savedProject = projectRepository.save(createdProject);
 
         log.info("Project {} created successfully for user: {}", savedProject.getName(), creator.getUsername());

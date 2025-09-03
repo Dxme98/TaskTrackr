@@ -75,7 +75,7 @@ public class Project {
         projectMembers.add(createdMember);
     }
 
-    public void addMemberWithRole(UserEntity userEntity, ProjectRole role) {
+    private void addMemberWithRole(UserEntity userEntity, ProjectRole role) {
         ProjectMember createdMember = ProjectMember.createMember(userEntity, this, role);
         projectMembers.add(createdMember);
     }
