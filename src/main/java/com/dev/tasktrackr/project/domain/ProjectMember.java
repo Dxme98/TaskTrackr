@@ -1,5 +1,6 @@
 package com.dev.tasktrackr.project.domain;
 
+import com.dev.tasktrackr.project.domain.enums.PermissionName;
 import com.dev.tasktrackr.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -8,6 +9,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
+import java.util.Objects;
 
 @Entity
 @Table(
@@ -40,16 +42,32 @@ public class ProjectMember {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
+    @JoinColumn(nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    private ProjectRole projectRole;
+
 
     // Intuitiver Konstruktor
-    public ProjectMember(UserEntity user, Project project) {
+    public ProjectMember(UserEntity user, Project project, ProjectRole projectRole) {
         this.user = user;
         this.project = project;
+        this.projectRole = Objects.requireNonNull(projectRole, "Rolle ist erforderlich");
     }
 
 
-    public static ProjectMember createMember(UserEntity user, Project project) {
-        return new ProjectMember(user, project);
+    public static ProjectMember createMember(UserEntity user, Project project, ProjectRole projectRole) {
+        return new ProjectMember(user, project, projectRole);
+    }
+
+    public boolean hasPermission(PermissionName permission) {
+        return projectRole != null &&  projectRole.hasPermission(permission);
+    }
+
+    public void assignRole(ProjectRole newRole) {
+        if (!newRole.getProject().equals(this.project)) {
+            throw new IllegalArgumentException("Rolle gehört nicht zu diesem Projekt");
+        }
+        this.projectRole = newRole;
     }
 
 
