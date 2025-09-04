@@ -62,14 +62,6 @@ public class Project {
         return project;
     }
 
-    public void initBaseRoles(ProjectType projectType) {
-        ProjectRole owner = ProjectRole.createOwnerRole(this, projectType);
-        ProjectRole def = ProjectRole.createDefaultRole(this);
-
-        this.projectRoles.add(owner);
-        this.projectRoles.add(def);
-    }
-
     public void addMember(UserEntity userEntity) {
         ProjectMember createdMember = ProjectMember.createMember(userEntity, this, getDefaultRole());
         projectMembers.add(createdMember);
@@ -81,6 +73,7 @@ public class Project {
     }
 
     public void createInvite(UserEntity sender, UserEntity receiver) {
+        validateInviteCreation(receiver.getId(), sender.getId());
         ProjectInvite createdInvite = ProjectInvite.createInvite(sender, receiver, this);
         projectInvites.add(createdInvite);
     }
@@ -88,6 +81,15 @@ public class Project {
 
     public ProjectInvite findCreatedInvite() {
         return this.projectInvites.get(projectInvites.size()-1);
+    }
+
+
+    public void initBaseRoles(ProjectType projectType) {
+        ProjectRole owner = ProjectRole.createOwnerRole(this, projectType);
+        ProjectRole def = ProjectRole.createDefaultRole(this);
+
+        this.projectRoles.add(owner);
+        this.projectRoles.add(def);
     }
 
     public ProjectRole getOwnerRole() {
@@ -102,6 +104,29 @@ public class Project {
                 .filter(r -> r.getName().equalsIgnoreCase("DEFAULT"))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Default role not initialized"));
+    }
+
+    /**
+     * VALIDATION
+     */
+    public void validateInviteCreation(String receiverId, String senderId) {
+        // Prüfen ob Einladung bereits existiert
+        boolean inviteExists = this.projectInvites.stream()
+                .anyMatch(invite -> invite.getReceiver().getId().equals(receiverId));
+        if (inviteExists) throw new ProjectInviteAlreadyExistsException(receiverId, this.id);
+
+
+        // Prüfen ob User bereits Teil des Projekts ist
+        boolean receiverIsMember = this.projectMembers.stream()
+                .anyMatch(member -> member.getUser().getId().equals(receiverId));
+        if (receiverIsMember) throw new UserAlreadyPartOfProjectException(receiverId, this.id);
+
+
+        // Prüfen ob Sender Mitglied des Projekts ist
+        boolean senderIsMember = this.projectMembers.stream()
+                .anyMatch(member -> member.getUser().getId().equals(senderId));
+        if (!senderIsMember) throw new UserNotProjectMemberException(senderId);
+
     }
 
 

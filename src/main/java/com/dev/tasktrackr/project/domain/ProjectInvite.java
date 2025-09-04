@@ -1,6 +1,9 @@
 package com.dev.tasktrackr.project.domain;
 
 import com.dev.tasktrackr.project.domain.enums.ProjectInviteStatus;
+import com.dev.tasktrackr.shared.exception.custom.InviteIsNotPendingException;
+import com.dev.tasktrackr.shared.exception.custom.UnauthorizedInviteHandleAcception;
+import com.dev.tasktrackr.shared.exception.custom.UserAlreadyPartOfProjectException;
 import com.dev.tasktrackr.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -62,12 +65,34 @@ public class ProjectInvite {
         return projectInvite;
     }
 
-    public void decline() {
+    public void decline(String jwtUserId) {
+        validateResponse(jwtUserId);
         this.inviteStatus = ProjectInviteStatus.DECLINED;
     }
 
-    public void accept() {
+    public void accept(String jwtUserId) {
+        validateResponse(jwtUserId);
         this.inviteStatus = ProjectInviteStatus.ACCEPTED;
+    }
+
+
+    /**
+     * VALIDATION
+     */
+    public void validateResponse(String jwtUserId) {
+        String receiverId = this.receiver.getId();
+
+        // Prüfen ob jwtUserId = Empfänger
+        if (!jwtUserId.equals(receiverId)) throw new UnauthorizedInviteHandleAcception(jwtUserId, receiverId);
+
+        // Prüfen ob Status noch PENDING ist
+        if (this.inviteStatus != ProjectInviteStatus.PENDING) throw new InviteIsNotPendingException(this.id);
+
+        // Prüfen ob Empfänger nicht schon Mitglied des Projekts ist
+        boolean receiverIsMember = this.project.getProjectMembers().stream()
+                .anyMatch(member -> member.getUser().getId().equals(receiverId));
+        if (receiverIsMember) throw new UserAlreadyPartOfProjectException(receiverId, this.project.getId());
+
     }
 
 }

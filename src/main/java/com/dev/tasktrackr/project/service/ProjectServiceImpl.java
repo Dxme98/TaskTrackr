@@ -32,10 +32,7 @@ public class ProjectServiceImpl implements ProjectService {
         UserEntity creator = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
-
-        Project createdProject = Project.create(projectRequest, creator);
-
-       // createdProject.addMember(creator);
+        Project createdProject = (Project.create(projectRequest, creator));
         Project savedProject = projectRepository.save(createdProject);
 
         log.info("Project {} created successfully for user: {}", savedProject.getName(), creator.getUsername());

@@ -39,8 +39,6 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
         Project project = projectRepository.findProjectWithInvitesAndMember(request.getProjectId())
                 .orElseThrow(() -> new ProjectNotFoundException(request.getProjectId()));
 
-        validateInviteCreation(project, request.getReceiverId(), senderId);
-
         UserEntity sender =  findUserById(senderId);
         UserEntity receiver = findUserById(request.getReceiverId());
 
@@ -57,10 +55,9 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
     @Override
     @Transactional
     public ProjectInviteResponseDto acceptProjectInvite(String receiverId, Long inviteId) {
-        ProjectInvite invite = findProjectInviteWithRelations(inviteId); // throws if not found
-        validateInviteResponse(receiverId, invite);
+        ProjectInvite invite = findProjectInviteWithRelations(inviteId);
 
-        invite.accept();
+        invite.accept(receiverId);
 
         Project project = invite.getProject();
         UserEntity receiver =  invite.getReceiver();
@@ -77,9 +74,8 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
     @Transactional
     public ProjectInviteResponseDto declineProjectInvite(String receiverId, Long inviteId) {
         ProjectInvite invite = findProjectInviteWithRelations(inviteId);
-        validateInviteResponse(receiverId, invite);
 
-        invite.decline();
+        invite.decline(receiverId);
 
         Project project = invite.getProject(); // already in context
         Project savedProject = projectRepository.save(project);
@@ -93,53 +89,6 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
     public Page<ProjectInviteResponseDto> findAllPendingInvitesByUserId(String userId, PageRequest pageRequest) {
         return projectInviteQueryRepository
                 .findProjectInvitesByReceiverIdAndInviteStatus(userId, ProjectInviteStatus.PENDING, pageRequest);
-    }
-
-    private void validateInviteCreation(Project project, String receiverId, String senderId) {
-        // Check if Einladung bereits existiert
-        boolean inviteExists = project.getProjectInvites().stream()
-                .anyMatch(invite -> invite.getReceiver().getId().equals(receiverId));
-        if (inviteExists) {
-            throw new ProjectInviteAlreadyExistsException(receiverId, project.getId());
-        }
-
-        // Check if User already part of project
-        boolean receiverIsMember = project.getProjectMembers().stream()
-                .anyMatch(member -> member.getUser().getId().equals(receiverId));
-        if (receiverIsMember) {
-            throw new UserAlreadyPartOfProjectException(receiverId, project.getId());
-        }
-
-        // Check if Sender is part of project
-        boolean senderIsMember = project.getProjectMembers().stream()
-                .anyMatch(member -> member.getUser().getId().equals(senderId));
-        if (!senderIsMember) {
-            throw new UserNotProjectMemberException(senderId);
-        }
-    }
-
-    private void validateInviteResponse(String jwtUserId, ProjectInvite invite) {
-        String receiverId = invite.getReceiver().getId();
-        Long inviteId = invite.getId();
-        Project project = invite.getProject();
-
-        // receiverId muss mit jwtUserId übereinstimmen
-        if (!jwtUserId.equals(receiverId)) {
-            throw new UnauthorizedInviteHandleAcception(jwtUserId, receiverId);
-        }
-
-        // Status muss PENDING sein
-        if (invite.getInviteStatus() != ProjectInviteStatus.PENDING) {
-            throw new InviteIsNotPendingException(inviteId);
-        }
-
-        // Prüfen ob User bereits Teil des Projekts ist
-        boolean receiverIsMember = project.getProjectMembers().stream()
-                .anyMatch(member -> member.getUser().getId().equals(receiverId));
-
-        if (receiverIsMember) {
-            throw new UserAlreadyPartOfProjectException(receiverId, project.getId());
-        }
     }
 
 

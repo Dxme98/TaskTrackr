@@ -51,7 +51,7 @@ public class ProjectMember {
     public ProjectMember(UserEntity user, Project project, ProjectRole projectRole) {
         this.user = user;
         this.project = project;
-        this.projectRole = Objects.requireNonNull(projectRole, "Rolle ist erforderlich");
+        this.projectRole = projectRole;
     }
 
 

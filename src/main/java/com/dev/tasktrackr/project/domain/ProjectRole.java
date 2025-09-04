@@ -29,8 +29,7 @@ public class ProjectRole {
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
             name = "role_permissions",
-            joinColumns = @JoinColumn(name = "role_id"),
-            foreignKey = @ForeignKey(name = "fk_role_permissions_role")
+            joinColumns = @JoinColumn(name = "role_id")
     )
     @Column(name = "permission_name", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -52,7 +51,6 @@ public class ProjectRole {
 
         if (type == ProjectType.SCRUM) {
             // BASIC, COMMON und SCRUM Permissions hinzufügen
-            role.permissions.addAll(getBasicPermissions());
             role.permissions.addAll(getCommonPermissions());
             role.permissions.addAll(getScrumPermissions());
         }
@@ -88,13 +86,6 @@ public class ProjectRole {
 
     private static Set<PermissionName> getScrumPermissions() {
         // TODO
-        /**
-        return EnumSet.of(
-                PermissionName.SCRUM_SPRINT_CREATE,
-                PermissionName.SCRUM_SPRINT_EDIT,
-                PermissionName.SCRUM_BACKLOG_MANAGE
-        );
-         */
 
         return null;
     }
