@@ -83,6 +83,11 @@ public class ProjectRole {
         return permissions.contains(permission);
     }
 
+    public ProjectRole renameRole(String newName) {
+        this.name = newName;
+        return this;
+    }
+
     // Helper Methods für Permission-Gruppen
     private static Set<PermissionName> getBasicPermissions() {
         return EnumSet.of(

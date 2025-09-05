@@ -113,6 +113,14 @@ public class Project {
         return member;
     }
 
+    public ProjectRole renameRole(int roleId, String newName) {
+        ProjectRole role = this.projectRoles.stream()
+                .filter(r -> r.getId() == roleId)
+                .findFirst().orElseThrow(() -> new RoleNotFoundException(roleId));
+
+        return role.renameRole(name);
+    }
+
     public void initBaseRoles(ProjectType projectType) {
         ProjectRole owner = ProjectRole.createOwnerRole(this, projectType);
         ProjectRole def = ProjectRole.createBaseRole(this);
