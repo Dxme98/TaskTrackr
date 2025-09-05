@@ -3,6 +3,7 @@ package com.dev.tasktrackr.project.domain;
 import com.dev.tasktrackr.project.api.dtos.request.ProjectRequest;
 import com.dev.tasktrackr.project.domain.enums.PermissionName;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
+import com.dev.tasktrackr.project.domain.enums.RoleType;
 import com.dev.tasktrackr.shared.exception.custom.*;
 import com.dev.tasktrackr.user.UserEntity;
 import jakarta.persistence.*;
@@ -12,7 +13,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -110,7 +110,7 @@ public class Project {
 
     public void initBaseRoles(ProjectType projectType) {
         ProjectRole owner = ProjectRole.createOwnerRole(this, projectType);
-        ProjectRole def = ProjectRole.createDefaultRole(this);
+        ProjectRole def = ProjectRole.createBaseRole(this);
 
         this.projectRoles.add(owner);
         this.projectRoles.add(def);
@@ -170,9 +170,10 @@ public class Project {
                 .findFirst()
                 .orElseThrow(() -> new RoleNotFoundException(roleId));
 
-        // Default oder Owner dürfen nie gelöscht werden
-        if (role.getName().equalsIgnoreCase("DEFAULT") || role.getName().equalsIgnoreCase("OWNER")) {
-            throw new InvalidRoleDeletion("Base Roles: 'DEFAULT' and 'OWNER' can not be deleted");
+        // Base oder Owner dürfen nie gelöscht werden
+        if (role.getRoleType() == RoleType.OWNER || role.getRoleType() == RoleType.BASE) {
+            throw new InvalidRoleDeletion(
+                    "Base Roles: 'OWNER' and 'BASE' can not be deleted");
         }
 
         // Prüfen ob User diese Rolle noch nutzen
@@ -180,7 +181,8 @@ public class Project {
                 .anyMatch(member -> member.getProjectRole().getId() == roleId);
 
         if (usersWithRoleExists) {
-            throw new InvalidRoleDeletion("Remove Role from Projectmember before deleting the Role");
+            throw new InvalidRoleDeletion(
+                    "Remove Role from ProjectMember before deleting the Role");
         }
     }
 
@@ -202,26 +204,27 @@ public class Project {
 
         ProjectRole currentRole = targetMember.getProjectRole();
 
-        // 🚨 Schutz: letzter Owner darf nicht degradiert werden
-        if (currentRole.getName().equalsIgnoreCase("OWNER")
-                && !newRole.getName().equalsIgnoreCase("OWNER")) {
+        // Schutz: letzter Owner darf nicht degradiert werden
+        if (currentRole.getRoleType() == RoleType.OWNER
+                && newRole.getRoleType() != RoleType.OWNER) {
 
             long ownerCount = this.projectMembers.stream()
-                    .filter(m -> m.getProjectRole().getName().equalsIgnoreCase("OWNER"))
+                    .filter(m -> m.getProjectRole().getRoleType() == RoleType.OWNER)
                     .count();
 
             if (ownerCount <= 1) {
-                throw new InvalidRoleAssignmentException("At least one OWNER must exist in project");
+                throw new InvalidRoleAssignmentException(
+                        "At least one OWNER must exist in project");
             }
         }
 
         // Schutz: niemand darf sich selbst Owner geben
-        if (newRole.getName().equalsIgnoreCase("OWNER")
+        if (newRole.getRoleType() == RoleType.OWNER
                 && targetMember.getUser().getId().equals(actingUserId)
-                && !actingUser.getProjectRole().getName().equalsIgnoreCase("OWNER")) {
-            throw new InvalidRoleAssignmentException("You cannot assign yourself to OWNER role");
+                && actingUser.getProjectRole().getRoleType() != RoleType.OWNER) {
+            throw new InvalidRoleAssignmentException(
+                    "You cannot assign yourself to OWNER role");
         }
-
 
     }
 

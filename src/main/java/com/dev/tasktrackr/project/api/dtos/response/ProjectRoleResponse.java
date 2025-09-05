@@ -1,6 +1,7 @@
 package com.dev.tasktrackr.project.api.dtos.response;
 
 import com.dev.tasktrackr.project.domain.enums.PermissionName;
+import com.dev.tasktrackr.project.domain.enums.RoleType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,4 +14,5 @@ public class ProjectRoleResponse {
     private String name;
     private Long projectId;
     Set<PermissionName> permissions;
+    private RoleType roleType;
 }

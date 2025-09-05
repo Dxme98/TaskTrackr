@@ -2,6 +2,7 @@ package com.dev.tasktrackr.project.domain;
 
 import com.dev.tasktrackr.project.domain.enums.PermissionName;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
+import com.dev.tasktrackr.project.domain.enums.RoleType;
 import com.dev.tasktrackr.shared.exception.custom.InvalidRoleAssignmentException;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -36,22 +37,27 @@ public class ProjectRole {
     @Enumerated(EnumType.STRING)
     private Set<PermissionName> permissions = new HashSet<>();
 
-    private ProjectRole(Project project, String name) {
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role_type", nullable = false)
+    private RoleType roleType;
+
+    private ProjectRole(Project project, String name, RoleType roleType) {
         this.project = project;
         this.name = name;
+        this.roleType = roleType;
     }
 
     public static ProjectRole createCustomRole(Project project, String name, Set<PermissionName> permissions) {
         validatePermissionsForProjectType(project.getProjectType(), permissions);
 
-        ProjectRole role = new ProjectRole(project, name);
+        ProjectRole role = new ProjectRole(project, name, RoleType.CUSTOM);
         role.permissions = permissions;
 
         return role;
     }
 
     public static ProjectRole createOwnerRole(Project project, ProjectType type) {
-        ProjectRole role = new ProjectRole(project, "OWNER");
+        ProjectRole role = new ProjectRole(project, "OWNER", RoleType.OWNER);
 
         if (type == ProjectType.BASIC) {
             // BASIC und COMMON Permissions hinzufügen
@@ -68,8 +74,8 @@ public class ProjectRole {
         return role;
     }
 
-    public static ProjectRole createDefaultRole(Project project) {
-        ProjectRole role = new ProjectRole(project, "DEFAULT");
+    public static ProjectRole createBaseRole(Project project) {
+        ProjectRole role = new ProjectRole(project, "BASE", RoleType.BASE);
         return role;
     }
 
