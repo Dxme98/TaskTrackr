@@ -12,4 +12,8 @@ public class InvalidRoleAssignmentException extends AppException{
                 ErrorCode.INVALID_ROLE_ASSIGNMENT,
                 HttpStatus.BAD_REQUEST);
     }
+
+    public InvalidRoleAssignmentException(String message) {
+        super(message, ErrorCode.INVALID_ROLE_ASSIGNMENT, HttpStatus.BAD_REQUEST);
+    }
 }

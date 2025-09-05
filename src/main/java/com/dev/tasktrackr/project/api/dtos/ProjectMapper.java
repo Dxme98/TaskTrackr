@@ -19,10 +19,4 @@ public interface ProjectMapper {
     ProjectOverviewDto toOverviewDto(Project project);
     ProjectDetailsBasicDto toBasicDetailsDto(Project project);
     ProjectDetailsScrumDto toScrumDetailsDto(Project project);
-
-
-    UserDto toUserDto(UserEntity userEntity);
-
-    @Mapping(target = "user", source = "user")
-    ProjectMemberDto toProjectMemberDto(ProjectMember projectMember);
 }

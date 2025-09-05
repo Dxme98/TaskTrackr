@@ -45,8 +45,10 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
         project.createInvite(sender,  receiver);
         Project savedProject = projectRepository.save(project);
 
-        ProjectInvite persistedInvite = project.findCreatedInvite();
+
         log.info("Invite to Project {} created successfully for user: {}", savedProject.getName(), receiver.getUsername());
+
+        ProjectInvite persistedInvite = savedProject.getProjectInvites().get(savedProject.getProjectInvites().size()-1);
 
        return projectInviteMapper.toResponse(persistedInvite);
     }

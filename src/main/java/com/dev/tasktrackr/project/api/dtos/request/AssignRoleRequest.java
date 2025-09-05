@@ -24,5 +24,5 @@ public class AssignRoleRequest {
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     @NotNull(message = "Rollen-ID ist erforderlich")
-    private Long roleId;
+    private int roleId;
 }

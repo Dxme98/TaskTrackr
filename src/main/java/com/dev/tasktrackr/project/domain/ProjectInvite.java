@@ -13,6 +13,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
+import java.util.Objects;
 
 @Entity
 @Table(
@@ -94,5 +95,4 @@ public class ProjectInvite {
         if (receiverIsMember) throw new UserAlreadyPartOfProjectException(receiverId, this.project.getId());
 
     }
-
 }

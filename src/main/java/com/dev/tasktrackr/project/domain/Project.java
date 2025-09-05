@@ -82,12 +82,30 @@ public class Project {
         projectRoles.add(role);
     }
 
-
-    public ProjectInvite findCreatedInvite() {
-        return this.projectInvites.get(projectInvites.size()-1);
+    public void deleteRole(int roleId) {
+        validateRoleDeletion(roleId);
+        this.projectRoles.removeIf(role -> role.getId() == roleId);
     }
 
-    public ProjectRole findCreatedRole() { return this.projectRoles.get(projectRoles.size()-1); }
+    public ProjectMember assignRole(int roleId, Long projectMemberId) {
+        validateRoleAssignment(projectMemberId);
+
+        ProjectRole role = this.projectRoles.stream()
+                .filter(r -> r.getId() == roleId).findFirst()
+                .orElseThrow(() -> new RoleNotFoundException(roleId));
+
+        ProjectMember member = this.projectMembers.stream()
+                .filter(m -> m.getId() == projectMemberId).findFirst()
+                .orElseThrow(() -> new ProjectMemberNotFoundException(projectMemberId));
+
+        member.assignRole(role);
+
+        return member;
+    }
+
+
+
+
 
 
     public void initBaseRoles(ProjectType projectType) {
@@ -111,6 +129,10 @@ public class Project {
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Default role not initialized"));
     }
+
+
+
+
 
     /**
      * VALIDATION
@@ -140,6 +162,47 @@ public class Project {
                 .anyMatch(r -> r.getName().equalsIgnoreCase(roleName));
 
         if(nameExists) throw new RoleNameAlreadyExistsException(roleName);
+    }
+
+    public void validateRoleDeletion(int roleId) {
+        ProjectRole role = this.projectRoles.stream()
+                .filter(r -> r.getId() == roleId)
+                .findFirst()
+                .orElseThrow(() -> new RoleNotFoundException(roleId));
+
+        // Default oder Owner dürfen nie gelöscht werden
+        if (role.getName().equalsIgnoreCase("DEFAULT") || role.getName().equalsIgnoreCase("OWNER")) {
+            throw new InvalidRoleDeletion("Base Roles: 'DEFAULT' and 'OWNER' can not be deleted");
+        }
+
+        // Prüfen ob User diese Rolle noch nutzen
+        boolean usersWithRoleExists = this.projectMembers.stream()
+                .anyMatch(member -> member.getProjectRole().getId() == roleId);
+
+        if (usersWithRoleExists) {
+            throw new InvalidRoleDeletion("Remove Role from Projectmember before deleting the Role");
+        }
+    }
+
+    public void validateRoleAssignment(Long projectMemberId) {
+        ProjectMember member = this.projectMembers.stream()
+                .filter(m -> m.getId().equals(projectMemberId))
+                .findFirst()
+                .orElseThrow(() -> new ProjectMemberNotFoundException(projectMemberId));
+
+        ProjectRole currentRole = member.getProjectRole();
+
+        // Schutz: letzter Owner darf nicht degradiert werden
+        if (currentRole.getName().equalsIgnoreCase("OWNER")) {
+
+            long ownerCount = this.projectMembers.stream()
+                    .filter(m -> m.getProjectRole().getName().equalsIgnoreCase("OWNER"))
+                    .count();
+
+            if (ownerCount <= 1) {
+                throw new InvalidRoleAssignmentException("At least one OWNER must exist in project");
+            }
+        }
     }
 
 
