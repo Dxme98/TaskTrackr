@@ -87,8 +87,8 @@ public class Project {
         this.projectRoles.removeIf(role -> role.getId() == roleId);
     }
 
-    public ProjectMember assignRole(int roleId, Long projectMemberId) {
-        validateRoleAssignment(projectMemberId);
+    public ProjectMember assignRole(int roleId, Long projectMemberId, String actingUserId) {
+        validateRoleAssignment(roleId, projectMemberId, actingUserId);
 
         ProjectRole role = this.projectRoles.stream()
                 .filter(r -> r.getId() == roleId).findFirst()
@@ -184,16 +184,27 @@ public class Project {
         }
     }
 
-    public void validateRoleAssignment(Long projectMemberId) {
-        ProjectMember member = this.projectMembers.stream()
+    public void validateRoleAssignment(int roleId, Long projectMemberId, String actingUserId) {
+        ProjectRole newRole = this.projectRoles.stream()
+                .filter(r -> r.getId() == roleId)
+                .findFirst()
+                .orElseThrow(() -> new RoleNotFoundException(roleId));
+
+        ProjectMember targetMember = this.projectMembers.stream()
                 .filter(m -> m.getId().equals(projectMemberId))
                 .findFirst()
                 .orElseThrow(() -> new ProjectMemberNotFoundException(projectMemberId));
 
-        ProjectRole currentRole = member.getProjectRole();
+        ProjectMember actingUser = this.projectMembers.stream()
+                .filter(m -> m.getUser().getId().equals(actingUserId))
+                .findFirst()
+                .orElseThrow(() -> new UserNotProjectMemberException(actingUserId));
 
-        // Schutz: letzter Owner darf nicht degradiert werden
-        if (currentRole.getName().equalsIgnoreCase("OWNER")) {
+        ProjectRole currentRole = targetMember.getProjectRole();
+
+        // 🚨 Schutz: letzter Owner darf nicht degradiert werden
+        if (currentRole.getName().equalsIgnoreCase("OWNER")
+                && !newRole.getName().equalsIgnoreCase("OWNER")) {
 
             long ownerCount = this.projectMembers.stream()
                     .filter(m -> m.getProjectRole().getName().equalsIgnoreCase("OWNER"))
@@ -203,6 +214,15 @@ public class Project {
                 throw new InvalidRoleAssignmentException("At least one OWNER must exist in project");
             }
         }
+
+        // Schutz: niemand darf sich selbst Owner geben
+        if (newRole.getName().equalsIgnoreCase("OWNER")
+                && targetMember.getUser().getId().equals(actingUserId)
+                && !actingUser.getProjectRole().getName().equalsIgnoreCase("OWNER")) {
+            throw new InvalidRoleAssignmentException("You cannot assign yourself to OWNER role");
+        }
+
+
     }
 
 

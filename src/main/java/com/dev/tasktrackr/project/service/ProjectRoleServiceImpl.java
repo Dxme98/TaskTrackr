@@ -45,7 +45,7 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
     public ProjectMemberDto assignRole(String jwtUserId, AssignRoleRequest assignRoleRequest, Long projectId) {
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
 
-        ProjectMember updatedMember = project.assignRole(assignRoleRequest.getRoleId(), assignRoleRequest.getProjectMemberId());
+        ProjectMember updatedMember = project.assignRole(assignRoleRequest.getRoleId(), assignRoleRequest.getProjectMemberId(), jwtUserId);
 
         projectRepository.save(project);
 
