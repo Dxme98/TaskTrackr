@@ -9,6 +9,7 @@ import lombok.Setter;
 @Setter
 @Builder
 public class ProjectMemberDto {
+    private Long id;
     private UserDto user;
     // Weitere ProjectMember-Eigenschaften (Rolle, joinedAt, etc.)
 }

@@ -1,11 +1,9 @@
 package com.dev.tasktrackr.project.domain;
 
 import com.dev.tasktrackr.project.api.dtos.request.ProjectRequest;
+import com.dev.tasktrackr.project.domain.enums.PermissionName;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
-import com.dev.tasktrackr.shared.exception.custom.ProjectInviteAlreadyExistsException;
-import com.dev.tasktrackr.shared.exception.custom.UserAlreadyPartOfProjectException;
-import com.dev.tasktrackr.shared.exception.custom.UserNotFoundException;
-import com.dev.tasktrackr.shared.exception.custom.UserNotProjectMemberException;
+import com.dev.tasktrackr.shared.exception.custom.*;
 import com.dev.tasktrackr.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -45,7 +43,7 @@ public class Project {
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectInvite> projectInvites = new ArrayList<>();
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ProjectRole> projectRoles = new HashSet<>();
+    private List<ProjectRole> projectRoles = new ArrayList<>();
 
     public static Project create(ProjectRequest projectRequest, UserEntity creator) {
         Project project = new Project();
@@ -78,10 +76,18 @@ public class Project {
         projectInvites.add(createdInvite);
     }
 
+    public void createRole(String name, Set<PermissionName> permissions) {
+        validateRoleCreation(name);
+        ProjectRole role  = ProjectRole.createCustomRole(this, name, permissions);
+        projectRoles.add(role);
+    }
+
 
     public ProjectInvite findCreatedInvite() {
         return this.projectInvites.get(projectInvites.size()-1);
     }
+
+    public ProjectRole findCreatedRole() { return this.projectRoles.get(projectRoles.size()-1); }
 
 
     public void initBaseRoles(ProjectType projectType) {
@@ -126,7 +132,14 @@ public class Project {
         boolean senderIsMember = this.projectMembers.stream()
                 .anyMatch(member -> member.getUser().getId().equals(senderId));
         if (!senderIsMember) throw new UserNotProjectMemberException(senderId);
+    }
 
+    public void validateRoleCreation(String roleName) {
+
+        boolean nameExists = this.projectRoles.stream()
+                .anyMatch(r -> r.getName().equalsIgnoreCase(roleName));
+
+        if(nameExists) throw new RoleNameAlreadyExistsException(roleName);
     }
 
 

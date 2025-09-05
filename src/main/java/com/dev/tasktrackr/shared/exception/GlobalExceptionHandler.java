@@ -1,16 +1,14 @@
 package com.dev.tasktrackr.shared.exception;
 
-import com.dev.tasktrackr.shared.exception.custom.ConflictException;
+import com.dev.tasktrackr.shared.exception.custom.*;
 import com.dev.tasktrackr.shared.exception.model.ErrorResponse;
-import com.dev.tasktrackr.shared.exception.custom.ForbiddenException;
-import com.dev.tasktrackr.shared.exception.custom.ResourceNotFoundException;
 import com.dev.tasktrackr.shared.exception.model.ValidationErrorResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -85,56 +83,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    @ExceptionHandler(ForbiddenException.class)
-    public ResponseEntity<ErrorResponse> handleForbidden(
-            ForbiddenException ex, HttpServletRequest request) {
+    @ExceptionHandler(AppException.class)
+    public ResponseEntity<ErrorResponse> handleIAppException(
+            AppException ex, HttpServletRequest request) {
 
-        log.info("User is not allowed to access resource {}: {}", request.getRequestURI(), ex.getMessage());
+        log.info("AppException on:  {}: {}", request.getRequestURI(), ex.getMessage());
 
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),
-                HttpStatus.FORBIDDEN.value(),
+                ex.getHttpStatus().value(),
                 ex.getErrorCode(),
                 ex.getMessage(),
                 request.getRequestURI()
         );
 
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+        return ResponseEntity.status(ex.getHttpStatus()).body(error);
     }
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFound(
-            ResourceNotFoundException ex, HttpServletRequest request) {
 
-        log.info("Resource not found for {}: {}", request.getRequestURI(), ex.getMessage());
-
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.NOT_FOUND.value(),
-                ex.getErrorCode(),
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-    }
-
-    @ExceptionHandler(ConflictException.class)
-    public ResponseEntity<ErrorResponse> handleConflict(
-            ConflictException ex, HttpServletRequest request) {
-
-        log.info("Conflict on:  {}: {}", request.getRequestURI(), ex.getMessage());
-
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.CONFLICT.value(),
-                ex.getErrorCode(),
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
-    }
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleAuthenticationException(
@@ -152,6 +118,24 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleMethodNotSupported(
+            HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
+
+        log.info("Method not supported {}: {}", request.getRequestURI(), ex.getMessage());
+
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.METHOD_NOT_ALLOWED.value(),
+                ErrorCode.METHOD_NOT_ALLOWED,
+                String.format("HTTP method '%s' is not supported. Supported methods are %s",
+                        ex.getMethod(), ex.getSupportedHttpMethods()),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(error);
     }
 
     @ExceptionHandler(Exception.class)

@@ -2,6 +2,7 @@ package com.dev.tasktrackr.project.domain;
 
 import com.dev.tasktrackr.project.domain.enums.PermissionName;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
+import com.dev.tasktrackr.shared.exception.custom.InvalidRoleAssignmentException;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,6 +39,15 @@ public class ProjectRole {
     private ProjectRole(Project project, String name) {
         this.project = project;
         this.name = name;
+    }
+
+    public static ProjectRole createCustomRole(Project project, String name, Set<PermissionName> permissions) {
+        validatePermissionsForProjectType(project.getProjectType(), permissions);
+
+        ProjectRole role = new ProjectRole(project, name);
+        role.permissions = permissions;
+
+        return role;
     }
 
     public static ProjectRole createOwnerRole(Project project, ProjectType type) {
@@ -89,4 +99,18 @@ public class ProjectRole {
 
         return null;
     }
+
+
+    private static void validatePermissionsForProjectType(ProjectType projectType, Set<PermissionName> permissions) {
+        String allowedPrefix = (projectType == ProjectType.BASIC) ? "BASIC" : "SCRUM";
+
+        Optional<PermissionName> invalidPermission = permissions.stream()
+                .filter(p -> !(p.getName().startsWith("COMMON") || p.getName().startsWith(allowedPrefix) ))
+                .findFirst();
+
+        if (invalidPermission.isPresent()) {
+            throw new InvalidRoleAssignmentException(invalidPermission.get(), projectType);
+        }
+    }
+
 }
