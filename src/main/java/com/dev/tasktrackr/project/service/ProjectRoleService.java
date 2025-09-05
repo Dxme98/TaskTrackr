@@ -10,4 +10,5 @@ public interface ProjectRoleService {
     ProjectRoleResponse createProjectRole(String jwtUserId, BasicProjectRoleRequest basicProjectRoleRequest, Long projectId);
     void deleteProjectRole(String jwtUserId, Long projectId, int roleId);
     ProjectMemberDto assignRole(String jwtUserId, AssignRoleRequest assignRoleRequest, Long projectId);
+    ProjectRoleResponse renameRole();
 }

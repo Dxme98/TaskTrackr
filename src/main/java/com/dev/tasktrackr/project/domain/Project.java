@@ -4,6 +4,7 @@ import com.dev.tasktrackr.project.api.dtos.request.ProjectRequest;
 import com.dev.tasktrackr.project.domain.enums.PermissionName;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
 import com.dev.tasktrackr.project.domain.enums.RoleType;
+import com.dev.tasktrackr.project.domain.validator.ProjectValidator;
 import com.dev.tasktrackr.shared.exception.custom.*;
 import com.dev.tasktrackr.user.UserEntity;
 import jakarta.persistence.*;
@@ -45,12 +46,13 @@ public class Project {
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectRole> projectRoles = new ArrayList<>();
 
+
     public static Project create(ProjectRequest projectRequest, UserEntity creator) {
         Project project = new Project();
         project.name = projectRequest.getName().trim();
         project.projectType = projectRequest.getProjectType();
 
-        // Default-Rollen initialisieren
+        // Base-Rollen initialisieren
         project.initBaseRoles(project.projectType);
 
         // Creator automatisch als Owner hinzufügen
@@ -61,34 +63,42 @@ public class Project {
     }
 
     public void addMember(UserEntity userEntity) {
-        ProjectMember createdMember = ProjectMember.createMember(userEntity, this, getDefaultRole());
+        ProjectValidator.validateAddMember(this, userEntity.getId());
+
+        ProjectMember createdMember = ProjectMember.createMember(userEntity, this, getBaseRole());
         projectMembers.add(createdMember);
     }
 
     private void addMemberWithRole(UserEntity userEntity, ProjectRole role) {
+        ProjectValidator.validateAddMember(this, userEntity.getId());
+
         ProjectMember createdMember = ProjectMember.createMember(userEntity, this, role);
         projectMembers.add(createdMember);
     }
 
     public void createInvite(UserEntity sender, UserEntity receiver) {
-        validateInviteCreation(receiver.getId(), sender.getId());
+        ProjectValidator.validateInviteCreation(this, receiver.getId(), sender.getId());
+
         ProjectInvite createdInvite = ProjectInvite.createInvite(sender, receiver, this);
         projectInvites.add(createdInvite);
     }
 
     public void createRole(String name, Set<PermissionName> permissions) {
-        validateRoleCreation(name);
+        ProjectValidator.validateRoleCreation(this, name);
+
         ProjectRole role  = ProjectRole.createCustomRole(this, name, permissions);
         projectRoles.add(role);
     }
 
     public void deleteRole(int roleId) {
-        validateRoleDeletion(roleId);
+        ProjectValidator.validateRoleDeletion(this, roleId);
+
+
         this.projectRoles.removeIf(role -> role.getId() == roleId);
     }
 
     public ProjectMember assignRole(int roleId, Long projectMemberId, String actingUserId) {
-        validateRoleAssignment(roleId, projectMemberId, actingUserId);
+        ProjectValidator.validateRoleAssignment(this, roleId, projectMemberId, actingUserId);
 
         ProjectRole role = this.projectRoles.stream()
                 .filter(r -> r.getId() == roleId).findFirst()
@@ -103,11 +113,6 @@ public class Project {
         return member;
     }
 
-
-
-
-
-
     public void initBaseRoles(ProjectType projectType) {
         ProjectRole owner = ProjectRole.createOwnerRole(this, projectType);
         ProjectRole def = ProjectRole.createBaseRole(this);
@@ -118,115 +123,15 @@ public class Project {
 
     public ProjectRole getOwnerRole() {
         return projectRoles.stream()
-                .filter(r -> r.getName().equalsIgnoreCase("OWNER"))
+                .filter(r -> r.getRoleType().equals(RoleType.OWNER))
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Owner role not initialized"));
+                .orElseThrow(() -> new RoleNotFoundException("Owner role not initialized"));
     }
 
-    public ProjectRole getDefaultRole() {
+    public ProjectRole getBaseRole() {
         return projectRoles.stream()
-                .filter(r -> r.getName().equalsIgnoreCase("DEFAULT"))
+                .filter(r -> r.getRoleType().equals(RoleType.BASE))
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Default role not initialized"));
+                .orElseThrow(() -> new RoleNotFoundException("Default role not initialized"));
     }
-
-
-
-
-
-    /**
-     * VALIDATION
-     */
-    public void validateInviteCreation(String receiverId, String senderId) {
-        // Prüfen ob Einladung bereits existiert
-        boolean inviteExists = this.projectInvites.stream()
-                .anyMatch(invite -> invite.getReceiver().getId().equals(receiverId));
-        if (inviteExists) throw new ProjectInviteAlreadyExistsException(receiverId, this.id);
-
-
-        // Prüfen ob User bereits Teil des Projekts ist
-        boolean receiverIsMember = this.projectMembers.stream()
-                .anyMatch(member -> member.getUser().getId().equals(receiverId));
-        if (receiverIsMember) throw new UserAlreadyPartOfProjectException(receiverId, this.id);
-
-
-        // Prüfen ob Sender Mitglied des Projekts ist
-        boolean senderIsMember = this.projectMembers.stream()
-                .anyMatch(member -> member.getUser().getId().equals(senderId));
-        if (!senderIsMember) throw new UserNotProjectMemberException(senderId);
-    }
-
-    public void validateRoleCreation(String roleName) {
-
-        boolean nameExists = this.projectRoles.stream()
-                .anyMatch(r -> r.getName().equalsIgnoreCase(roleName));
-
-        if(nameExists) throw new RoleNameAlreadyExistsException(roleName);
-    }
-
-    public void validateRoleDeletion(int roleId) {
-        ProjectRole role = this.projectRoles.stream()
-                .filter(r -> r.getId() == roleId)
-                .findFirst()
-                .orElseThrow(() -> new RoleNotFoundException(roleId));
-
-        // Base oder Owner dürfen nie gelöscht werden
-        if (role.getRoleType() == RoleType.OWNER || role.getRoleType() == RoleType.BASE) {
-            throw new InvalidRoleDeletion(
-                    "Base Roles: 'OWNER' and 'BASE' can not be deleted");
-        }
-
-        // Prüfen ob User diese Rolle noch nutzen
-        boolean usersWithRoleExists = this.projectMembers.stream()
-                .anyMatch(member -> member.getProjectRole().getId() == roleId);
-
-        if (usersWithRoleExists) {
-            throw new InvalidRoleDeletion(
-                    "Remove Role from ProjectMember before deleting the Role");
-        }
-    }
-
-    public void validateRoleAssignment(int roleId, Long projectMemberId, String actingUserId) {
-        ProjectRole newRole = this.projectRoles.stream()
-                .filter(r -> r.getId() == roleId)
-                .findFirst()
-                .orElseThrow(() -> new RoleNotFoundException(roleId));
-
-        ProjectMember targetMember = this.projectMembers.stream()
-                .filter(m -> m.getId().equals(projectMemberId))
-                .findFirst()
-                .orElseThrow(() -> new ProjectMemberNotFoundException(projectMemberId));
-
-        ProjectMember actingUser = this.projectMembers.stream()
-                .filter(m -> m.getUser().getId().equals(actingUserId))
-                .findFirst()
-                .orElseThrow(() -> new UserNotProjectMemberException(actingUserId));
-
-        ProjectRole currentRole = targetMember.getProjectRole();
-
-        // Schutz: letzter Owner darf nicht degradiert werden
-        if (currentRole.getRoleType() == RoleType.OWNER
-                && newRole.getRoleType() != RoleType.OWNER) {
-
-            long ownerCount = this.projectMembers.stream()
-                    .filter(m -> m.getProjectRole().getRoleType() == RoleType.OWNER)
-                    .count();
-
-            if (ownerCount <= 1) {
-                throw new InvalidRoleAssignmentException(
-                        "At least one OWNER must exist in project");
-            }
-        }
-
-        // Schutz: niemand darf sich selbst Owner geben
-        if (newRole.getRoleType() == RoleType.OWNER
-                && targetMember.getUser().getId().equals(actingUserId)
-                && actingUser.getProjectRole().getRoleType() != RoleType.OWNER) {
-            throw new InvalidRoleAssignmentException(
-                    "You cannot assign yourself to OWNER role");
-        }
-
-    }
-
-
 }

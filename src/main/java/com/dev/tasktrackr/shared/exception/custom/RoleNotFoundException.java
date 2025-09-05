@@ -7,4 +7,8 @@ public class RoleNotFoundException extends AppException {
     public RoleNotFoundException(int roleId) {
         super("Role with ID: " + roleId + "not found", ErrorCode.ROLE_NOT_FOUND, HttpStatus.NOT_FOUND );
     }
+
+    public RoleNotFoundException(String message) {
+        super(message, ErrorCode.ROLE_NOT_FOUND, HttpStatus.NOT_FOUND );
+    }
 }

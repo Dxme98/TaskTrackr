@@ -51,4 +51,9 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
 
         return projectMemberMapper.toResponse(updatedMember);
     }
+
+    @Override
+    public ProjectRoleResponse renameRole() {
+        return null;
+    }
 }
