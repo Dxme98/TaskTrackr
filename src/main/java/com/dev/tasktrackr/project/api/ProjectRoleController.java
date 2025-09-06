@@ -1,0 +1,102 @@
+package com.dev.tasktrackr.project.api;
+
+import com.dev.tasktrackr.project.api.dtos.ProjectMemberDto;
+import com.dev.tasktrackr.project.api.dtos.request.CreateProjectRoleRequest;
+import com.dev.tasktrackr.project.api.dtos.request.RenameRoleRequest;
+import com.dev.tasktrackr.project.api.dtos.response.ProjectRoleResponse;
+import com.dev.tasktrackr.project.service.ProjectRoleService;
+import com.dev.tasktrackr.shared.api.annotation.ApiErrorResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/v1/projects")
+@RequiredArgsConstructor
+@Slf4j
+@ApiErrorResponses.SecuredResourceEndpoint
+public class ProjectRoleController {
+
+    private final ProjectRoleService projectRoleService;
+
+    @PostMapping("/{projectId}/roles")
+    @Operation(summary = "Create a new role in a project", description = "Creates a new project role with the given permissions")
+    @ApiResponse(responseCode = "201", description = "Role created successfully",
+            content = @Content(schema = @Schema(implementation = ProjectRoleResponse.class)))
+    @ApiErrorResponses.Conflict
+    public ResponseEntity<ProjectRoleResponse> createRole(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long projectId,
+            @Valid @RequestBody CreateProjectRoleRequest createProjectRoleRequest) {
+
+        log.info("User {} creates new role in project {}", jwt.getClaimAsString("preferred_username"), projectId);
+
+        String userId = jwt.getClaim("sub");
+        ProjectRoleResponse response = projectRoleService.createProjectRole(userId, createProjectRoleRequest, projectId);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @DeleteMapping("/{projectId}/roles/{roleId}")
+    @Operation(summary = "Delete a role from a project", description = "Deletes a specific role by its ID from a project")
+    @ApiResponse(responseCode = "204", description = "Role deleted successfully")
+    public ResponseEntity<Void> deleteRole(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long projectId,
+            @PathVariable int roleId) {
+
+        log.info("User {} deletes role {} from project {}", jwt.getClaimAsString("preferred_username"), roleId, projectId);
+
+        String userId = jwt.getClaim("sub");
+        projectRoleService.deleteProjectRole(userId, projectId, roleId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{projectId}/roles/{roleId}/assign/{memberId}")
+    @Operation(summary = "Assign a role to a member", description = "Assigns an existing project role to a project member")
+    @ApiResponse(responseCode = "200", description = "Role assigned successfully",
+            content = @Content(schema = @Schema(implementation = ProjectMemberDto.class)))
+    public ResponseEntity<ProjectMemberDto> assignRole(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long projectId,
+            @PathVariable int roleId,
+            @PathVariable Long memberId) {
+
+        log.info("User {} assigns role {} to member {} in project {}",
+                jwt.getClaimAsString("preferred_username"), roleId, memberId, projectId);
+
+        String userId = jwt.getClaim("sub");
+        ProjectMemberDto response = projectRoleService.assignRole(userId, roleId, memberId, projectId);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{projectId}/roles/{roleId}/rename")
+    @Operation(summary = "Rename a project role", description = "Renames an existing project role by its ID")
+    @ApiResponse(responseCode = "200", description = "Role renamed successfully",
+            content = @Content(schema = @Schema(implementation = ProjectRoleResponse.class)))
+    @ApiErrorResponses.Conflict
+    public ResponseEntity<ProjectRoleResponse> renameRole(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable Long projectId,
+            @PathVariable int roleId,
+            @Valid @RequestBody RenameRoleRequest renameRoleRequest) {
+
+        log.info("User {} renames role {} in project {}", jwt.getClaimAsString("preferred_username"), roleId, projectId);
+
+        String userId = jwt.getClaim("sub");
+        ProjectRoleResponse response = projectRoleService.renameRole(userId, renameRoleRequest.getName(), projectId, roleId);
+
+        return ResponseEntity.ok(response);
+    }
+}

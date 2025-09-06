@@ -3,9 +3,7 @@ package com.dev.tasktrackr.project.service;
 import com.dev.tasktrackr.project.api.dtos.ProjectMemberDto;
 import com.dev.tasktrackr.project.api.dtos.ProjectMemberMapper;
 import com.dev.tasktrackr.project.api.dtos.RoleMapper;
-import com.dev.tasktrackr.project.api.dtos.request.AssignRoleRequest;
-import com.dev.tasktrackr.project.api.dtos.request.BasicProjectRoleRequest;
-import com.dev.tasktrackr.project.api.dtos.request.RenameRoleRequest;
+import com.dev.tasktrackr.project.api.dtos.request.CreateProjectRoleRequest;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectRoleResponse;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
@@ -27,10 +25,10 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
 
     @Override
     @Transactional
-    public ProjectRoleResponse createProjectRole(String jwtUserId, BasicProjectRoleRequest basicProjectRoleRequest, Long projectId) {
+    public ProjectRoleResponse createProjectRole(String jwtUserId, CreateProjectRoleRequest createProjectRoleRequest, Long projectId) {
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
 
-        project.createRole(basicProjectRoleRequest.getName(), basicProjectRoleRequest.getPermissions());
+        project.createRole(createProjectRoleRequest.getName(), createProjectRoleRequest.getPermissions());
         ProjectRole persistedRole = project.getProjectRoles().get(project.getProjectRoles().size()-1);
 
         return roleMapper.toResponse(persistedRole);
@@ -47,10 +45,10 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
 
     @Override
     @Transactional
-    public ProjectMemberDto assignRole(String jwtUserId, AssignRoleRequest assignRoleRequest, Long projectId) {
+    public ProjectMemberDto assignRole(String jwtUserId, int roleId, Long memberId, Long projectId) {
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
 
-        ProjectMember updatedMember = project.assignRole(assignRoleRequest.getRoleId(), assignRoleRequest.getProjectMemberId(), jwtUserId);
+        ProjectMember updatedMember = project.assignRole(roleId, memberId, jwtUserId);
 
         projectRepository.save(project);
 
@@ -59,10 +57,10 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
 
     @Override
     @Transactional
-    public ProjectRoleResponse renameRole(String jwtUserId, RenameRoleRequest renameRoleRequest,  Long projectId) {
+    public ProjectRoleResponse renameRole(String jwtUserId,  String newName,  Long projectId, int roleId) {
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
 
-        ProjectRole updatedRole = project.renameRole(renameRoleRequest.getRoleId(), renameRoleRequest.getRoleName());
+        ProjectRole updatedRole = project.renameRole(roleId, newName);
 
         projectRepository.save(project);
 

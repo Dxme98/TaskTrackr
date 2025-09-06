@@ -11,15 +11,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class RenameRoleRequest {
-
-    @Schema(
-            description = "ID der Rolle, die umbenannt werden soll",
-            example = "3",
-            requiredMode = Schema.RequiredMode.REQUIRED
-    )
-    @NotNull(message = "Rollen-ID ist erforderlich")
-    private Integer roleId;
-
     @Schema(
             description = "Neuer Name der Rolle",
             example = "Projektleiter",
@@ -27,5 +18,5 @@ public class RenameRoleRequest {
     )
     @NotBlank(message = "Rollenname darf nicht leer sein")
     @Size(max = 36)
-    private String roleName;
+    private String name;
 }

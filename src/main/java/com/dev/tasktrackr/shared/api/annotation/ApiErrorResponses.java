@@ -131,7 +131,7 @@ public final class ApiErrorResponses {
                                               "path": "/api/v1/projects/123"
                                             }
                                             """
-                                    )
+                                    ),
                             }
                     )
             )

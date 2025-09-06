@@ -114,11 +114,12 @@ public class Project {
     }
 
     public ProjectRole renameRole(int roleId, String newName) {
+        ProjectValidator.validateRoleCreation(this, newName);
         ProjectRole role = this.projectRoles.stream()
                 .filter(r -> r.getId() == roleId)
                 .findFirst().orElseThrow(() -> new RoleNotFoundException(roleId));
 
-        return role.renameRole(name);
+        return role.renameRole(newName);
     }
 
     public void initBaseRoles(ProjectType projectType) {

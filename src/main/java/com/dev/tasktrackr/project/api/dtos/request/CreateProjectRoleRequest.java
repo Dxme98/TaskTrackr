@@ -13,7 +13,7 @@ import java.util.Set;
 @Schema(name = "ProjectRoleRequest", description = "Request-Daten für das Erstellen einer Projektrolle")
 @Getter
 @Setter
-public class BasicProjectRoleRequest {
+public class CreateProjectRoleRequest {
     @Schema(
             description = "Name der Projektrolle",
             example = "Rollenname",
