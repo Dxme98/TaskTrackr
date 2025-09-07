@@ -3,6 +3,8 @@ package com.dev.tasktrackr.project.api;
 import com.dev.tasktrackr.project.api.dtos.ProjectMemberDto;
 import com.dev.tasktrackr.project.api.dtos.request.CreateProjectRoleRequest;
 import com.dev.tasktrackr.project.api.dtos.request.RenameRoleRequest;
+import com.dev.tasktrackr.project.api.dtos.response.PageResponse;
+import com.dev.tasktrackr.project.api.dtos.response.ProjectRolePageResponse;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectRoleResponse;
 import com.dev.tasktrackr.project.service.ProjectRoleService;
 import com.dev.tasktrackr.shared.api.annotation.ApiErrorResponses;
@@ -13,6 +15,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -44,6 +48,29 @@ public class ProjectRoleController {
         ProjectRoleResponse response = projectRoleService.createProjectRole(userId, createProjectRoleRequest, projectId);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/{projectId}/roles")
+    @Operation(
+            summary = "Get all roles in a project",
+            description = "Retrieves a paginated list of all roles in the specified project"
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Roles retrieved successfully",
+            content = @Content(schema = @Schema(implementation = ProjectRolePageResponse.class))
+    )
+    public ResponseEntity<PageResponse<ProjectRoleResponse>> getAllRoles(@AuthenticationPrincipal Jwt jwt,
+                                                                         @PathVariable Long projectId,
+                                                                         @RequestParam(defaultValue = "10") int size,
+                                                                         @RequestParam(defaultValue = "0") int page) {
+        log.info("User {} requests roles in project {}", jwt.getClaimAsString("preferred_username"), projectId);
+        PageRequest pr = PageRequest.of(page, size);
+
+        String userId = jwt.getClaim("sub");
+        Page<ProjectRoleResponse> response = projectRoleService.getAllRoles(userId,  pr, projectId);
+
+        return ResponseEntity.ok(PageResponse.from(response));
     }
 
     @DeleteMapping("/{projectId}/roles/{roleId}")
@@ -99,4 +126,5 @@ public class ProjectRoleController {
 
         return ResponseEntity.ok(response);
     }
+
 }

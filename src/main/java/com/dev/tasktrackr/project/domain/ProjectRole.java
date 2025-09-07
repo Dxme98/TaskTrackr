@@ -68,7 +68,7 @@ public class ProjectRole {
         if (type == ProjectType.SCRUM) {
             // BASIC, COMMON und SCRUM Permissions hinzufügen
             role.permissions.addAll(getCommonPermissions());
-            role.permissions.addAll(getScrumPermissions());
+          //  role.permissions.addAll(getScrumPermissions());
         }
 
         return role;

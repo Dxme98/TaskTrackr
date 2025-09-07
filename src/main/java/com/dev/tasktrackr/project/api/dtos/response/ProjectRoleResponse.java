@@ -3,9 +3,7 @@ package com.dev.tasktrackr.project.api.dtos.response;
 import com.dev.tasktrackr.project.domain.enums.PermissionName;
 import com.dev.tasktrackr.project.domain.enums.RoleType;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Set;
 
@@ -13,10 +11,12 @@ import java.util.Set;
 @Setter
 @Builder
 @Schema(name = "ProjectRoleResponse", description = "Antwort mit Informationen zu einer Projektrolle")
+@AllArgsConstructor
 public class ProjectRoleResponse {
 
     @Schema(description = "ID der Rolle", example = "3")
-    private int id;
+    private Integer id;
+
 
     @Schema(description = "Name der Rolle", example = "Projektleiter")
     private String name;

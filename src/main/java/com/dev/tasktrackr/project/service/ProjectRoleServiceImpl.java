@@ -9,17 +9,25 @@ import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.ProjectRole;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
+import com.dev.tasktrackr.project.repository.ProjectRoleQueryRepository;
 import com.dev.tasktrackr.shared.exception.custom.ProjectNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class ProjectRoleServiceImpl implements ProjectRoleService {
     private final ProjectRepository  projectRepository;
     private final RoleMapper roleMapper;
     private final ProjectMemberMapper projectMemberMapper;
+    private final ProjectRoleQueryRepository projectRoleQueryRepository;
 
     // VALIDATION MISSING, FETCH STRATEGIEN, GGF. endpoint anpassung (projectId als parameter)=
 
@@ -29,7 +37,12 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
 
         project.createRole(createProjectRoleRequest.getName(), createProjectRoleRequest.getPermissions());
+
+        projectRepository.save(project);
+
         ProjectRole persistedRole = project.getProjectRoles().get(project.getProjectRoles().size()-1);
+
+        log.info("ROLLEN ID GENIERTE {}", persistedRole.getId());
 
         return roleMapper.toResponse(persistedRole);
     }
@@ -65,5 +78,12 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
         projectRepository.save(project);
 
         return roleMapper.toResponse(updatedRole);
+    }
+
+    @Override
+    public Page<ProjectRoleResponse> getAllRoles(String jwtUserId, Pageable pageable, Long projectId) {
+        Page<ProjectRole> roles = projectRoleQueryRepository.findAllByProjectId(projectId, pageable);
+
+        return roles.map(roleMapper::toResponse);
     }
 }

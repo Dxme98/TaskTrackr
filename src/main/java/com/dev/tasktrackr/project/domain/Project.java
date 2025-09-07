@@ -9,6 +9,7 @@ import com.dev.tasktrackr.shared.exception.custom.*;
 import com.dev.tasktrackr.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -25,6 +26,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
+@Slf4j
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -105,7 +107,7 @@ public class Project {
                 .orElseThrow(() -> new RoleNotFoundException(roleId));
 
         ProjectMember member = this.projectMembers.stream()
-                .filter(m -> m.getId() == projectMemberId).findFirst()
+                .filter(m -> m.getId().equals(projectMemberId)).findFirst()
                 .orElseThrow(() -> new ProjectMemberNotFoundException(projectMemberId));
 
         member.assignRole(role);

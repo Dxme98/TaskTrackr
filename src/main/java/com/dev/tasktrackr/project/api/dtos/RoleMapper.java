@@ -9,5 +9,6 @@ import org.mapstruct.Mappings;
 @Mapper(componentModel = "spring")
 public interface RoleMapper {
     @Mapping(target = "projectId", source = "project.id")
+    @Mapping(target = "permissions", source = "permissions")
     ProjectRoleResponse toResponse(ProjectRole projectRole);
 }
