@@ -78,6 +78,11 @@ public class Project {
         projectMembers.add(createdMember);
     }
 
+    public void removeMember(Long memberToRemove) {
+        ProjectValidator.validateRemoveMember(this, memberToRemove);
+        projectMembers.removeIf(member -> member.getId().equals(memberToRemove));
+    }
+
     public void createInvite(UserEntity sender, UserEntity receiver) {
         ProjectValidator.validateInviteCreation(this, receiver.getId(), sender.getId());
 

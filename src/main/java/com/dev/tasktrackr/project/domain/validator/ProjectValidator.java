@@ -17,6 +17,21 @@ public class ProjectValidator {
         }
     }
 
+    public static void validateRemoveMember(Project project, Long memberToRemove) {
+
+        // Prüfe ob existiert
+        ProjectMember member = project.getProjectMembers().stream()
+                .filter(m -> m.getId().equals(memberToRemove))
+                .findFirst()
+                .orElseThrow(() -> new ProjectMemberNotFoundException(memberToRemove));
+
+        // Prüfe ob "OWNER" Rolle besitzt
+        if(member.getProjectRole().getRoleType().equals(RoleType.OWNER)) {
+            throw new InvalidMemberRemovalException("Members with OWNER Role can't be removed.");
+        }
+
+    }
+
     public static void validateInviteCreation(Project project, String receiverId, String senderId) {
         // Prüfen ob Einladung bereits existiert
         boolean inviteExists = project.getProjectInvites().stream()
