@@ -24,7 +24,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 @Slf4j
 @ApiErrorResponses.SecuredResourceEndpoint
@@ -46,7 +46,7 @@ public class ProjectInviteController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PutMapping("invites/{inviteId}/accept")
+    @PutMapping("/invites/{inviteId}/accept")
     @Operation(summary = "Accept a Invite", description = "Sets Invite Status to ACCEPTED and adds Receiver to Project")
     @ApiResponse(responseCode = "200", description = "Invite accepted successfully",
             content = @Content(schema = @Schema(implementation = ProjectInviteResponseDto.class)))
@@ -60,7 +60,7 @@ public class ProjectInviteController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @PutMapping("invites/{inviteId}/decline")
+    @PutMapping("/invites/{inviteId}/decline")
     @Operation(summary = "Decline a Invite", description = "Sets InviteStatus to Declined")
     @ApiResponse(responseCode = "200", description = "Invite declined successfully",
             content = @Content(schema = @Schema(implementation = ProjectInviteResponseDto.class)))

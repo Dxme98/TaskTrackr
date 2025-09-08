@@ -16,6 +16,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -148,6 +149,23 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(ex.getHttpStatus()).body(error);
+    }
+
+    @ExceptionHandler(WebClientResponseException.Unauthorized.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorized(
+            WebClientResponseException.Unauthorized ex, HttpServletRequest request) {
+
+        log.info("Unauthorized on {}: {}", request.getRequestURI(), ex.getMessage());
+
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.UNAUTHORIZED.value(),
+                ErrorCode.UNAUTHORIZED, // hier kannst du deinen eigenen ErrorCode setzen
+                "Invalid username or password",
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 
 
