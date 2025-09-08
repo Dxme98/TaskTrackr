@@ -35,9 +35,9 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
 
     @Override
     @Transactional
-    public ProjectInviteResponseDto createProjectInvite(ProjectInviteRequest request, String senderId) {
-        Project project = projectRepository.findProjectWithInvitesAndMember(request.getProjectId())
-                .orElseThrow(() -> new ProjectNotFoundException(request.getProjectId()));
+    public ProjectInviteResponseDto createProjectInvite(ProjectInviteRequest request, String senderId, Long projectId) {
+        Project project = projectRepository.findProjectWithInvitesAndMember(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
 
         UserEntity sender =  findUserById(senderId);
         UserEntity receiver = findUserById(request.getReceiverId());

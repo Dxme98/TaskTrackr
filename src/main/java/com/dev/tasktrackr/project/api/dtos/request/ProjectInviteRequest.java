@@ -21,10 +21,4 @@ public class ProjectInviteRequest {
     @NotBlank(message = "receiverId ist erforderlich")
     @Size(min = 36, max = 36, message = "ReceiverId muss 36 Zeichen lang sein")
     private String receiverId;
-    @Schema(
-            requiredMode = Schema.RequiredMode.REQUIRED,
-            example = "5"
-    )
-    @NotNull(message = "projectId ist erforderlich")
-    private Long projectId;
 }

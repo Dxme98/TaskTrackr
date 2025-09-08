@@ -22,6 +22,10 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     @EntityGraph(attributePaths = {"projectMembers", "projectInvites"})
     @Query("SELECT p from Project p where p.id = :projectId")
     Optional<Project> findProjectWithInvitesAndMember(Long projectId);
+
+    @EntityGraph(attributePaths = {"projectRoles", "projectRoles.permissions"})
+    @Query("SELECT p from Project p where p.id = :projectId")
+    Optional<Project> findProjectWithRolesAndPermissions(Long projectId);
 }
 
 

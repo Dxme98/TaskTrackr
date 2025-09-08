@@ -34,7 +34,7 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
     @Override
     @Transactional
     public ProjectRoleResponse createProjectRole(String jwtUserId, CreateProjectRoleRequest createProjectRoleRequest, Long projectId) {
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
+        Project project = findProjectWithAttributes(projectId);
 
         project.createRole(createProjectRoleRequest.getName(), createProjectRoleRequest.getPermissions());
 
@@ -50,7 +50,7 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
     @Override
     @Transactional
     public void deleteProjectRole(String jwtUserId, Long projectId, int roleId) {
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
+        Project project = findProjectWithAttributes(projectId);
         project.deleteRole(roleId);
 
         projectRepository.save(project);
@@ -59,7 +59,7 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
     @Override
     @Transactional
     public ProjectMemberDto assignRole(String jwtUserId, int roleId, Long memberId, Long projectId) {
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
+        Project project = findProjectWithAttributes(projectId);
 
         ProjectMember updatedMember = project.assignRole(roleId, memberId, jwtUserId);
 
@@ -71,7 +71,7 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
     @Override
     @Transactional
     public ProjectRoleResponse renameRole(String jwtUserId,  String newName,  Long projectId, int roleId) {
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
+        Project project = findProjectWithAttributes(projectId);
 
         ProjectRole updatedRole = project.renameRole(roleId, newName);
 
@@ -85,5 +85,9 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
         Page<ProjectRole> roles = projectRoleQueryRepository.findAllByProjectId(projectId, pageable);
 
         return roles.map(roleMapper::toResponse);
+    }
+
+    public Project findProjectWithAttributes(Long projectId) {
+        return projectRepository.findProjectWithRolesAndPermissions(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
     }
 }

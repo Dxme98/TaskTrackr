@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProjectMemberQueryRepository extends ReadOnlyRepository<ProjectMember, Long> {
-    @EntityGraph(attributePaths = {"projectRole", "projectRole.permissions"})
+    @EntityGraph(attributePaths = {"projectRole", "projectRole.permissions", "user"})
     @Query("SELECT pm FROM ProjectMember pm WHERE pm.project.id = :projectId")
     Page<ProjectMember> findAllProjectMembersByProjectId(@Param("projectId") Long projectId, Pageable pageable);
 }

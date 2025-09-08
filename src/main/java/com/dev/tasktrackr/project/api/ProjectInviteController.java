@@ -24,28 +24,29 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/invites")
+@RequestMapping("/api/v1/")
 @RequiredArgsConstructor
 @Slf4j
 @ApiErrorResponses.SecuredResourceEndpoint
 public class ProjectInviteController {
     private final ProjectInviteService projectInviteService;
 
-    @PostMapping
+    @PostMapping("/projects/{projectId}/invites")
     @Operation(summary = "Create a new Invite", description = "Creates a new Projectinvite")
     @ApiResponse(responseCode = "201", description = "Invite created successfully",
             content = @Content(schema = @Schema(implementation = ProjectInviteResponseDto.class)))
     @ApiErrorResponses.Conflict
-    public ResponseEntity<ProjectInviteResponseDto> createInvite(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody ProjectInviteRequest inviteRequest) {
+    public ResponseEntity<ProjectInviteResponseDto> createInvite(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody ProjectInviteRequest inviteRequest,
+                                                                 @PathVariable Long projectId) {
         log.info("Creating Invite from user: {}", jwt.getClaimAsString("preferred_username"));
 
         String userId = jwt.getClaim("sub");
-        ProjectInviteResponseDto response = projectInviteService.createProjectInvite(inviteRequest, userId);
+        ProjectInviteResponseDto response = projectInviteService.createProjectInvite(inviteRequest, userId, projectId);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PutMapping("/{inviteId}/accept")
+    @PutMapping("invites/{inviteId}/accept")
     @Operation(summary = "Accept a Invite", description = "Sets Invite Status to ACCEPTED and adds Receiver to Project")
     @ApiResponse(responseCode = "200", description = "Invite accepted successfully",
             content = @Content(schema = @Schema(implementation = ProjectInviteResponseDto.class)))
@@ -59,7 +60,7 @@ public class ProjectInviteController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @PutMapping("/{inviteId}/decline")
+    @PutMapping("invites/{inviteId}/decline")
     @Operation(summary = "Decline a Invite", description = "Sets InviteStatus to Declined")
     @ApiResponse(responseCode = "200", description = "Invite declined successfully",
             content = @Content(schema = @Schema(implementation = ProjectInviteResponseDto.class)))
@@ -74,7 +75,7 @@ public class ProjectInviteController {
     }
 
 
-    @GetMapping
+    @GetMapping("/invites")
     @Operation(
             summary = "Get all pending project invites for the current user",
             description = "Returns a paginated list of all project invites with status PENDING where the authenticated user is the receiver. " +

@@ -3,10 +3,12 @@ package com.dev.tasktrackr.shared.exception;
 import com.dev.tasktrackr.shared.exception.custom.*;
 import com.dev.tasktrackr.shared.exception.model.ErrorResponse;
 import com.dev.tasktrackr.shared.exception.model.ValidationErrorResponse;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -71,6 +74,53 @@ public class GlobalExceptionHandler {
                 ex.getName(),
                 ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "unknown",
                 ex.getValue());
+
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                ErrorCode.VALIDATION_ERROR,
+                message,
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(
+            HttpMessageNotReadableException ex, HttpServletRequest request) {
+
+        Throwable cause = ex.getCause();
+        String message;
+
+        if (cause instanceof InvalidFormatException ife) {
+            // Prüfen, ob es ein Enum ist
+            if (ife.getTargetType() != null && ife.getTargetType().isEnum()) {
+                String fieldName = ife.getPath().isEmpty()
+                        ? "unknown"
+                        : ife.getPath().get(0).getFieldName();
+                String invalidValue = String.valueOf(ife.getValue());
+                Object[] allowedValues = ife.getTargetType().getEnumConstants();
+
+                message = String.format(
+                        "Ungültiger Wert '%s' für Feld '%s'. Erlaubte Werte sind: %s",
+                        invalidValue,
+                        fieldName,
+                        Arrays.toString(allowedValues)
+                );
+            } else {
+                // Nicht-Enum Fall (z. B. Zahl statt String)
+                message = String.format(
+                        "Parameter '%s' sollte vom Typ %s sein, aber Wert '%s' wurde übergeben",
+                        ife.getPath().isEmpty() ? "unknown" : ife.getPath().get(0).getFieldName(),
+                        ife.getTargetType() != null ? ife.getTargetType().getSimpleName() : "unknown",
+                        String.valueOf(ife.getValue())
+                );
+            }
+        } else {
+            // Fallback, wenn andere Ursache
+            message = "Ungültiges Request-Format: " + ex.getMessage();
+        }
 
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),
