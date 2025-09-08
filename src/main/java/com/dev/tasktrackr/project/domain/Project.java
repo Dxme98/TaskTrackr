@@ -150,4 +150,12 @@ public class Project {
                 .findFirst()
                 .orElseThrow(() -> new RoleNotFoundException("Default role not initialized"));
     }
+
+
+    public ProjectMember findProjectMember(String userId) {
+        return this.getProjectMembers().stream()
+                .filter(member -> member.getUser().getId().equals(userId))
+                .findFirst()
+                .orElseThrow(() -> new UserNotProjectMemberException(userId));
+    }
 }

@@ -19,9 +19,9 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     Page<Project> findProjectsByUserId(@Param("userId")String userId, Pageable pageable);
 
 
-    @EntityGraph(attributePaths = {"projectMembers", "projectInvites"})
+    @EntityGraph(attributePaths = {"projectMembers", "projectInvites", "projectRoles", "projectRoles.permissions"})
     @Query("SELECT p from Project p where p.id = :projectId")
-    Optional<Project> findProjectWithInvitesAndMember(Long projectId);
+    Optional<Project> findProjectWithInvitesAndMemberAndPermissions(Long projectId);
 
     @EntityGraph(attributePaths = {"projectRoles", "projectRoles.permissions"})
     @Query("SELECT p from Project p where p.id = :projectId")

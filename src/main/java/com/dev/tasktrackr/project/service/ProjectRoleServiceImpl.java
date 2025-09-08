@@ -29,12 +29,11 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
     private final ProjectMemberMapper projectMemberMapper;
     private final ProjectRoleQueryRepository projectRoleQueryRepository;
 
-    // VALIDATION MISSING, FETCH STRATEGIEN, GGF. endpoint anpassung (projectId als parameter)=
-
     @Override
     @Transactional
     public ProjectRoleResponse createProjectRole(String jwtUserId, CreateProjectRoleRequest createProjectRoleRequest, Long projectId) {
         Project project = findProjectWithAttributes(projectId);
+        memberCanManageRoles(project, jwtUserId);
 
         project.createRole(createProjectRoleRequest.getName(), createProjectRoleRequest.getPermissions());
 
@@ -51,6 +50,8 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
     @Transactional
     public void deleteProjectRole(String jwtUserId, Long projectId, int roleId) {
         Project project = findProjectWithAttributes(projectId);
+        memberCanManageRoles(project, jwtUserId);
+
         project.deleteRole(roleId);
 
         projectRepository.save(project);
@@ -60,6 +61,7 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
     @Transactional
     public ProjectMemberDto assignRole(String jwtUserId, int roleId, Long memberId, Long projectId) {
         Project project = findProjectWithAttributes(projectId);
+        memberCanManageRoles(project, jwtUserId);
 
         ProjectMember updatedMember = project.assignRole(roleId, memberId, jwtUserId);
 
@@ -72,6 +74,7 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
     @Transactional
     public ProjectRoleResponse renameRole(String jwtUserId,  String newName,  Long projectId, int roleId) {
         Project project = findProjectWithAttributes(projectId);
+        memberCanManageRoles(project, jwtUserId);
 
         ProjectRole updatedRole = project.renameRole(roleId, newName);
 
@@ -83,12 +86,22 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
     @Override
     @Transactional(readOnly = true)
     public Page<ProjectRoleResponse> getAllRoles(String jwtUserId, Pageable pageable, Long projectId) {
+        Project project = projectRepository.findProjectWithInvitesAndMemberAndPermissions(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+        project.findProjectMember(jwtUserId); // checks if user is part of projects
+
+
         Page<ProjectRole> roles = projectRoleQueryRepository.findAllByProjectId(projectId, pageable);
 
         return roles.map(roleMapper::toResponse);
     }
 
-    public Project findProjectWithAttributes(Long projectId) {
+    private Project findProjectWithAttributes(Long projectId) {
         return projectRepository.findProjectWithRolesAndPermissions(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
+    }
+
+    private void memberCanManageRoles(Project project, String jwtUserId) {
+        ProjectMember member = project.findProjectMember(jwtUserId);
+        member.canManageRoles();
     }
 }

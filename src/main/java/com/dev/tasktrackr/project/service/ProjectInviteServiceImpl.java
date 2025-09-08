@@ -37,15 +37,14 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
     @Override
     @Transactional
     public ProjectInviteResponseDto createProjectInvite(ProjectInviteRequest request, String senderId, Long projectId) {
-        Project project = projectRepository.findProjectWithInvitesAndMember(projectId)
+        Project project = projectRepository.findProjectWithInvitesAndMemberAndPermissions(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException(projectId));
 
         UserEntity sender =  findUserById(senderId);
         UserEntity receiver = findUserById(request.getReceiverId());
 
-        ProjectMember senderMember = findProjectMember(senderId, project);
-
-        // sender.hasPermission(x)
+        ProjectMember member = project.findProjectMember(senderId);
+        member.canInviteUser();
 
         project.createInvite(sender,  receiver);
         Project savedProject = projectRepository.save(project);
@@ -107,16 +106,8 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
                 .orElseThrow(() -> new ProjectInviteNotFound(inviteId));
     }
 
-    UserEntity findUserById(String userId) {
+    private UserEntity findUserById(String userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
-    }
-
-    // IN MEMORY
-    ProjectMember findProjectMember(String userId, Project project) {
-        return project.getProjectMembers().stream()
-                .filter(member -> member.getUser().getId().equals(userId))
-                .findFirst()
-                .orElseThrow(() -> new UserNotProjectMemberException(userId));
     }
  }
