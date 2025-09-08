@@ -5,6 +5,7 @@ import com.dev.tasktrackr.project.api.dtos.request.ProjectInviteRequest;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectInviteResponseDto;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectInvite;
+import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.enums.ProjectInviteStatus;
 import com.dev.tasktrackr.project.repository.ProjectInviteQueryRepository;
 import com.dev.tasktrackr.project.repository.ProjectMemberQueryRepository;
@@ -42,6 +43,10 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
         UserEntity sender =  findUserById(senderId);
         UserEntity receiver = findUserById(request.getReceiverId());
 
+        ProjectMember senderMember = findProjectMember(senderId, project);
+
+        // sender.hasPermission(x)
+
         project.createInvite(sender,  receiver);
         Project savedProject = projectRepository.save(project);
 
@@ -63,6 +68,7 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
 
         Project project = invite.getProject();
         UserEntity receiver =  invite.getReceiver();
+
 
         project.addMember(receiver);
         Project savedProject = projectRepository.save(project);
@@ -104,5 +110,13 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
     UserEntity findUserById(String userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
+    }
+
+    // IN MEMORY
+    ProjectMember findProjectMember(String userId, Project project) {
+        return project.getProjectMembers().stream()
+                .filter(member -> member.getUser().getId().equals(userId))
+                .findFirst()
+                .orElseThrow(() -> new UserNotProjectMemberException(userId));
     }
  }

@@ -1,6 +1,7 @@
 package com.dev.tasktrackr.project.domain;
 
 import com.dev.tasktrackr.project.domain.enums.PermissionName;
+import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.PermissionDeniedException;
 import com.dev.tasktrackr.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -59,10 +60,6 @@ public class ProjectMember {
         return new ProjectMember(user, project, projectRole);
     }
 
-    public boolean hasPermission(PermissionName permission) {
-        return projectRole != null &&  projectRole.hasPermission(permission);
-    }
-
     public void assignRole(ProjectRole newRole) {
         if (!newRole.getProject().equals(this.project)) {
             throw new IllegalArgumentException("Rolle gehört nicht zu diesem Projekt");
@@ -70,5 +67,41 @@ public class ProjectMember {
         this.projectRole = newRole;
     }
 
+    // ====== Permission Checks ======
 
+    public void canCreateTask() {
+        if (!projectRole.hasPermission(PermissionName.BASIC_CREATE_TASK)) {
+            throw new PermissionDeniedException("You do not have permission to create tasks.");
+        }
+    }
+
+    public void canDeleteTask() {
+        if (!projectRole.hasPermission(PermissionName.BASIC_DELETE_TASK)) {
+            throw new PermissionDeniedException("You do not have permission to delete tasks.");
+        }
+    }
+
+    public void canEditInformation() {
+        if (!projectRole.hasPermission(PermissionName.BASIC_EDIT_INFORMATION)) {
+            throw new PermissionDeniedException("You do not have permission to edit project information.");
+        }
+    }
+
+    public void canInviteUser() {
+        if (!projectRole.hasPermission(PermissionName.COMMON_INVITE_USER)) {
+            throw new PermissionDeniedException("You do not have permission to invite users.");
+        }
+    }
+
+    public void canRemoveUser() {
+        if (!projectRole.hasPermission(PermissionName.COMMON_REMOVE_USER)) {
+            throw new PermissionDeniedException("You do not have permission to remove users.");
+        }
+    }
+
+    public void canManageRoles() {
+        if (!projectRole.hasPermission(PermissionName.COMMON_MANAGE_ROLES)) {
+            throw new PermissionDeniedException("You do not have permission to manage roles.");
+        }
+    }
 }
