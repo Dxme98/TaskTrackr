@@ -13,8 +13,6 @@ public class KeyCloakAuthService {
     private final WebClient webClient;
     @Value("${KEYCLOAK_CLIENT_SECRET}")
     private String clientSecret;
-    @Value("${KEYCLOAK_CLIENT_ID}")
-    private String clientId;
 
     public KeyCloakAuthService(WebClient keyCloakWebClient) {
         this.webClient = keyCloakWebClient;
@@ -23,7 +21,7 @@ public class KeyCloakAuthService {
     public String getToken(LoginRequest loginRequest) {
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("grant_type", "password");
-        form.add("client_id", clientId);
+        form.add("client_id", "tasktrackr-backend");
         form.add("client_secret", clientSecret);
         form.add("username", loginRequest.getUsername());
         form.add("password", loginRequest.getPassword());

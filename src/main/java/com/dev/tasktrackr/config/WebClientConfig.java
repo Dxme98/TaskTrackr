@@ -9,12 +9,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 public class WebClientConfig {
-    @Value("${KEYCLOAK_BASE_URL}")
-    private String baseUrl;
     @Bean
     public WebClient keycloakWebClient() {
         return WebClient.builder()
-                .baseUrl(baseUrl)
+                .baseUrl("http://localhost:8180/realms/tasktrackr-realm/protocol/openid-connect")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .build();
     }
