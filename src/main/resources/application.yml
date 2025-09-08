@@ -5,7 +5,7 @@ spring:
       oauth2:
         resourceserver:
             jwt:
-              issuer-uri: "http://localhost:8180/realms/tasktrackr-realm"
+              issuer-uri: ${KEYCLOAK_JWT_ISSUER_URI}
   jpa:
     hibernate:
         ddl-auto: none

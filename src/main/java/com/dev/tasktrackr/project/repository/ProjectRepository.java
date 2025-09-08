@@ -19,9 +19,20 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     Page<Project> findProjectsByUserId(@Param("userId")String userId, Pageable pageable);
 
 
-    @EntityGraph(attributePaths = {"projectMembers", "projectInvites", "projectRoles", "projectRoles.permissions"})
+     // Wirft multiplebagexcpetion checken
+    /**
+     @EntityGraph(attributePaths = {"projectMembers", "projectInvites", "projectRoles", "projectRoles.permissions"})
+     @Query("SELECT p from Project p where p.id = :projectId")
+     Optional<Project> findProjectWithInvitesAndMemberAndPermissions(Long projectId);
+     */
+
+    @EntityGraph(attributePaths = {"projectMembers", "projectInvites"})
     @Query("SELECT p from Project p where p.id = :projectId")
     Optional<Project> findProjectWithInvitesAndMemberAndPermissions(Long projectId);
+
+
+
+
 
     @EntityGraph(attributePaths = {"projectRoles", "projectRoles.permissions"})
     @Query("SELECT p from Project p where p.id = :projectId")
