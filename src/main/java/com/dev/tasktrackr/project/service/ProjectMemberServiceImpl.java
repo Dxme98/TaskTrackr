@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +21,7 @@ public class ProjectMemberServiceImpl implements ProjectMemberService{
     private final ProjectMemberMapper projectMemberMapper;
 
     @Override
+    @Transactional
     public void removeMemberFromProject(String jwtUserId, Long projectId, Long memberId) {
         Project project = projectRepository.findProjectWithInvitesAndMember(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException(projectId)); // optmize
@@ -29,6 +31,7 @@ public class ProjectMemberServiceImpl implements ProjectMemberService{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<ProjectMemberDto> getAllProjectMembers(String jwtUserId, Long projectId, Pageable pageable) {
         Page<ProjectMember> projectMembers = projectMemberQueryRepository.findAllProjectMembersByProjectId(projectId, pageable);
 

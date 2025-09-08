@@ -11,12 +11,12 @@ import com.dev.tasktrackr.project.domain.ProjectRole;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
 import com.dev.tasktrackr.project.repository.ProjectRoleQueryRepository;
 import com.dev.tasktrackr.shared.exception.custom.ProjectNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -81,6 +81,7 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<ProjectRoleResponse> getAllRoles(String jwtUserId, Pageable pageable, Long projectId) {
         Page<ProjectRole> roles = projectRoleQueryRepository.findAllByProjectId(projectId, pageable);
 

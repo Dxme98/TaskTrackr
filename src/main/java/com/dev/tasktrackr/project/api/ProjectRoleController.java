@@ -89,7 +89,7 @@ public class ProjectRoleController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{projectId}/roles/{roleId}/assign/{memberId}")
+    @PostMapping("/{projectId}/roles/{roleId}/assign/{memberId}")
     @Operation(summary = "Assign a role to a member", description = "Assigns an existing project role to a project member")
     @ApiResponse(responseCode = "200", description = "Role assigned successfully",
             content = @Content(schema = @Schema(implementation = ProjectMemberDto.class)))
