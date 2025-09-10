@@ -4,6 +4,7 @@ import com.dev.tasktrackr.project.api.dtos.ProjectMemberDto;
 import com.dev.tasktrackr.project.api.dtos.response.PageResponse;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectMemberPageResponse;
 import com.dev.tasktrackr.project.service.ProjectMemberService;
+import com.dev.tasktrackr.shared.api.annotation.ApiErrorResponses;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/projects")
 @RequiredArgsConstructor
 @Slf4j
+@ApiErrorResponses.SecuredResourceEndpoint
 public class ProjectMemberController {
     private final ProjectMemberService projectMemberService;
 

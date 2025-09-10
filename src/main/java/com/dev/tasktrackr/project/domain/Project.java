@@ -64,18 +64,22 @@ public class Project {
         return project;
     }
 
-    public void addMember(UserEntity userEntity) {
+    public ProjectMember addMember(UserEntity userEntity) {
         ProjectValidator.validateAddMember(this, userEntity.getId());
 
         ProjectMember createdMember = ProjectMember.createMember(userEntity, this, getBaseRole());
         projectMembers.add(createdMember);
+
+        return createdMember;
     }
 
-    private void addMemberWithRole(UserEntity userEntity, ProjectRole role) {
+    public ProjectMember addMemberWithRole(UserEntity userEntity, ProjectRole role) {
         ProjectValidator.validateAddMember(this, userEntity.getId());
 
         ProjectMember createdMember = ProjectMember.createMember(userEntity, this, role);
         projectMembers.add(createdMember);
+
+        return createdMember;
     }
 
     public void removeMember(Long memberToRemove) {
@@ -99,7 +103,6 @@ public class Project {
 
     public void deleteRole(int roleId) {
         ProjectValidator.validateRoleDeletion(this, roleId);
-
 
         this.projectRoles.removeIf(role -> role.getId() == roleId);
     }

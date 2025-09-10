@@ -96,7 +96,7 @@ public final class ApiErrorResponses {
                                             {
                                               "timestamp": "2025-08-23T10:15:30",
                                               "status": 403,
-                                              "code": "NO_WRITE_PERMISSION",
+                                              "code": "MISSING_PERMISSION",
                                               "message": "Insufficient permissions to access this resource",
                                               "path": "/api/v1/projects"
                                             }
