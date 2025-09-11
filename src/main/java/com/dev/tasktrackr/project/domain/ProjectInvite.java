@@ -83,6 +83,10 @@ public class ProjectInvite {
     public void validateResponse(String jwtUserId) {
         String receiverId = this.receiver.getId();
 
+        if(jwtUserId == null) {
+            throw new UnauthorizedInviteHandleAcception(null, receiverId);
+        }
+
         // Prüfen ob jwtUserId = Empfänger
         if (!jwtUserId.equals(receiverId)) throw new UnauthorizedInviteHandleAcception(jwtUserId, receiverId);
 

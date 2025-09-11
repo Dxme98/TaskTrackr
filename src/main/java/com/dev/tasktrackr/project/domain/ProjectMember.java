@@ -2,6 +2,7 @@ package com.dev.tasktrackr.project.domain;
 
 import com.dev.tasktrackr.project.domain.enums.PermissionName;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.PermissionDeniedException;
+import com.dev.tasktrackr.shared.exception.custom.InvalidRoleAssignmentException;
 import com.dev.tasktrackr.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -62,7 +63,7 @@ public class ProjectMember {
 
     public void assignRole(ProjectRole newRole) {
         if (!newRole.getProject().equals(this.project)) {
-            throw new IllegalArgumentException("Rolle gehört nicht zu diesem Projekt");
+            throw new InvalidRoleAssignmentException("Rolle gehört nicht zu diesem Projekt");
         }
         this.projectRole = newRole;
     }
