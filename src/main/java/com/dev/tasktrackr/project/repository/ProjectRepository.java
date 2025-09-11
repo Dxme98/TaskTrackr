@@ -26,7 +26,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     @EntityGraph(attributePaths = {"projectMembers", "projectInvites"})
     @Query("SELECT p from Project p where p.id = :projectId")
-    Optional<Project> findProjectWithInvitesAndMember(Long projectId);
+    Optional<Project> findProjectWithInvitesAndMember(@Param("projectId")Long projectId);
 
 
 
@@ -34,7 +34,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     @EntityGraph(attributePaths = {"projectRoles", "projectRoles.permissions"})
     @Query("SELECT p from Project p where p.id = :projectId")
-    Optional<Project> findProjectWithRolesAndPermissions(Long projectId);
+    Optional<Project> findProjectWithRolesAndPermissions(@Param("projectId") Long projectId);
 }
 
 

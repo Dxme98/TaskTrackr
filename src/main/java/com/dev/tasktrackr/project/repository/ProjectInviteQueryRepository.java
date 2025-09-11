@@ -14,10 +14,6 @@ import java.util.Optional;
 
 @Repository
 public interface ProjectInviteQueryRepository extends ReadOnlyRepository<ProjectInvite, Long> {
-    boolean existsByReceiverIdAndProjectId(String receiverId, long projectId);
-
-    ProjectInvite findByProjectIdAndReceiverId(long projectId, String receiverId);
-
     @EntityGraph(attributePaths = {"receiver", "sender", "project", "project.projectMembers"})
     @Query("SELECT pm FROM ProjectInvite pm WHERE pm.id = :inviteId")
     Optional<ProjectInvite> findByIdWithRelations(@Param("inviteId") Long inviteId);
