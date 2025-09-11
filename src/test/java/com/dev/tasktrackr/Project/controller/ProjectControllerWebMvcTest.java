@@ -1,5 +1,6 @@
 package com.dev.tasktrackr.Project.controller;
 
+import com.dev.tasktrackr.config.JpaAuditingConfig;
 import com.dev.tasktrackr.project.api.ProjectController;
 import com.dev.tasktrackr.project.api.dtos.request.ProjectRequest;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectOverviewDto;
@@ -9,10 +10,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType; // KORRIGIERT: Import
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
@@ -28,8 +30,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-/**
-@WebMvcTest(ProjectController.class)
+
+@WebMvcTest(controllers = ProjectController.class)
+@ImportAutoConfiguration(exclude = JpaAuditingConfig.class)
 @DisplayName("ProjectController (WebMvcTest)")
 class ProjectControllerWebMvcTest {
 
@@ -39,8 +42,7 @@ class ProjectControllerWebMvcTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    // KORRIGIERT: @MockBean stellt sicher, dass der Mock im Spring Context ist
-    @Mock
+    @MockitoBean
     private ProjectService projectService;
 
     private static final String API_BASE_URL = "/api/v1/projects";
@@ -84,4 +86,3 @@ class ProjectControllerWebMvcTest {
         verify(projectService).createProject(eq(testUserId), any(ProjectRequest.class));
     }
 }
- */
