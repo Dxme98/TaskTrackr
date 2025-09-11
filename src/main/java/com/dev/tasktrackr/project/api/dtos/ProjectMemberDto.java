@@ -2,15 +2,15 @@ package com.dev.tasktrackr.project.api.dtos;
 
 import com.dev.tasktrackr.project.domain.enums.PermissionName;
 import com.dev.tasktrackr.user.UserDto;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Set;
 
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProjectMemberDto {
     private Long id;
     private String userId;

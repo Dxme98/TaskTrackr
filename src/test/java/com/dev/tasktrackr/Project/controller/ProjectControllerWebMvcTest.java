@@ -13,16 +13,22 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -63,7 +69,7 @@ class ProjectControllerWebMvcTest {
                 .id(1L)
                 .name("Neues Super-Projekt")
                 .projectType(ProjectType.SCRUM)
-              //  .createdAt(Instant.now())
+                .createdAt(Instant.now())
                 .build();
 
         when(projectService.createProject(eq(testUserId), any(ProjectRequest.class)))
@@ -83,5 +89,57 @@ class ProjectControllerWebMvcTest {
                 .andExpect(jsonPath("$.name").value(expectedResponse.getName()));
 
         verify(projectService).createProject(eq(testUserId), any(ProjectRequest.class));
+    }
+
+    @Test
+    @DisplayName("GET /projects - Sollte 200 OK zurückgeben und Projekte des Benutzers laden")
+    void findAllProjectsByUserId_whenValidRequest_shouldReturn200AndProjects() throws Exception {
+        // Given
+        int page = 0;
+        int size = 20;
+
+        List<ProjectOverviewDto> projectList = Arrays.asList(
+                ProjectOverviewDto.builder()
+                        .id(1L)
+                        .name("Projekt 1")
+                        .projectType(ProjectType.SCRUM)
+                        .createdAt(Instant.now())
+                        .build(),
+                ProjectOverviewDto.builder()
+                        .id(2L)
+                        .name("Projekt 2")
+                        .projectType(ProjectType.BASIC)
+                        .createdAt(Instant.now())
+                        .build()
+        );
+
+        Page<ProjectOverviewDto> mockPage = new PageImpl<>(projectList, PageRequest.of(page, size), projectList.size());
+
+        when(projectService.findProjectsByUserId(eq(testUserId), any(PageRequest.class)))
+                .thenReturn(mockPage);
+
+        // When & Then
+        mockMvc.perform(get(API_BASE_URL)
+                        .with(jwt().jwt(jwt -> jwt
+                                .claim("sub", testUserId)
+                                .claim("preferred_username", testUsername)
+                        ))
+                        .param("page", String.valueOf(page))
+                        .param("size", String.valueOf(size)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].name").value("Projekt 1"))
+                .andExpect(jsonPath("$.content[1].id").value(2))
+                .andExpect(jsonPath("$.content[1].name").value("Projekt 2"))
+                .andExpect(jsonPath("$.page").value(page))
+                .andExpect(jsonPath("$.size").value(size))
+                .andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.last").value(true));
+
+        verify(projectService).findProjectsByUserId(eq(testUserId), any(PageRequest.class));
     }
 }

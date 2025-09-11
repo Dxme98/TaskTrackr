@@ -58,8 +58,8 @@ public class ProjectController {
     @ApiResponse(responseCode = "200", description = "Projects loaded successfully",
             content = @Content(schema = @Schema(implementation = ProjectPageResponse.class)))
     public ResponseEntity<PageResponse<ProjectOverviewDto>> findAllProjectsByUserId(@AuthenticationPrincipal Jwt jwt,
-                                                                            @RequestParam(defaultValue = "0") int page,
-                                                                            @RequestParam(defaultValue = "20") int size) {
+                                                                            @RequestParam(name = "page", defaultValue = "0") int page,
+                                                                            @RequestParam(name = "size", defaultValue = "20") int size) {
         String userId = jwt.getClaim("sub");
         PageRequest pr = PageRequest.of(page, size);
 

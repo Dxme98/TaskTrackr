@@ -37,9 +37,9 @@ public class ProjectMemberController {
             content = @Content(schema = @Schema(implementation = ProjectMemberPageResponse.class))
     )
     public ResponseEntity<PageResponse<ProjectMemberDto>> findAllProjectMembersByProjectId(@AuthenticationPrincipal Jwt jwt,
-                                                                                           @PathVariable Long projectId,
-                                                                                           @RequestParam(defaultValue = "5") int size,
-                                                                                           @RequestParam(defaultValue = "0") int page) {
+                                                                                           @PathVariable(name = "projectId") Long projectId,
+                                                                                           @RequestParam(name = "size", defaultValue = "5") int size,
+                                                                                           @RequestParam(name = "page", defaultValue = "0") int page) {
         log.info("User {} requests members in project {}", jwt.getClaimAsString("preferred_username"), projectId);
 
         PageRequest pr = PageRequest.of(page, size);
@@ -55,7 +55,9 @@ public class ProjectMemberController {
             description = "Removes a specific member by their ID from the given project"
     )
     @ApiResponse(responseCode = "204", description = "Member removed successfully")
-    public ResponseEntity<Void> removeMember(@AuthenticationPrincipal Jwt jwt, @PathVariable Long projectId, @PathVariable Long memberId) {
+    public ResponseEntity<Void> removeMember(@AuthenticationPrincipal Jwt jwt,
+                                             @PathVariable(name = "projectId") Long projectId,
+                                             @PathVariable(name = "memberId") Long memberId) {
         log.info("User {} requests to remove Member {} from project {}", jwt.getClaimAsString("preferred_username"), memberId, projectId);
 
         String userId = jwt.getClaim("sub");

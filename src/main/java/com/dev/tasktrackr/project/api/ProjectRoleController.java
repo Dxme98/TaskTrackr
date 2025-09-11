@@ -62,8 +62,8 @@ public class ProjectRoleController {
     )
     public ResponseEntity<PageResponse<ProjectRoleResponse>> getAllRoles(@AuthenticationPrincipal Jwt jwt,
                                                                          @PathVariable Long projectId,
-                                                                         @RequestParam(defaultValue = "10") int size,
-                                                                         @RequestParam(defaultValue = "0") int page) {
+                                                                         @RequestParam(name = "size", defaultValue = "10") int size,
+                                                                         @RequestParam(name = "page", defaultValue = "0") int page) {
         log.info("User {} requests roles in project {}", jwt.getClaimAsString("preferred_username"), projectId);
         PageRequest pr = PageRequest.of(page, size);
 
