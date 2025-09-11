@@ -18,8 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @RequiredArgsConstructor
 @Service
 @Slf4j
@@ -86,7 +84,7 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
     @Override
     @Transactional(readOnly = true)
     public Page<ProjectRoleResponse> getAllRoles(String jwtUserId, Pageable pageable, Long projectId) {
-        Project project = projectRepository.findProjectWithInvitesAndMemberAndPermissions(projectId)
+        Project project = projectRepository.findProjectWithInvitesAndMember(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException(projectId));
         project.findProjectMember(jwtUserId); // checks if user is part of projects
 

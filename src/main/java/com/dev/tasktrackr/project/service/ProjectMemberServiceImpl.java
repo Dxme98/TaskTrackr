@@ -23,7 +23,7 @@ public class ProjectMemberServiceImpl implements ProjectMemberService{
     @Override
     @Transactional
     public void removeMemberFromProject(String jwtUserId, Long projectId, Long memberId) {
-        Project project = projectRepository.findProjectWithInvitesAndMemberAndPermissions(projectId)
+        Project project = projectRepository.findProjectWithInvitesAndMember(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException(projectId));
 
         ProjectMember member = project.findProjectMember(jwtUserId);
@@ -37,7 +37,7 @@ public class ProjectMemberServiceImpl implements ProjectMemberService{
     @Transactional(readOnly = true)
     public Page<ProjectMemberDto> getAllProjectMembers(String jwtUserId, Long projectId, Pageable pageable) {
 
-        Project project = projectRepository.findProjectWithInvitesAndMemberAndPermissions(projectId)
+        Project project = projectRepository.findProjectWithInvitesAndMember(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException(projectId));
         project.findProjectMember(jwtUserId); // checks if user is part of projects
 

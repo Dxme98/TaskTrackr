@@ -8,21 +8,16 @@ import com.dev.tasktrackr.project.domain.ProjectInvite;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.enums.ProjectInviteStatus;
 import com.dev.tasktrackr.project.repository.ProjectInviteQueryRepository;
-import com.dev.tasktrackr.project.repository.ProjectMemberQueryRepository;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
 import com.dev.tasktrackr.shared.exception.custom.*;
 import com.dev.tasktrackr.user.UserEntity;
 import com.dev.tasktrackr.user.UserRepository;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +32,7 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
     @Override
     @Transactional
     public ProjectInviteResponseDto createProjectInvite(ProjectInviteRequest request, String senderId, Long projectId) {
-        Project project = projectRepository.findProjectWithInvitesAndMemberAndPermissions(projectId)
+        Project project = projectRepository.findProjectWithInvitesAndMember(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException(projectId));
 
         UserEntity sender =  findUserById(senderId);
