@@ -37,7 +37,7 @@ public class ProjectInviteController {
             content = @Content(schema = @Schema(implementation = ProjectInviteResponseDto.class)))
     @ApiErrorResponses.Conflict
     public ResponseEntity<ProjectInviteResponseDto> createInvite(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody ProjectInviteRequest inviteRequest,
-                                                                 @PathVariable Long projectId) {
+                                                                 @PathVariable(name = "projectId") Long projectId) {
         log.info("Creating Invite from user: {}", jwt.getClaimAsString("preferred_username"));
 
         String userId = jwt.getClaim("sub");
@@ -51,7 +51,7 @@ public class ProjectInviteController {
     @ApiResponse(responseCode = "200", description = "Invite accepted successfully",
             content = @Content(schema = @Schema(implementation = ProjectInviteResponseDto.class)))
     @ApiErrorResponses.Conflict
-    public ResponseEntity<ProjectInviteResponseDto> acceptInvite(@AuthenticationPrincipal Jwt jwt, @PathVariable Long inviteId) {
+    public ResponseEntity<ProjectInviteResponseDto> acceptInvite(@AuthenticationPrincipal Jwt jwt, @PathVariable(name = "inviteId") Long inviteId) {
         log.info("Accepting Invite from user: {}", jwt.getClaimAsString("preferred_username"));
 
         String userId = jwt.getClaim("sub");
@@ -65,7 +65,7 @@ public class ProjectInviteController {
     @ApiResponse(responseCode = "200", description = "Invite declined successfully",
             content = @Content(schema = @Schema(implementation = ProjectInviteResponseDto.class)))
     @ApiErrorResponses.Conflict
-    public ResponseEntity<ProjectInviteResponseDto> declineInvite(@AuthenticationPrincipal Jwt jwt, @PathVariable Long inviteId) {
+    public ResponseEntity<ProjectInviteResponseDto> declineInvite(@AuthenticationPrincipal Jwt jwt, @PathVariable(name = "inviteId") Long inviteId) {
         log.info("Declined Invite from user: {}", jwt.getClaimAsString("preferred_username"));
 
         String userId = jwt.getClaim("sub");
@@ -87,8 +87,8 @@ public class ProjectInviteController {
             content = @Content(schema = @Schema(implementation = ProjectInvitePageResponse.class))
     )
     public ResponseEntity<PageResponse<ProjectInviteResponseDto>> findAllPendingInvitesByUserId(@AuthenticationPrincipal Jwt jwt,
-                                                                                @RequestParam(defaultValue = "0") int page ,
-                                                                                @RequestParam(defaultValue = "5") int size) {
+                                                                                @RequestParam(defaultValue = "0", name = "page") int page ,
+                                                                                @RequestParam(defaultValue = "5", name = "size") int size) {
         log.info("Received request to list all PENDING invites from: : {}", jwt.getClaimAsString("preferred_username"));
 
         String userId = jwt.getClaim("sub");

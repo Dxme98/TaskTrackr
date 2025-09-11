@@ -39,7 +39,7 @@ public class ProjectRoleController {
     @ApiErrorResponses.Conflict
     public ResponseEntity<ProjectRoleResponse> createRole(
             @AuthenticationPrincipal Jwt jwt,
-            @PathVariable Long projectId,
+            @PathVariable(name = "projectId") Long projectId,
             @Valid @RequestBody CreateProjectRoleRequest createProjectRoleRequest) {
 
         log.info("User {} creates new role in project {}", jwt.getClaimAsString("preferred_username"), projectId);
@@ -61,7 +61,7 @@ public class ProjectRoleController {
             content = @Content(schema = @Schema(implementation = ProjectRolePageResponse.class))
     )
     public ResponseEntity<PageResponse<ProjectRoleResponse>> getAllRoles(@AuthenticationPrincipal Jwt jwt,
-                                                                         @PathVariable Long projectId,
+                                                                         @PathVariable(name = "projectId") Long projectId,
                                                                          @RequestParam(name = "size", defaultValue = "10") int size,
                                                                          @RequestParam(name = "page", defaultValue = "0") int page) {
         log.info("User {} requests roles in project {}", jwt.getClaimAsString("preferred_username"), projectId);
@@ -78,8 +78,8 @@ public class ProjectRoleController {
     @ApiResponse(responseCode = "204", description = "Role deleted successfully")
     public ResponseEntity<Void> deleteRole(
             @AuthenticationPrincipal Jwt jwt,
-            @PathVariable Long projectId,
-            @PathVariable int roleId) {
+            @PathVariable(name = "projectId") Long projectId,
+            @PathVariable(name = "roleId") int roleId) {
 
         log.info("User {} deletes role {} from project {}", jwt.getClaimAsString("preferred_username"), roleId, projectId);
 
@@ -95,9 +95,9 @@ public class ProjectRoleController {
             content = @Content(schema = @Schema(implementation = ProjectMemberDto.class)))
     public ResponseEntity<ProjectMemberDto> assignRole(
             @AuthenticationPrincipal Jwt jwt,
-            @PathVariable Long projectId,
-            @PathVariable int roleId,
-            @PathVariable Long memberId) {
+            @PathVariable(name = "projectId") Long projectId,
+            @PathVariable(name = "roleId") int roleId,
+            @PathVariable(name = "memberId") Long memberId) {
 
         log.info("User {} assigns role {} to member {} in project {}",
                 jwt.getClaimAsString("preferred_username"), roleId, memberId, projectId);
@@ -115,8 +115,8 @@ public class ProjectRoleController {
     @ApiErrorResponses.Conflict
     public ResponseEntity<ProjectRoleResponse> renameRole(
             @AuthenticationPrincipal Jwt jwt,
-            @PathVariable Long projectId,
-            @PathVariable int roleId,
+            @PathVariable(name = "projectId") Long projectId,
+            @PathVariable(name = "roleId") int roleId,
             @Valid @RequestBody RenameRoleRequest renameRoleRequest) {
 
         log.info("User {} renames role {} in project {}", jwt.getClaimAsString("preferred_username"), roleId, projectId);
