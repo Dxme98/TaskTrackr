@@ -4,6 +4,7 @@ import com.dev.tasktrackr.project.api.dtos.request.ProjectRequest;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.ProjectRole;
+import com.dev.tasktrackr.project.domain.enums.PermissionName;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.PermissionDeniedException;
 import com.dev.tasktrackr.shared.exception.custom.InvalidRoleAssignmentException;
@@ -109,6 +110,55 @@ public class ProjectMemberTest {
     @Nested
     @DisplayName("Permission Tests")
     class PermissionTests {
+
+        @Test
+        void shouldNotThrowIfRoleHaveCreateTaskPermission() {
+            when(mockNewRole.hasPermission(PermissionName.BASIC_CREATE_TASK)).thenReturn(true);
+            projectMember.assignRole(mockNewRole);
+
+            assertDoesNotThrow(() -> projectMember.canCreateTask());
+        }
+
+        @Test
+        void shouldNotThrowIfRoleHasDeleteTaskPermission() {
+            when(mockNewRole.hasPermission(PermissionName.BASIC_DELETE_TASK)).thenReturn(true);
+            projectMember.assignRole(mockNewRole);
+
+            assertDoesNotThrow(() -> projectMember.canDeleteTask());
+        }
+
+        @Test
+        void shouldNotThrowIfRoleHasEditInformationPermission() {
+            when(mockNewRole.hasPermission(PermissionName.BASIC_EDIT_INFORMATION)).thenReturn(true);
+            projectMember.assignRole(mockNewRole);
+
+            assertDoesNotThrow(() -> projectMember.canEditInformation());
+        }
+
+        @Test
+        void shouldNotThrowIfRoleHasInviteUserPermission() {
+            when(mockNewRole.hasPermission(PermissionName.COMMON_INVITE_USER)).thenReturn(true);
+            projectMember.assignRole(mockNewRole);
+
+            assertDoesNotThrow(() -> projectMember.canInviteUser());
+        }
+
+        @Test
+        void shouldNotThrowIfRoleHasRemoveUserPermission() {
+            when(mockNewRole.hasPermission(PermissionName.COMMON_REMOVE_USER)).thenReturn(true);
+            projectMember.assignRole(mockNewRole);
+
+            assertDoesNotThrow(() -> projectMember.canRemoveUser());
+        }
+
+        @Test
+        void shouldNotThrowIfRoleHasManageRolesPermission() {
+            when(mockNewRole.hasPermission(PermissionName.COMMON_MANAGE_ROLES)).thenReturn(true);
+            projectMember.assignRole(mockNewRole);
+
+            assertDoesNotThrow(() -> projectMember.canManageRoles());
+        }
+
 
 
         @Test

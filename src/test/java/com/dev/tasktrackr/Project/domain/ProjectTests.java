@@ -27,7 +27,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @DisplayName("Project Entity Tests")
-public class ProjectTest {
+public class ProjectTests {
 
     @Mock
     private UserEntity mockUser;
@@ -420,6 +420,22 @@ public class ProjectTest {
             assertNotNull(baseRole);
             assertEquals(RoleType.BASE, baseRole.getRoleType());
             assertEquals("BASE", baseRole.getName());
+        }
+
+        @Test
+        @DisplayName("Should find ProjectMember successfully")
+        void shouldFindProjectMemberSuccessfully() {
+
+            ProjectMember projectMember = project.findProjectMember("user123");
+
+            assertNotNull(projectMember);
+            assertEquals("user123", projectMember.getUser().getId());
+        }
+
+        @Test
+        @DisplayName("Should throw if ProjectMember is not found")
+        void shouldThrowIfProjectMemberIsNotFound() {
+            assertThrows(UserNotProjectMemberException.class, () -> project.findProjectMember("invalidUserId123"));
         }
     }
 }
