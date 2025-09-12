@@ -1,6 +1,6 @@
-package com.dev.tasktrackr.project.api;
+package com.dev.tasktrackr.project.api.controller;
 
-import com.dev.tasktrackr.project.api.dtos.ProjectMemberDto;
+import com.dev.tasktrackr.project.api.dtos.response.ProjectMemberDto;
 import com.dev.tasktrackr.project.api.dtos.request.CreateProjectRoleRequest;
 import com.dev.tasktrackr.project.api.dtos.request.RenameRoleRequest;
 import com.dev.tasktrackr.project.api.dtos.response.PageResponse;

@@ -1,8 +1,6 @@
 package com.dev.tasktrackr.project.service;
 
-import com.dev.tasktrackr.project.api.dtos.ProjectMemberDto;
-import com.dev.tasktrackr.project.domain.Project;
-import com.dev.tasktrackr.project.domain.ProjectMember;
+import com.dev.tasktrackr.project.api.dtos.response.ProjectMemberDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

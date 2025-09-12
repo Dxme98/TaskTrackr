@@ -1,6 +1,6 @@
 package com.dev.tasktrackr.project.service;
 
-import com.dev.tasktrackr.project.api.dtos.ProjectInviteMapper;
+import com.dev.tasktrackr.project.api.dtos.mapper.ProjectInviteMapper;
 import com.dev.tasktrackr.project.api.dtos.request.ProjectInviteRequest;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectInviteResponseDto;
 import com.dev.tasktrackr.project.domain.Project;
@@ -9,7 +9,9 @@ import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.enums.ProjectInviteStatus;
 import com.dev.tasktrackr.project.repository.ProjectInviteQueryRepository;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
-import com.dev.tasktrackr.shared.exception.custom.*;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectInviteNotFound;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.UserNotFoundException;
 import com.dev.tasktrackr.user.UserEntity;
 import com.dev.tasktrackr.user.UserRepository;
 import lombok.RequiredArgsConstructor;

@@ -1,8 +1,8 @@
 package com.dev.tasktrackr.Project.controller;
 
 import com.dev.tasktrackr.config.JpaAuditingConfig;
-import com.dev.tasktrackr.project.api.ProjectMemberController;
-import com.dev.tasktrackr.project.api.dtos.ProjectMemberDto;
+import com.dev.tasktrackr.project.api.controller.ProjectMemberController;
+import com.dev.tasktrackr.project.api.dtos.response.ProjectMemberDto;
 import com.dev.tasktrackr.project.domain.enums.PermissionName;
 import com.dev.tasktrackr.project.service.ProjectMemberService;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,6 +1,6 @@
 package com.dev.tasktrackr.project.service;
 
-import com.dev.tasktrackr.project.api.dtos.ProjectMemberDto;
+import com.dev.tasktrackr.project.api.dtos.response.ProjectMemberDto;
 import com.dev.tasktrackr.project.api.dtos.request.CreateProjectRoleRequest;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectRoleResponse;
 import org.springframework.data.domain.Page;

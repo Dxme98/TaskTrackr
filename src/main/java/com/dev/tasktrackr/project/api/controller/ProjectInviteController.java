@@ -1,10 +1,9 @@
-package com.dev.tasktrackr.project.api;
+package com.dev.tasktrackr.project.api.controller;
 
 import com.dev.tasktrackr.project.api.dtos.request.ProjectInviteRequest;
 import com.dev.tasktrackr.project.api.dtos.response.PageResponse;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectInvitePageResponse;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectInviteResponseDto;
-import com.dev.tasktrackr.project.api.dtos.response.ProjectOverviewDto;
 import com.dev.tasktrackr.project.service.ProjectInviteService;
 import com.dev.tasktrackr.shared.api.annotation.ApiErrorResponses;
 import io.swagger.v3.oas.annotations.Operation;

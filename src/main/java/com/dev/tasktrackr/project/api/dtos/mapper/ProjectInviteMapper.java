@@ -1,4 +1,4 @@
-package com.dev.tasktrackr.project.api.dtos;
+package com.dev.tasktrackr.project.api.dtos.mapper;
 
 import com.dev.tasktrackr.project.api.dtos.response.ProjectInviteResponseDto;
 import com.dev.tasktrackr.project.domain.ProjectInvite;

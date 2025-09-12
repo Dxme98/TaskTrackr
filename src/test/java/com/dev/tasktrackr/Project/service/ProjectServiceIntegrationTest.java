@@ -8,7 +8,7 @@ import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
 import com.dev.tasktrackr.project.domain.enums.RoleType;
 import com.dev.tasktrackr.project.service.ProjectServiceImpl;
-import com.dev.tasktrackr.shared.exception.custom.UserNotFoundException;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.UserNotFoundException;
 import com.dev.tasktrackr.user.UserEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

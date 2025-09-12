@@ -1,17 +1,14 @@
 package com.dev.tasktrackr.Project.domain;
 
-import com.dev.tasktrackr.project.api.dtos.request.ProjectRequest;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.ProjectRole;
 import com.dev.tasktrackr.project.domain.enums.PermissionName;
-import com.dev.tasktrackr.project.domain.enums.ProjectType;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.PermissionDeniedException;
-import com.dev.tasktrackr.shared.exception.custom.InvalidRoleAssignmentException;
+import com.dev.tasktrackr.shared.exception.custom.BadRequestExceptions.InvalidRoleAssignmentException;
 import com.dev.tasktrackr.user.UserEntity;
 import org.junit.jupiter.api.*;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 

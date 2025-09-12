@@ -2,7 +2,7 @@ package com.dev.tasktrackr.Project.controller;
 
 
 import com.dev.tasktrackr.config.JpaAuditingConfig;
-import com.dev.tasktrackr.project.api.ProjectInviteController;
+import com.dev.tasktrackr.project.api.controller.ProjectInviteController;
 import com.dev.tasktrackr.project.api.dtos.request.ProjectInviteRequest;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectInviteResponseDto;
 import com.dev.tasktrackr.project.domain.enums.ProjectInviteStatus;

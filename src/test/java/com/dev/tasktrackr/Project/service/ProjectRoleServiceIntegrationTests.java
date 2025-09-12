@@ -1,7 +1,7 @@
 package com.dev.tasktrackr.Project.service;
 
 import com.dev.tasktrackr.BaseIntegrationTest;
-import com.dev.tasktrackr.project.api.dtos.ProjectMemberDto;
+import com.dev.tasktrackr.project.api.dtos.response.ProjectMemberDto;
 import com.dev.tasktrackr.project.api.dtos.request.CreateProjectRoleRequest;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectRoleResponse;
 import com.dev.tasktrackr.project.domain.Project;
@@ -11,11 +11,10 @@ import com.dev.tasktrackr.project.domain.enums.PermissionName;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
 import com.dev.tasktrackr.project.domain.enums.RoleType;
 import com.dev.tasktrackr.project.service.ProjectRoleServiceImpl;
-import com.dev.tasktrackr.project.service.ProjectServiceImpl;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.PermissionDeniedException;
-import com.dev.tasktrackr.shared.exception.custom.InvalidRoleAssignmentException;
-import com.dev.tasktrackr.shared.exception.custom.InvalidRoleDeletion;
-import com.dev.tasktrackr.shared.exception.custom.RoleNameAlreadyExistsException;
+import com.dev.tasktrackr.shared.exception.custom.BadRequestExceptions.InvalidRoleAssignmentException;
+import com.dev.tasktrackr.shared.exception.custom.BadRequestExceptions.InvalidRoleDeletion;
+import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.RoleNameAlreadyExistsException;
 import com.dev.tasktrackr.user.UserEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

@@ -1,12 +1,11 @@
 package com.dev.tasktrackr.project.service;
 
-import com.dev.tasktrackr.project.api.dtos.ProjectMapper;
+import com.dev.tasktrackr.project.api.dtos.mapper.ProjectMapper;
 import com.dev.tasktrackr.project.api.dtos.request.ProjectRequest;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectOverviewDto;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
-import com.dev.tasktrackr.shared.exception.custom.ProjectTypeNotFoundException;
-import com.dev.tasktrackr.shared.exception.custom.UserNotFoundException;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.UserNotFoundException;
 import com.dev.tasktrackr.user.UserEntity;
 import com.dev.tasktrackr.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @Slf4j

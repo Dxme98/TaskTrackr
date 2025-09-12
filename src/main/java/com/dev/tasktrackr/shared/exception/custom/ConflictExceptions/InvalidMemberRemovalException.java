@@ -1,6 +1,7 @@
-package com.dev.tasktrackr.shared.exception.custom;
+package com.dev.tasktrackr.shared.exception.custom.ConflictExceptions;
 
 import com.dev.tasktrackr.shared.exception.ErrorCode;
+import com.dev.tasktrackr.shared.exception.custom.AppException;
 import org.springframework.http.HttpStatus;
 
 public class InvalidMemberRemovalException extends AppException {

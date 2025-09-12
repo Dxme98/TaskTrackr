@@ -1,7 +1,5 @@
 package com.dev.tasktrackr.project.api.dtos.response;
 
-import com.dev.tasktrackr.project.api.dtos.ProjectMemberDto;
-
 import java.util.List;
 
 public class ProjectMemberPageResponse extends PageResponse<ProjectMemberDto>{

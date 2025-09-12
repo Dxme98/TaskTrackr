@@ -1,7 +1,6 @@
-package com.dev.tasktrackr.project.api.dtos;
+package com.dev.tasktrackr.project.api.dtos.response;
 
 import com.dev.tasktrackr.project.domain.enums.PermissionName;
-import com.dev.tasktrackr.user.UserDto;
 import lombok.*;
 
 import java.util.Set;

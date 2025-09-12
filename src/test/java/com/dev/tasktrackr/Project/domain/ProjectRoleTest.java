@@ -5,7 +5,7 @@ import com.dev.tasktrackr.project.domain.ProjectRole;
 import com.dev.tasktrackr.project.domain.enums.PermissionName;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
 import com.dev.tasktrackr.project.domain.enums.RoleType;
-import com.dev.tasktrackr.shared.exception.custom.InvalidRoleAssignmentException;
+import com.dev.tasktrackr.shared.exception.custom.BadRequestExceptions.InvalidRoleAssignmentException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

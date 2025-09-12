@@ -1,19 +1,17 @@
 package com.dev.tasktrackr.project.domain;
 
 import com.dev.tasktrackr.project.domain.enums.ProjectInviteStatus;
-import com.dev.tasktrackr.shared.exception.custom.InviteIsNotPendingException;
-import com.dev.tasktrackr.shared.exception.custom.UnauthorizedInviteHandleAcception;
-import com.dev.tasktrackr.shared.exception.custom.UserAlreadyPartOfProjectException;
+import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.InviteIsNotPendingException;
+import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.UnauthorizedInviteHandleAcception;
+import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.UserAlreadyPartOfProjectException;
 import com.dev.tasktrackr.user.UserEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
-import java.util.Objects;
 
 @Entity
 @Table(

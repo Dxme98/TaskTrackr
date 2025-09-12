@@ -2,7 +2,7 @@ package com.dev.tasktrackr.project.domain;
 
 import com.dev.tasktrackr.project.domain.enums.PermissionName;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.PermissionDeniedException;
-import com.dev.tasktrackr.shared.exception.custom.InvalidRoleAssignmentException;
+import com.dev.tasktrackr.shared.exception.custom.BadRequestExceptions.InvalidRoleAssignmentException;
 import com.dev.tasktrackr.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -11,7 +11,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
-import java.util.Objects;
 
 @Entity
 @Table(

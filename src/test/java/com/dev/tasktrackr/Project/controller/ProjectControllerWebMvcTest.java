@@ -1,7 +1,7 @@
 package com.dev.tasktrackr.Project.controller;
 
 import com.dev.tasktrackr.config.JpaAuditingConfig;
-import com.dev.tasktrackr.project.api.ProjectController;
+import com.dev.tasktrackr.project.api.controller.ProjectController;
 import com.dev.tasktrackr.project.api.dtos.request.ProjectRequest;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectOverviewDto;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;

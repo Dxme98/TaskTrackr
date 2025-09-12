@@ -1,9 +1,10 @@
-package com.dev.tasktrackr.shared.exception.custom;
+package com.dev.tasktrackr.shared.exception.custom.ConflictExceptions;
 
 import com.dev.tasktrackr.shared.exception.ErrorCode;
+import com.dev.tasktrackr.shared.exception.custom.AppException;
 import org.springframework.http.HttpStatus;
 
-public class ProjectInviteAlreadyExistsException extends AppException{
+public class ProjectInviteAlreadyExistsException extends AppException {
     public ProjectInviteAlreadyExistsException(String receiverId, Long projectId) {
         super("User with ID " + receiverId + " already got a invite for project: " + projectId,
                 ErrorCode.INVITE_ALREADY_EXISTS,

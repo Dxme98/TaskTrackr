@@ -9,8 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface ProjectRoleQueryRepository extends ReadOnlyRepository<ProjectRole, Integer>{
-
-
     @EntityGraph(attributePaths = "permissions")
     Page<ProjectRole> findAllByProjectId(@Param("projectId")Long projectId, Pageable pageable);
 }

@@ -1,12 +1,12 @@
 package com.dev.tasktrackr.project.service;
 
-import com.dev.tasktrackr.project.api.dtos.ProjectMemberDto;
-import com.dev.tasktrackr.project.api.dtos.ProjectMemberMapper;
+import com.dev.tasktrackr.project.api.dtos.response.ProjectMemberDto;
+import com.dev.tasktrackr.project.api.dtos.mapper.ProjectMemberMapper;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.repository.ProjectMemberQueryRepository;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
-import com.dev.tasktrackr.shared.exception.custom.ProjectNotFoundException;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

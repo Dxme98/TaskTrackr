@@ -1,10 +1,9 @@
-package com.dev.tasktrackr.project.api.dtos;
+package com.dev.tasktrackr.project.api.dtos.mapper;
 
 import com.dev.tasktrackr.project.api.dtos.response.ProjectRoleResponse;
 import com.dev.tasktrackr.project.domain.ProjectRole;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
 
 @Mapper(componentModel = "spring")
 public interface RoleMapper {

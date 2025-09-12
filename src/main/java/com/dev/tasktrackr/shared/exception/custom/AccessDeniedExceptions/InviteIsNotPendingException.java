@@ -1,9 +1,10 @@
-package com.dev.tasktrackr.shared.exception.custom;
+package com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions;
 
 import com.dev.tasktrackr.shared.exception.ErrorCode;
+import com.dev.tasktrackr.shared.exception.custom.AppException;
 import org.springframework.http.HttpStatus;
 
-public class InviteIsNotPendingException extends AppException{
+public class InviteIsNotPendingException extends AppException {
 
     public InviteIsNotPendingException(Long inviteId) {
         super("Invite id " + inviteId + " is not PENDING.",

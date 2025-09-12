@@ -1,4 +1,4 @@
-package com.dev.tasktrackr.project.api;
+package com.dev.tasktrackr.project.api.controller;
 
 import com.dev.tasktrackr.project.api.dtos.request.ProjectRequest;
 import com.dev.tasktrackr.project.api.dtos.response.PageResponse;
@@ -7,7 +7,6 @@ import com.dev.tasktrackr.project.api.dtos.response.ProjectPageResponse;
 import com.dev.tasktrackr.project.service.ProjectService;
 import com.dev.tasktrackr.shared.api.annotation.ApiErrorResponses;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -21,8 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/projects")

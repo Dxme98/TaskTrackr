@@ -1,6 +1,5 @@
 package com.dev.tasktrackr.project.api.dtos.response;
 
-import com.dev.tasktrackr.project.api.dtos.ProjectMemberDto;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;

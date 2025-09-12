@@ -1,8 +1,8 @@
 package com.dev.tasktrackr.project.service;
 
-import com.dev.tasktrackr.project.api.dtos.ProjectMemberDto;
-import com.dev.tasktrackr.project.api.dtos.ProjectMemberMapper;
-import com.dev.tasktrackr.project.api.dtos.RoleMapper;
+import com.dev.tasktrackr.project.api.dtos.response.ProjectMemberDto;
+import com.dev.tasktrackr.project.api.dtos.mapper.ProjectMemberMapper;
+import com.dev.tasktrackr.project.api.dtos.mapper.RoleMapper;
 import com.dev.tasktrackr.project.api.dtos.request.CreateProjectRoleRequest;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectRoleResponse;
 import com.dev.tasktrackr.project.domain.Project;
@@ -10,7 +10,7 @@ import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.ProjectRole;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
 import com.dev.tasktrackr.project.repository.ProjectRoleQueryRepository;
-import com.dev.tasktrackr.shared.exception.custom.ProjectNotFoundException;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

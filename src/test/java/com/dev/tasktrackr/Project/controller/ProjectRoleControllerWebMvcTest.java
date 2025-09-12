@@ -1,8 +1,8 @@
 package com.dev.tasktrackr.Project.controller;
 
 import com.dev.tasktrackr.config.JpaAuditingConfig;
-import com.dev.tasktrackr.project.api.ProjectRoleController;
-import com.dev.tasktrackr.project.api.dtos.ProjectMemberDto;
+import com.dev.tasktrackr.project.api.controller.ProjectRoleController;
+import com.dev.tasktrackr.project.api.dtos.response.ProjectMemberDto;
 import com.dev.tasktrackr.project.api.dtos.request.CreateProjectRoleRequest;
 import com.dev.tasktrackr.project.api.dtos.request.RenameRoleRequest;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectRoleResponse;
