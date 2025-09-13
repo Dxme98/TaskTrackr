@@ -5,6 +5,7 @@ import com.dev.tasktrackr.project.domain.enums.PermissionName;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
 import com.dev.tasktrackr.project.domain.enums.RoleType;
 import com.dev.tasktrackr.project.domain.validator.ProjectValidator;
+import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.InvalidProjectTypeException;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.UserNotProjectMemberException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectMemberNotFoundException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.RoleNotFoundException;
@@ -49,6 +50,10 @@ public class Project {
     private List<ProjectInvite> projectInvites = new ArrayList<>();
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectRole> projectRoles = new ArrayList<>();
+    @OneToOne(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ScrumDetails scrumDetails;
+    @OneToOne(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private BasicDetails basicDetails;
 
 
     public static Project create(ProjectRequest projectRequest, UserEntity creator) {
@@ -58,6 +63,13 @@ public class Project {
 
         // Base-Rollen initialisieren
         project.initBaseRoles(project.projectType);
+
+        // Details erstellen
+        if (project.getProjectType() == ProjectType.BASIC) {
+            project.assignBasicDetails();
+        } else {
+            project.assignScrumDetails();
+        }
 
         // Creator automatisch als Owner hinzufügen
         project.addMemberWithRole(creator, project.getOwnerRole());
@@ -123,6 +135,20 @@ public class Project {
         member.assignRole(role);
 
         return member;
+    }
+
+    private void assignScrumDetails() {
+        if (this.projectType != ProjectType.SCRUM) {
+            throw new InvalidProjectTypeException("Project is not a SCRUM type");
+        }
+        this.scrumDetails = new ScrumDetails(this);
+    }
+
+    private void assignBasicDetails() {
+        if (this.projectType != ProjectType.BASIC) {
+            throw new InvalidProjectTypeException("Project is not a BASIC type");
+        }
+        this.basicDetails = new BasicDetails(this);
     }
 
     public ProjectRole renameRole(int roleId, String newName) {
