@@ -56,6 +56,13 @@ public class BasicDetails {
     }
 
     private void memberIsAllowedToCompleteTask(Task task, Long memberId) {
+
+        // Creator is allowed to complete task
+        if(task.getCreatedBy().getId().equals(memberId)) {
+            return;
+        }
+
+        // Assigned members are allowed to complete task
         task.getAssignedMembers().stream()
                 .filter(assignedMember -> assignedMember.getId().equals(memberId))
                 .findFirst()

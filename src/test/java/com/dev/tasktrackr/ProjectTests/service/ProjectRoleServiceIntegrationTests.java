@@ -1,4 +1,4 @@
-package com.dev.tasktrackr.Project.service;
+package com.dev.tasktrackr.ProjectTests.service;
 
 import com.dev.tasktrackr.BaseIntegrationTest;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectMemberDto;

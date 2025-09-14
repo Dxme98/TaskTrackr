@@ -1,4 +1,4 @@
-package com.dev.tasktrackr.Project.controller;
+package com.dev.tasktrackr.ProjectTests.controller;
 
 import com.dev.tasktrackr.config.JpaAuditingConfig;
 import com.dev.tasktrackr.project.api.controller.ProjectRoleController;

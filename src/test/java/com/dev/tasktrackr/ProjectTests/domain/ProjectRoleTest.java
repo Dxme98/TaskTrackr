@@ -1,4 +1,4 @@
-package com.dev.tasktrackr.Project.domain;
+package com.dev.tasktrackr.ProjectTests.domain;
 
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectRole;
