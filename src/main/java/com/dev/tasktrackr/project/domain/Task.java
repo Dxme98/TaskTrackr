@@ -85,5 +85,10 @@ public class Task {
                 .assignedMembers(assignedMembers)
                 .build();
     }
+
+    public Task complete() {
+        this.status = Status.COMPLETED;
+        return this;
+    }
  }
 

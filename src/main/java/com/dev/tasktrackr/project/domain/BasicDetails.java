@@ -1,6 +1,7 @@
 package com.dev.tasktrackr.project.domain;
 
 import com.dev.tasktrackr.project.api.dtos.request.CreateTaskRequest;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.TaskNotFoundException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -38,5 +39,23 @@ public class BasicDetails {
         tasks.add(createdTask);
 
         return createdTask;
+    }
+
+    public Task completeTask(Long taskId) {
+        Task task = findTask(taskId);
+        task.complete();
+
+        return task;
+    }
+
+    public void deleteTask(Long taskId) {
+        Task task = findTask(taskId);
+        tasks.remove(task);
+    }
+
+    public Task findTask(Long taskId) {
+        return this.tasks.stream()
+                .filter(task -> task.getId().equals(taskId)).findFirst()
+                .orElseThrow(() -> new TaskNotFoundException(taskId));
     }
 }

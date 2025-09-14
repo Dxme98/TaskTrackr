@@ -41,13 +41,25 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     public TaskResponseDto completeTask(Long projectId, Long taskId, String jwtUserId) {
-        return null;
+        Project project = findProjectById(projectId);
+        BasicDetails basicDetails = project.getBasicDetails();
+
+        Task completedTask = basicDetails.completeTask(taskId);
+
+        projectRepository.save(project);
+
+        return taskMapper.toResponse(completedTask);
     }
 
     @Override
     @Transactional
     public void deleteTask(Long projectId, Long taskId, String jwtUserId) {
+        Project project = findProjectById(projectId);
+        BasicDetails basicDetails = project.getBasicDetails();
 
+        basicDetails.deleteTask(taskId);
+
+        projectRepository.save(project);
     }
 
     @Override
