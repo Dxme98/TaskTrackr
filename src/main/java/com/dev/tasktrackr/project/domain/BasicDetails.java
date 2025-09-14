@@ -1,7 +1,10 @@
 package com.dev.tasktrackr.project.domain;
 
+import com.dev.tasktrackr.project.api.dtos.request.CreateLinkRequest;
 import com.dev.tasktrackr.project.api.dtos.request.CreateTaskRequest;
+import com.dev.tasktrackr.project.api.dtos.request.UpdateInformationContentRequest;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.ProjectMemberNotAllowedToCompleteTaskException;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.LinkNotFoundException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.TaskNotFoundException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -33,6 +36,7 @@ public class BasicDetails {
 
     public BasicDetails (Project project) {
         this.project = project;
+        this.information = new Information(this);
     }
 
     public Task addTask(CreateTaskRequest createTaskRequest, ProjectMember taskCreator, Set<ProjectMember> assignedMembers) {
@@ -73,5 +77,29 @@ public class BasicDetails {
         return this.tasks.stream()
                 .filter(task -> task.getId().equals(taskId)).findFirst()
                 .orElseThrow(() -> new TaskNotFoundException(taskId));
+    }
+
+    public Information updateInformationContent(UpdateInformationContentRequest updateInformationContentRequest) {
+        information.updateContent(updateInformationContentRequest.getContent());
+        return information;
+    }
+
+    public Link addLink(CreateLinkRequest linkRequest) {
+        Link createdLink = new Link(linkRequest.getTitle(), linkRequest.getTitle(), linkRequest.getLinkType());
+        links.add(createdLink);
+
+        return createdLink;
+    }
+
+    public void deleteLink(Long linkId) {
+        Link toDelete = findLink(linkId);
+        links.remove(toDelete);
+    }
+
+    public Link findLink(Long linkId) {
+        return this.links.stream()
+                .filter(link -> link.getId().equals(linkId))
+                .findFirst()
+                .orElseThrow(() -> new LinkNotFoundException(linkId));
     }
 }

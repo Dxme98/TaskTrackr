@@ -147,7 +147,7 @@ public class Project {
         if (this.projectType != ProjectType.BASIC) {
             throw new InvalidProjectTypeException("Project is not a BASIC type");
         }
-        this.basicDetails = new BasicDetails(this);
+      this.basicDetails = new BasicDetails(this);
     }
 
     public ProjectRole renameRole(int roleId, String newName) {

@@ -1,12 +1,17 @@
 package com.dev.tasktrackr.project.domain;
 
 import com.dev.tasktrackr.project.domain.enums.LinkType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "links", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"project_id", "title"})
 })
+@NoArgsConstructor
+@Getter
 public class Link {
 
     @Id
@@ -25,5 +30,12 @@ public class Link {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false)
+    @JsonIgnore
     private BasicDetails basicDetails;
+
+    public Link(String title, String url, LinkType type) {
+        this.title = title;
+        this.url = url;
+        this.type = type;
+    }
 }
