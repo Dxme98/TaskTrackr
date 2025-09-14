@@ -34,6 +34,9 @@ public class TaskServiceImpl implements TaskService {
         Project project = findProjectById(projectId);
         BasicDetails basicDetails = project.getBasicDetails();
         ProjectMember taskCreator = project.findProjectMember(jwtUserId);
+
+        taskCreator.canCreateTask();
+
         Set<ProjectMember> assignedMembers = project.findProjectMembers(createTaskRequest.getAssignedToMemberIds());
 
         Task createdTask = basicDetails.addTask(createTaskRequest, taskCreator, assignedMembers);
@@ -48,8 +51,10 @@ public class TaskServiceImpl implements TaskService {
     public TaskResponseDto completeTask(Long projectId, Long taskId, String jwtUserId) {
         Project project = findProjectById(projectId);
         BasicDetails basicDetails = project.getBasicDetails();
+        Long memberId = project.findProjectMember(jwtUserId).getId();
 
-        Task completedTask = basicDetails.completeTask(taskId);
+
+        Task completedTask = basicDetails.completeTask(taskId, memberId);
 
         projectRepository.save(project);
 
@@ -61,7 +66,9 @@ public class TaskServiceImpl implements TaskService {
     public void deleteTask(Long projectId, Long taskId, String jwtUserId) {
         Project project = findProjectById(projectId);
         BasicDetails basicDetails = project.getBasicDetails();
+        ProjectMember requestMember = project.findProjectMember(jwtUserId);
 
+        requestMember.canDeleteTask();
         basicDetails.deleteTask(taskId);
 
         projectRepository.save(project);
@@ -71,6 +78,8 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(readOnly = true)
     public Page<TaskResponseDto> findAllTasks(Long projectId, Pageable pageable, String jwtUserId,
                                               Long memberId, Status status) {
+        Project project = findProjectById(projectId); // need to optimize
+        project.findProjectMember(jwtUserId); // throws if not member
 
         if(status != null) {
             Page<Task> tasks =  taskQueryRepository.findAllByStatus(projectId, status, pageable);

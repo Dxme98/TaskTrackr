@@ -1,6 +1,7 @@
 package com.dev.tasktrackr.project.domain;
 
 import com.dev.tasktrackr.project.api.dtos.request.CreateTaskRequest;
+import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.ProjectMemberNotAllowedToCompleteTaskException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.TaskNotFoundException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -41,8 +42,10 @@ public class BasicDetails {
         return createdTask;
     }
 
-    public Task completeTask(Long taskId) {
+    public Task completeTask(Long taskId, Long memberId) {
         Task task = findTask(taskId);
+
+        memberIsAllowedToCompleteTask(task, memberId);
 
         return task.complete();
     }
@@ -50,6 +53,13 @@ public class BasicDetails {
     public void deleteTask(Long taskId) {
         Task task = findTask(taskId);
         tasks.remove(task);
+    }
+
+    private void memberIsAllowedToCompleteTask(Task task, Long memberId) {
+        task.getAssignedMembers().stream()
+                .filter(assignedMember -> assignedMember.getId().equals(memberId))
+                .findFirst()
+                .orElseThrow(() -> new ProjectMemberNotAllowedToCompleteTaskException(memberId));
     }
 
     public Task findTask(Long taskId) {
