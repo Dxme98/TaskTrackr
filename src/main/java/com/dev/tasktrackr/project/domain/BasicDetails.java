@@ -43,9 +43,8 @@ public class BasicDetails {
 
     public Task completeTask(Long taskId) {
         Task task = findTask(taskId);
-        task.complete();
 
-        return task;
+        return task.complete();
     }
 
     public void deleteTask(Long taskId) {
