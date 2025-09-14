@@ -6,6 +6,7 @@ import com.dev.tasktrackr.project.api.dtos.response.TaskPageResponse;
 import com.dev.tasktrackr.project.api.dtos.response.TaskResponseDto;
 import com.dev.tasktrackr.project.domain.enums.Status;
 import com.dev.tasktrackr.project.service.TaskService;
+import com.dev.tasktrackr.shared.api.annotation.ApiErrorResponses;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -27,9 +28,10 @@ import org.springframework.web.bind.annotation.*;
 import static org.springframework.data.jpa.repository.query.KeysetScrollSpecification.createSort;
 
 @RestController
-@RequestMapping("/api/v1/projects/{projectId}")
+@RequestMapping("/api/v1/projects/{projectId}/tasks")
 @RequiredArgsConstructor
 @Tag(name = "Tasks", description = "Endpoints for managing tasks within a project with type BASIC")
+@ApiErrorResponses.SecuredResourceEndpoint
 public class TaskController {
     private final TaskService taskService;
 

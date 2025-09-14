@@ -45,11 +45,11 @@ public class TaskResponseDto {
     private LocalDateTime updatedAt;
 
     @Schema(description = "Ersteller der Aufgabe")
-    private ProjectMemberDto createdBy;
+    private ProjectMemberOverviewDto createdBy;
 
     @Schema(description = "Letzter Bearbeiter der Aufgabe")
-    private ProjectMemberDto updatedBy;
+    private ProjectMemberOverviewDto updatedBy;
 
-    @Schema(description = "Usernames der zugewiesenen Projektmitglieder", example = "[\"alice\", \"bob\"]")
-    private Set<String> assignedToMemberUsernames = new HashSet<>();
+    @Schema(description = "Usernames und IDs der zugewiesenen Projektmitglieder")
+    private Set<ProjectMemberOverviewDto> assignedToMembers = new HashSet<>();
 }
