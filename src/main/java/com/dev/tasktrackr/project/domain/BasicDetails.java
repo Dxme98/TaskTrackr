@@ -1,5 +1,6 @@
 package com.dev.tasktrackr.project.domain;
 
+import com.dev.tasktrackr.project.api.dtos.request.CreateTaskRequest;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,5 +31,12 @@ public class BasicDetails {
 
     public BasicDetails (Project project) {
         this.project = project;
+    }
+
+    public Task addTask(CreateTaskRequest createTaskRequest, ProjectMember taskCreator, Set<ProjectMember> assignedMembers) {
+        Task createdTask = Task.create(createTaskRequest, this, taskCreator, assignedMembers);
+        tasks.add(createdTask);
+
+        return createdTask;
     }
 }

@@ -18,10 +18,9 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "projects")
@@ -188,5 +187,30 @@ public class Project {
                 .filter(member -> member.getUser().getId().equals(userId))
                 .findFirst()
                 .orElseThrow(() -> new UserNotProjectMemberException(userId));
+    }
+
+    public Set<ProjectMember> findProjectMembers(Set<Long> projectMemberIds) {
+        Map<Long, ProjectMember> memberMap = this.projectMembers.stream()
+                .collect(Collectors.toMap(ProjectMember::getId, Function.identity()));
+
+        Set<Long> notFound = projectMemberIds.stream()
+                .filter(id -> !memberMap.containsKey(id))
+                .collect(Collectors.toSet());
+
+        if (!notFound.isEmpty()) throw new ProjectMemberNotFoundException(notFound);
+
+        return projectMemberIds.stream()
+                .map(memberMap::get)
+                .collect(Collectors.toSet());
+    }
+
+    public ScrumDetails getScrumDetails() {
+        if(this.projectType != ProjectType.SCRUM) throw new InvalidProjectTypeException("Project is not a SCRUM type");
+        return scrumDetails;
+    }
+
+    public BasicDetails getBasicDetails() {
+        if(this.projectType != ProjectType.BASIC) throw new InvalidProjectTypeException("Project is not a BASIC type");
+        return basicDetails;
     }
 }

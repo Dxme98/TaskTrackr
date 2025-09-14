@@ -1,8 +1,13 @@
 package com.dev.tasktrackr.project.domain;
 
+import com.dev.tasktrackr.project.api.dtos.request.CreateTaskRequest;
 import com.dev.tasktrackr.project.domain.enums.Priority;
 import com.dev.tasktrackr.project.domain.enums.Status;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -12,6 +17,10 @@ import java.util.Set;
 
 @Entity
 @Table(name = "tasks")
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Task {
 
     @Id
@@ -62,5 +71,19 @@ public class Task {
             inverseJoinColumns = @JoinColumn(name = "member_id")
     )
     private Set<ProjectMember> assignedMembers = new HashSet<>();
-}
+
+    public static Task create(CreateTaskRequest createTaskRequest, BasicDetails basicDetails,
+                              ProjectMember taskCreator, Set<ProjectMember> assignedMembers) {
+
+        return Task.builder()
+                .basicDetails(basicDetails)
+                .title(createTaskRequest.getTitle())
+                .description(createTaskRequest.getDescription())
+                .priority(createTaskRequest.getPriority())
+                .dueDate(createTaskRequest.getDueDate())
+                .createdBy(taskCreator)
+                .assignedMembers(assignedMembers)
+                .build();
+    }
+ }
 
