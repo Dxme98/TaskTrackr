@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -21,6 +22,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class Task {
 
     @Id
@@ -80,6 +82,7 @@ public class Task {
                 .title(createTaskRequest.getTitle())
                 .description(createTaskRequest.getDescription())
                 .priority(createTaskRequest.getPriority())
+                .status(Status.IN_PROGRESS)
                 .dueDate(createTaskRequest.getDueDate())
                 .createdBy(taskCreator)
                 .assignedMembers(assignedMembers)
