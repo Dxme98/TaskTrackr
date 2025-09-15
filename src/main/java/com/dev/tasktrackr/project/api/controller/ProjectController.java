@@ -64,4 +64,16 @@ public class ProjectController {
 
         return ResponseEntity.ok(PageResponse.from(response));
     }
+
+    @GetMapping("/{projectId}")
+    @Operation(summary = "Get specific Project", description = "Returns ProjectDetails with Information and Content of project")
+    @ApiResponse(responseCode = "200", description = "Project loaded successfully",
+            content = @Content(schema = @Schema(implementation = ProjectOverviewDto.class)))
+    public ResponseEntity<ProjectOverviewDto> getProjectDetails(@AuthenticationPrincipal Jwt jwt, @PathVariable Long projectId) {
+        String userId = jwt.getClaim("sub");
+
+        ProjectOverviewDto response = projectService.getProjectDetails(projectId, userId);
+
+        return ResponseEntity.ok(response);
+    }
 }

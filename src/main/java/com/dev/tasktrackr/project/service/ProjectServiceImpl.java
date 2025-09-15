@@ -5,6 +5,7 @@ import com.dev.tasktrackr.project.api.dtos.request.ProjectRequest;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectOverviewDto;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.UserNotFoundException;
 import com.dev.tasktrackr.user.UserEntity;
 import com.dev.tasktrackr.user.UserRepository;
@@ -42,5 +43,16 @@ public class ProjectServiceImpl implements ProjectService {
     public Page<ProjectOverviewDto> findProjectsByUserId(String userId, PageRequest pageRequest) {
         Page<Project> projectsByUserId = projectRepository.findProjectsByUserId(userId, pageRequest);
         return projectsByUserId.map(projectMapper::toOverviewDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ProjectOverviewDto getProjectDetails(Long projectId, String userId) {
+        // Needs to be updated with more information (links,content..) -> type basic / scrum etc, currently placeholder for frontend
+
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
+        project.isProjectMember(userId);
+
+        return projectMapper.toOverviewDto(project);
     }
 }

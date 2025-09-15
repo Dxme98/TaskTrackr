@@ -11,4 +11,5 @@ import java.util.List;
 public interface ProjectService {
     ProjectOverviewDto createProject(String userId, ProjectRequest projectDto );
     Page<ProjectOverviewDto> findProjectsByUserId(String userId, PageRequest pageRequest);
+    ProjectOverviewDto getProjectDetails(Long projectId, String userId);
 }

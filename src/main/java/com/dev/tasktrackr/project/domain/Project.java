@@ -189,6 +189,13 @@ public class Project {
                 .orElseThrow(() -> new UserNotProjectMemberException(userId));
     }
 
+    public void isProjectMember(String userId) {
+        this.getProjectMembers().stream()
+                .filter(member -> member.getUser().getId().equals(userId))
+                .findFirst()
+                .orElseThrow(() -> new UserNotProjectMemberException(userId));
+    }
+
     public Set<ProjectMember> findProjectMembers(Set<Long> projectMemberIds) {
         Map<Long, ProjectMember> memberMap = this.projectMembers.stream()
                 .collect(Collectors.toMap(ProjectMember::getId, Function.identity()));
