@@ -67,7 +67,7 @@ public class ProjectInviteControllerWebMvcTest {
     void createInvite_whenValidRequest_shouldReturn201AndInvite() throws Exception {
         // Given
         ProjectInviteRequest request = new ProjectInviteRequest();
-        request.setReceiverId("46f6c4df-6303-41c4-b2dc-ec46c154xec4");
+        request.setReceiverUsername("receiverUser");
 
         ProjectInviteResponseDto expectedResponse = new ProjectInviteResponseDto(
                 1L,

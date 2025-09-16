@@ -18,11 +18,10 @@ import lombok.Setter;
 public class ProjectInviteRequest {
     @Schema(
             requiredMode = Schema.RequiredMode.REQUIRED,
-            minLength = 36,
             maxLength = 36,
-            example = "46f6c4df-6303-41c4-b2dc-ec46c154xec4"
+            example = "BeispielUsername"
     )
-    @NotBlank(message = "receiverId ist erforderlich")
-    @Size(min = 36, max = 36, message = "ReceiverId muss 36 Zeichen lang sein")
-    private String receiverId;
+    @NotBlank(message = "receiverUsername ist erforderlich")
+    @Size( max = 32, message = "ReceiverUsername darf maximal 36 Zeichen lang sein")
+    private String receiverUsername;
 }

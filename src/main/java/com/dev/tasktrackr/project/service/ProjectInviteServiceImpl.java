@@ -38,7 +38,7 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
                 .orElseThrow(() -> new ProjectNotFoundException(projectId));
 
         UserEntity sender =  findUserById(senderId);
-        UserEntity receiver = findUserById(request.getReceiverId());
+        UserEntity receiver = findUserByUsername(request.getReceiverUsername());
 
         ProjectMember member = project.findProjectMember(senderId);
         member.canInviteUser();
@@ -106,5 +106,10 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
     private UserEntity findUserById(String userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
+    }
+
+    private UserEntity findUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(username));
     }
  }

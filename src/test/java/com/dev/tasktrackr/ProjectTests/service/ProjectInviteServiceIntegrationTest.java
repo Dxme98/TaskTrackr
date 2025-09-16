@@ -65,7 +65,7 @@ public class ProjectInviteServiceIntegrationTest extends BaseIntegrationTest {
         void shouldCreateProjectInviteSuccessfully() {
             // Given
             ProjectInviteRequest request = new ProjectInviteRequest();
-            request.setReceiverId(inviteeUser.getId());
+            request.setReceiverUsername(inviteeUser.getUsername());
 
             // When
             ProjectInviteResponseDto result = assertDoesNotThrow(() ->
@@ -94,7 +94,7 @@ public class ProjectInviteServiceIntegrationTest extends BaseIntegrationTest {
         void shouldThrowExceptionWhenMemberWithoutPermissionTriesToCreateInvite() {
             // Given
             ProjectInviteRequest request = new ProjectInviteRequest();
-            request.setReceiverId(inviteeUser.getId());
+            request.setReceiverUsername(inviteeUser.getUsername());
 
             // When & Then
             assertThatThrownBy(() ->
@@ -108,7 +108,7 @@ public class ProjectInviteServiceIntegrationTest extends BaseIntegrationTest {
         void shouldThrowExceptionForNonExistentProject() {
             // Given
             ProjectInviteRequest request = new ProjectInviteRequest();
-            request.setReceiverId(inviteeUser.getId());
+            request.setReceiverUsername(inviteeUser.getUsername());
 
             // When & Then
             assertThatThrownBy(() ->
@@ -122,7 +122,7 @@ public class ProjectInviteServiceIntegrationTest extends BaseIntegrationTest {
         void shouldThrowExceptionForNonExistentSender() {
             // Given
             ProjectInviteRequest request = new ProjectInviteRequest();
-            request.setReceiverId(inviteeUser.getId());
+            request.setReceiverUsername(inviteeUser.getUsername());
 
             // When & Then
             assertThatThrownBy(() ->
@@ -136,7 +136,7 @@ public class ProjectInviteServiceIntegrationTest extends BaseIntegrationTest {
         void shouldThrowExceptionForNonExistentReceiver() {
             // Given
             ProjectInviteRequest request = new ProjectInviteRequest();
-            request.setReceiverId("nonexistent");
+            request.setReceiverUsername("nonexistent");
 
             // When & Then
             assertThatThrownBy(() ->
@@ -151,7 +151,7 @@ public class ProjectInviteServiceIntegrationTest extends BaseIntegrationTest {
 
         private ProjectInvite createTestInvite() {
             ProjectInviteRequest request = new ProjectInviteRequest();
-            request.setReceiverId(inviteeUser.getId());
+            request.setReceiverUsername(inviteeUser.getUsername());
             projectInviteService.createProjectInvite(request, ownerUser.getId(), testProject.getId());
 
             Project project = projectRepository.findProjectWithInvitesAndMember(testProject.getId()).get();
@@ -213,7 +213,7 @@ public class ProjectInviteServiceIntegrationTest extends BaseIntegrationTest {
 
         private ProjectInvite createTestInvite() {
             ProjectInviteRequest request = new ProjectInviteRequest();
-            request.setReceiverId(inviteeUser.getId());
+            request.setReceiverUsername(inviteeUser.getUsername());
             projectInviteService.createProjectInvite(request, ownerUser.getId(), testProject.getId());
 
             Project project = projectRepository.findProjectWithInvitesAndMember(testProject.getId()).get();
@@ -276,13 +276,13 @@ public class ProjectInviteServiceIntegrationTest extends BaseIntegrationTest {
         private void createMultipleInvites() {
             // Create pending invite
             ProjectInviteRequest request1 = new ProjectInviteRequest();
-            request1.setReceiverId(inviteeUser.getId());
+            request1.setReceiverUsername(inviteeUser.getUsername());
             projectInviteService.createProjectInvite(request1, ownerUser.getId(), testProject.getId());
 
             // Create another project and invite
             Project anotherProject = createTestProject("Another Project", ProjectType.BASIC, memberUser);
             ProjectInviteRequest request2 = new ProjectInviteRequest();
-            request2.setReceiverId(inviteeUser.getId());
+            request2.setReceiverUsername(inviteeUser.getUsername());
             projectInviteService.createProjectInvite(request2, memberUser.getId(), anotherProject.getId());
         }
 
