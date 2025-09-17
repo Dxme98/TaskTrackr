@@ -97,7 +97,12 @@ public class Project {
 
     public void removeMember(Long memberToRemove) {
         ProjectValidator.validateRemoveMember(this, memberToRemove);
-        projectMembers.removeIf(member -> member.getId().equals(memberToRemove));
+        ProjectMember toRemove = projectMembers.stream()
+                .filter(member -> member.getId().equals(memberToRemove))
+                .findFirst().orElseThrow(() -> new ProjectMemberNotFoundException(memberToRemove));
+
+        projectMembers.remove(toRemove); // remove from project
+        projectInvites.removeIf(invite -> invite.getReceiver().getId().equals(toRemove.getUser().getId())); // remove invite, to enable reinvite
     }
 
     public void createInvite(UserEntity sender, UserEntity receiver) {
