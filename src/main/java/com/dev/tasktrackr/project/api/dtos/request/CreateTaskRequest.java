@@ -2,10 +2,7 @@ package com.dev.tasktrackr.project.api.dtos.request;
 
 import com.dev.tasktrackr.project.domain.enums.Priority;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -58,8 +55,10 @@ public class CreateTaskRequest {
     private LocalDateTime dueDate;
 
     @Schema(
-            description = "IDs der zugewiesenen Projektmitglieder",
-            example = "[1, 2, 3]"
+            description = "IDs der zugewiesenen Projektmitglieder, nur diese und der Ersteller können die Aufgabe abschließen",
+            example = "[1, 5, 10]",
+            requiredMode = Schema.RequiredMode.REQUIRED
     )
+    @NotEmpty
     private Set<Long> assignedToMemberIds = new HashSet<>();
 }

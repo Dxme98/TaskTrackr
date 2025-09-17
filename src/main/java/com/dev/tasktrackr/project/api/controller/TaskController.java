@@ -87,7 +87,7 @@ public class TaskController {
                                                                       @RequestParam(name = "page", defaultValue = "0") int page,
                                                                       @RequestParam(name = "size", defaultValue = "10") int size,
                                                                       @RequestParam(name = "status", required = false) Status status,
-                                                                      @RequestParam(name = "memberId", required = false) Long memberId,
+                                                                      @RequestParam(name = "assigned", required = false) boolean assigned,
                                                                       @RequestParam(name = "sortBy", defaultValue = "createdAt") String sortBy,
                                                                       @RequestParam(name = "sortDir", defaultValue = "asc") String sortDir,
                                                                       @AuthenticationPrincipal Jwt jwt) {
@@ -95,7 +95,7 @@ public class TaskController {
         Pageable pr = PageRequest.of(page, size, sort);
         String jwtUserId = jwt.getClaim("sub");
 
-        Page<TaskResponseDto> response = taskService.findAllTasks(projectId, pr, jwtUserId, memberId, status);
+        Page<TaskResponseDto> response = taskService.findAllTasks(projectId, pr, jwtUserId, assigned, status);
 
         return ResponseEntity.ok(PageResponse.from(response));
     }

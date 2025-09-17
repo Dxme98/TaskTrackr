@@ -77,7 +77,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional(readOnly = true)
     public Page<TaskResponseDto> findAllTasks(Long projectId, Pageable pageable, String jwtUserId,
-                                              Long memberId, Status status) {
+                                              boolean assigned, Status status) {
         Project project = findProjectById(projectId); // need to optimize
         project.findProjectMember(jwtUserId); // throws if not member
 
@@ -86,8 +86,8 @@ public class TaskServiceImpl implements TaskService {
             return tasks.map(taskMapper::toResponse);
         }
 
-        if(memberId != null) {
-            Page<Task> tasks =  taskQueryRepository.findAllByMember(projectId, memberId, pageable);
+        if(assigned) {
+            Page<Task> tasks =  taskQueryRepository.findAllTasksByAssignedUserId(projectId, jwtUserId, pageable);
             return tasks.map(taskMapper::toResponse);
         }
 

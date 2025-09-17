@@ -13,5 +13,5 @@ public interface TaskService {
     TaskResponseDto completeTask(Long projectId,  Long taskId, String jwtUserId);
     void deleteTask(Long projectId,  Long taskId, String jwtUserId);
     Page<TaskResponseDto> findAllTasks(Long projectId, Pageable pageable, String jwtUserId,
-                                       Long memberId, Status status);
+                                       boolean assigned, Status status);
 }
