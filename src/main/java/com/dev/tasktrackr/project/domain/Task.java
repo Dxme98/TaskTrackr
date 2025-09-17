@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -41,6 +43,7 @@ public class Task {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "priority", nullable = false)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     private Priority priority;
 
     @Enumerated(EnumType.STRING)

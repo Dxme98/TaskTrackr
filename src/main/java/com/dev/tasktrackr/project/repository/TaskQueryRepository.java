@@ -20,15 +20,6 @@ public interface TaskQueryRepository extends ReadOnlyRepository<Task, Long>{
     Page<Task> findAllByStatus(@Param("projectId") Long projectId, @Param("status") Status status, Pageable pageable);
 
     @Query("""
-    SELECT t 
-    FROM Task t 
-    JOIN t.assignedMembers m
-    WHERE t.basicDetails.project.id = :projectId
-      AND m.id = :memberId
-    """)
-    Page<Task> findAllByMember(@Param("projectId") Long projectId, @Param("memberId") Long memberId, Pageable pageable);
-
-    @Query("""
         SELECT DISTINCT t
         FROM Task t
         JOIN t.assignedMembers m
