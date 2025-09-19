@@ -85,7 +85,7 @@ public class BasicDetails {
     }
 
     public Link addLink(CreateLinkRequest linkRequest) {
-        Link createdLink = new Link(linkRequest.getTitle(), linkRequest.getTitle(), linkRequest.getLinkType());
+        Link createdLink = new Link(linkRequest.getTitle(), linkRequest.getUrl(), linkRequest.getLinkType(), this);
         links.add(createdLink);
 
         return createdLink;

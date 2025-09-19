@@ -24,9 +24,8 @@ public class Information {
     private String content;
 
     public Information(BasicDetails basicDetails) {
+        this.content = "";
         this.basicDetails = basicDetails;
-        this.content = "Hier könnten wichtige Projectinformationen, Meilensteine oder Ankündigungen stehen." +
-                " Klicken Sie auf 'Bearbeiten', um diesen Text zu ändern.";
     }
 
     public void updateContent(String updatedContent) {

@@ -33,9 +33,10 @@ public class Link {
     @JsonIgnore
     private BasicDetails basicDetails;
 
-    public Link(String title, String url, LinkType type) {
+    public Link(String title, String url, LinkType type, BasicDetails basicDetails) {
         this.title = title;
         this.url = url;
         this.type = type;
+        this.basicDetails = basicDetails;
     }
 }
