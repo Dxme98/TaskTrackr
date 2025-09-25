@@ -35,7 +35,7 @@ public class ProjectOverviewController {
     )
     @ApiResponse(responseCode = "200", description = "Information content retrieved successfully.")
     public ResponseEntity<Information> findContentByProjectId(@AuthenticationPrincipal Jwt jwt,
-                                                              @PathVariable Long projectId) {
+                                                              @PathVariable (name="projectId") Long projectId) {
         String userId = jwt.getClaim("sub");
         log.info("User {} requests overview information for project {}", jwt.getClaimAsString("preferred_username"), projectId);
 
@@ -50,7 +50,7 @@ public class ProjectOverviewController {
     )
     @ApiResponse(responseCode = "200", description = "Information content updated successfully.")
     public ResponseEntity<Information> updateContent(@AuthenticationPrincipal Jwt jwt,
-                                                     @PathVariable Long projectId,
+                                                     @PathVariable (name="projectId") Long projectId,
                                                      @RequestBody @Valid UpdateInformationContentRequest request) {
         String userId = jwt.getClaim("sub");
         log.info("User {} requests to update overview information for project {}", jwt.getClaimAsString("preferred_username"), projectId);
@@ -66,7 +66,7 @@ public class ProjectOverviewController {
     )
     @ApiResponse(responseCode = "200", description = "Links retrieved successfully.")
     public ResponseEntity<Set<Link>> findLinksByProjectId(@AuthenticationPrincipal Jwt jwt,
-                                                          @PathVariable Long projectId) {
+                                                          @PathVariable (name="projectId") Long projectId) {
         String userId = jwt.getClaim("sub");
         log.info("User {} requests overview links for project {}", jwt.getClaimAsString("preferred_username"), projectId);
 
@@ -84,7 +84,7 @@ public class ProjectOverviewController {
             description = "Link added successfully."
     )
     public ResponseEntity<Link> addLink(@AuthenticationPrincipal Jwt jwt,
-                                        @PathVariable Long projectId,
+                                        @PathVariable (name="projectId") Long projectId,
                                         @RequestBody @Valid CreateLinkRequest request) {
         String userId = jwt.getClaim("sub");
         log.info("User {} requests to add a link to the overview of project {}", jwt.getClaimAsString("preferred_username"), projectId);
@@ -103,8 +103,8 @@ public class ProjectOverviewController {
             description = "Link deleted successfully."
     )
     public ResponseEntity<Void> deleteLink(@AuthenticationPrincipal Jwt jwt,
-                                           @PathVariable Long projectId,
-                                           @PathVariable Long linkId) {
+                                           @PathVariable (name="projectId") Long projectId,
+                                           @PathVariable (name="linkId") Long linkId) {
         String userId = jwt.getClaim("sub");
         log.info("User {} requests to delete link {} from the overview of project {}", jwt.getClaimAsString("preferred_username"), linkId, projectId);
 

@@ -41,7 +41,7 @@ public class TaskController {
             @ApiResponse(responseCode = "201", description = "Task created successfully",
                     content = @Content(schema = @Schema(implementation = TaskResponseDto.class)))
     })
-    public ResponseEntity<TaskResponseDto> createTask(@PathVariable Long projectId,
+    public ResponseEntity<TaskResponseDto> createTask(@PathVariable(name = "projectId") Long projectId,
                                                       @RequestBody @Valid CreateTaskRequest createTaskRequest,
                                                       @AuthenticationPrincipal Jwt jwt) {
         String jwtUserId = jwt.getClaim("sub");
@@ -55,8 +55,8 @@ public class TaskController {
             @ApiResponse(responseCode = "200", description = "Task completed successfully",
                     content = @Content(schema = @Schema(implementation = TaskResponseDto.class)))
     })
-    public ResponseEntity<TaskResponseDto> completeTask(@PathVariable Long projectId,
-                                                        @PathVariable Long taskId,
+    public ResponseEntity<TaskResponseDto> completeTask(@PathVariable(name = "projectId") Long projectId,
+                                                        @PathVariable(name = "taskId") Long taskId,
                                                         @AuthenticationPrincipal Jwt jwt) {
         String jwtUserId = jwt.getClaim("sub");
         TaskResponseDto response = taskService.completeTask(projectId, taskId, jwtUserId);
@@ -68,8 +68,8 @@ public class TaskController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Task deleted successfully"),
     })
-    public ResponseEntity<Void> deleteTask(@PathVariable Long projectId,
-                                           @PathVariable Long taskId,
+    public ResponseEntity<Void> deleteTask(@PathVariable(name = "projectId") Long projectId,
+                                           @PathVariable(name = "taskId") Long taskId,
                                            @AuthenticationPrincipal Jwt jwt) {
         String jwtUserId = jwt.getClaim("sub");
         taskService.deleteTask(projectId, taskId, jwtUserId);
@@ -83,7 +83,7 @@ public class TaskController {
             @ApiResponse(responseCode = "200", description = "Tasks retrieved successfully",
                     content = @Content(schema = @Schema(implementation = TaskPageResponse.class)))
     })
-    public ResponseEntity<PageResponse<TaskResponseDto>> findAllTasks(@PathVariable Long projectId,
+    public ResponseEntity<PageResponse<TaskResponseDto>> findAllTasks(@PathVariable(name = "projectId") Long projectId,
                                                                       @RequestParam(name = "page", defaultValue = "0") int page,
                                                                       @RequestParam(name = "size", defaultValue = "10") int size,
                                                                       @RequestParam(name = "status", required = false) Status status,

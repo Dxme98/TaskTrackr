@@ -81,8 +81,7 @@ public class ProjectInviteController {
                     "Results are sorted by creation date in descending order (newest first)."
     )
     @ApiResponse(
-            responseCode = "200",
-            description = "Pending invites loaded successfully",
+            responseCode = "200", description = "Pending invites loaded successfully",
             content = @Content(schema = @Schema(implementation = ProjectInvitePageResponse.class))
     )
     public ResponseEntity<PageResponse<ProjectInviteResponseDto>> findAllPendingInvitesByUserId(@AuthenticationPrincipal Jwt jwt,
