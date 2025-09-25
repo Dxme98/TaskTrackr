@@ -7,7 +7,7 @@ import com.dev.tasktrackr.project.domain.Link;
 
 import java.util.Set;
 
-public interface ProjectOverviewService {
+public interface ProjectInformationService {
     Information updateContent(Long projectId, String jwtUserId, UpdateInformationContentRequest updateInformationContentRequest);
     Link addLink(Long projectId, String jwtUserId, CreateLinkRequest createLinkRequest);
     void deleteLink(Long projectId, String jwtUserId, Long linkId);

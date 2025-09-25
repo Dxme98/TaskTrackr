@@ -16,7 +16,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-public class ProjectOverviewServiceImpl implements ProjectOverviewService{
+public class ProjectInformationServiceImpl implements ProjectInformationService {
     private final ProjectRepository projectRepository;
 
     @Override

@@ -4,7 +4,7 @@ import com.dev.tasktrackr.project.api.dtos.request.CreateLinkRequest;
 import com.dev.tasktrackr.project.api.dtos.request.UpdateInformationContentRequest;
 import com.dev.tasktrackr.project.domain.Information;
 import com.dev.tasktrackr.project.domain.Link;
-import com.dev.tasktrackr.project.service.ProjectOverviewService;
+import com.dev.tasktrackr.project.service.ProjectInformationService;
 import com.dev.tasktrackr.shared.api.annotation.ApiErrorResponses;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -24,9 +24,9 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Slf4j
 @ApiErrorResponses.SecuredResourceEndpoint
-public class ProjectOverviewController {
+public class ProjectInformationController {
 
-    private final ProjectOverviewService projectOverviewService;
+    private final ProjectInformationService projectInformationService;
 
     @GetMapping("/information")
     @Operation(
@@ -39,7 +39,7 @@ public class ProjectOverviewController {
         String userId = jwt.getClaim("sub");
         log.info("User {} requests overview information for project {}", jwt.getClaimAsString("preferred_username"), projectId);
 
-        Information information = projectOverviewService.findContentByProjectId(projectId, userId);
+        Information information = projectInformationService.findContentByProjectId(projectId, userId);
         return ResponseEntity.ok(information);
     }
 
@@ -55,7 +55,7 @@ public class ProjectOverviewController {
         String userId = jwt.getClaim("sub");
         log.info("User {} requests to update overview information for project {}", jwt.getClaimAsString("preferred_username"), projectId);
 
-        Information updatedInformation = projectOverviewService.updateContent(projectId, userId, request);
+        Information updatedInformation = projectInformationService.updateContent(projectId, userId, request);
         return ResponseEntity.ok(updatedInformation);
     }
 
@@ -70,7 +70,7 @@ public class ProjectOverviewController {
         String userId = jwt.getClaim("sub");
         log.info("User {} requests overview links for project {}", jwt.getClaimAsString("preferred_username"), projectId);
 
-        Set<Link> links = projectOverviewService.findLinksByProjectId(projectId, userId);
+        Set<Link> links = projectInformationService.findLinksByProjectId(projectId, userId);
         return ResponseEntity.ok(links);
     }
 
@@ -89,7 +89,7 @@ public class ProjectOverviewController {
         String userId = jwt.getClaim("sub");
         log.info("User {} requests to add a link to the overview of project {}", jwt.getClaimAsString("preferred_username"), projectId);
 
-        Link addedLink = projectOverviewService.addLink(projectId, userId, request);
+        Link addedLink = projectInformationService.addLink(projectId, userId, request);
         return new ResponseEntity<>(addedLink, HttpStatus.CREATED);
     }
 
@@ -108,7 +108,7 @@ public class ProjectOverviewController {
         String userId = jwt.getClaim("sub");
         log.info("User {} requests to delete link {} from the overview of project {}", jwt.getClaimAsString("preferred_username"), linkId, projectId);
 
-        projectOverviewService.deleteLink(projectId, userId, linkId);
+        projectInformationService.deleteLink(projectId, userId, linkId);
         return ResponseEntity.noContent().build();
     }
 }
