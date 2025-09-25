@@ -8,6 +8,7 @@ import com.dev.tasktrackr.project.service.ProjectInformationService;
 import com.dev.tasktrackr.shared.api.annotation.ApiErrorResponses;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,9 +21,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/api/v1/projects/{projectId}/overview")
+@RequestMapping("/api/v1/projects/{projectId}")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Information", description = "Endpoints for managing Information and Links in the Project")
 @ApiErrorResponses.SecuredResourceEndpoint
 public class ProjectInformationController {
 
@@ -30,7 +32,7 @@ public class ProjectInformationController {
 
     @GetMapping("/information")
     @Operation(
-            summary = "Get project overview information",
+            summary = "Get project information content",
             description = "Retrieves the overview information content for the specified project."
     )
     @ApiResponse(responseCode = "200", description = "Information content retrieved successfully.")
@@ -45,7 +47,7 @@ public class ProjectInformationController {
 
     @PutMapping("/information")
     @Operation(
-            summary = "Update project overview information",
+            summary = "Update project information content",
             description = "Updates the overview information content for the specified project."
     )
     @ApiResponse(responseCode = "200", description = "Information content updated successfully.")
@@ -61,7 +63,7 @@ public class ProjectInformationController {
 
     @GetMapping("/links")
     @Operation(
-            summary = "Get all links for a project overview",
+            summary = "Get all generated links of the specified project",
             description = "Retrieves all links associated with the overview of the specified project."
     )
     @ApiResponse(responseCode = "200", description = "Links retrieved successfully.")
@@ -79,10 +81,7 @@ public class ProjectInformationController {
             summary = "Add a link to the project overview",
             description = "Adds a new link to the overview of the specified project."
     )
-    @ApiResponse(
-            responseCode = "201",
-            description = "Link added successfully."
-    )
+    @ApiResponse(responseCode = "201", description = "Link added successfully.")
     public ResponseEntity<Link> addLink(@AuthenticationPrincipal Jwt jwt,
                                         @PathVariable (name="projectId") Long projectId,
                                         @RequestBody @Valid CreateLinkRequest request) {
@@ -98,10 +97,7 @@ public class ProjectInformationController {
             summary = "Delete a link from the project overview",
             description = "Deletes a specific link from the overview of the specified project."
     )
-    @ApiResponse(
-            responseCode = "204",
-            description = "Link deleted successfully."
-    )
+    @ApiResponse(responseCode = "204", description = "Link deleted successfully.")
     public ResponseEntity<Void> deleteLink(@AuthenticationPrincipal Jwt jwt,
                                            @PathVariable (name="projectId") Long projectId,
                                            @PathVariable (name="linkId") Long linkId) {

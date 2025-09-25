@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Invites", description = "Endpoints for managing Invites")
 @ApiErrorResponses.SecuredResourceEndpoint
 public class ProjectInviteController {
     private final ProjectInviteService projectInviteService;
@@ -46,7 +48,7 @@ public class ProjectInviteController {
     }
 
     @PutMapping("/invites/{inviteId}/accept")
-    @Operation(summary = "Accept a Invite", description = "Sets Invite Status to ACCEPTED and adds Receiver to Project")
+    @Operation(summary = "Accept a Invite and creates ProjectMember", description = "Sets Invite Status to ACCEPTED and adds Receiver to Project")
     @ApiResponse(responseCode = "200", description = "Invite accepted successfully",
             content = @Content(schema = @Schema(implementation = ProjectInviteResponseDto.class)))
     @ApiErrorResponses.Conflict
