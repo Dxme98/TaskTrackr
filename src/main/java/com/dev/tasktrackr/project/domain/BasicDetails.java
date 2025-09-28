@@ -79,6 +79,12 @@ public class BasicDetails {
                 .orElseThrow(() -> new TaskNotFoundException(taskId));
     }
 
+    public Task findTask(Task task) {
+        return this.tasks.stream()
+                .filter(t -> t.equals(task)).findFirst()
+                .orElseThrow(() -> new TaskNotFoundException(task.getId()));
+    }
+
     public Information updateInformationContent(UpdateInformationContentRequest updateInformationContentRequest) {
         information.updateContent(updateInformationContentRequest.getContent());
         return information;

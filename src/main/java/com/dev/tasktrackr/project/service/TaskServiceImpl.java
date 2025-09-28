@@ -1,6 +1,5 @@
 package com.dev.tasktrackr.project.service;
 
-import com.dev.tasktrackr.project.api.dtos.mapper.ProjectMapper;
 import com.dev.tasktrackr.project.api.dtos.mapper.TaskMapper;
 import com.dev.tasktrackr.project.api.dtos.request.CreateTaskRequest;
 import com.dev.tasktrackr.project.api.dtos.response.TaskResponseDto;
@@ -18,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -43,7 +41,9 @@ public class TaskServiceImpl implements TaskService {
 
         projectRepository.save(project);
 
-        return taskMapper.toResponse(createdTask);
+        Task perisistedTask = basicDetails.findTask(createdTask);
+
+        return taskMapper.toResponse(perisistedTask);
     }
 
     @Override

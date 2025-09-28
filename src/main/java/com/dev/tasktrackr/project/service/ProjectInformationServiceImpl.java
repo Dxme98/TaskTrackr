@@ -41,8 +41,7 @@ public class ProjectInformationServiceImpl implements ProjectInformationService 
 
         Link addedLink = basicDetails.addLink(createLinkRequest);
 
-        projectRepository.save(project);
-
+         projectRepository.save(project);
 
         return addedLink;
     }

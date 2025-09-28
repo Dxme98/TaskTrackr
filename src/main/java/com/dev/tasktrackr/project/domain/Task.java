@@ -16,6 +16,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -95,6 +96,27 @@ public class Task {
     public Task complete() {
         this.status = Status.COMPLETED;
         return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Task task = (Task) o;
+
+        return Objects.equals(basicDetails, task.basicDetails) &&
+                Objects.equals(title, task.title) &&
+                Objects.equals(description, task.description) &&
+                priority == task.priority &&
+                status == task.status &&
+                Objects.equals(dueDate, task.dueDate) &&
+                Objects.equals(assignedMembers, task.assignedMembers) &&
+                Objects.equals(createdBy, task.createdBy);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(basicDetails, title, description, priority, status, dueDate, assignedMembers, createdBy);
     }
  }
 
