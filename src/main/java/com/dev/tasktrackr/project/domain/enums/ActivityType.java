@@ -1,0 +1,17 @@
+package com.dev.tasktrackr.project.domain.enums;
+
+public enum ActivityType {
+    CHANGED_PROJECT_NAME,
+    CHANGED_PROJECT_DESCRIPTION,
+    USER_JOINED_PROJECT,
+    USER_REMOVED,
+    USER_LEFT_PROJECT,
+    TASK_CREATED,
+    TASK_DELETED,
+    TASK_COMPLETED,
+    LINK_ADDED,
+    PROJECT_INFO_UPDATED,
+    ROLE_CREATED,
+    ROLE_ASSIGNED,
+    ROLE_DELETED
+}
