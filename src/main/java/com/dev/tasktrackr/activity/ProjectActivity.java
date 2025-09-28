@@ -1,7 +1,5 @@
-package com.dev.tasktrackr.project.domain;
+package com.dev.tasktrackr.activity;
 
-import com.dev.tasktrackr.project.domain.enums.ActivityType;
-import com.dev.tasktrackr.project.domain.enums.TargetType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

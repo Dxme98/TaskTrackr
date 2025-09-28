@@ -1,4 +1,4 @@
-package com.dev.tasktrackr.project.domain.enums;
+package com.dev.tasktrackr.activity;
 
 public enum ActivityType {
     CHANGED_PROJECT_NAME,
