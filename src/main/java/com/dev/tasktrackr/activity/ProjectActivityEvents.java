@@ -45,12 +45,14 @@ public final class ProjectActivityEvents {
         }
     }
 
+    /**
     public record ProjectInfoUpdatedEvent(Long projectId, Long actorId, String actorName) implements ActivityEvent {
         @Override
         public RecordActivityParameter toActivityParameter() {
             return new RecordActivityParameter(projectId, ActivityType.PROJECT_INFO_UPDATED, actorId, actorName, null, null, null, null);
         }
     }
+     */
 
     // --- Benutzer-Events ---
 
@@ -77,12 +79,14 @@ public final class ProjectActivityEvents {
 
     // --- Link-Events ---
 
+    /**
     public record LinkAddedEvent(Long projectId, Long actorId, String actorName, Long linkId, String linkName) implements ActivityEvent {
         @Override
         public RecordActivityParameter toActivityParameter() {
             return new RecordActivityParameter(projectId, ActivityType.LINK_ADDED, actorId, actorName, linkId, linkName, TargetType.PROJECT, null);
         }
     }
+     */
 
     // --- Rollen-Events ---
 

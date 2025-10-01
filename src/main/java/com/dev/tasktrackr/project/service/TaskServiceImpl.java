@@ -83,7 +83,7 @@ public class TaskServiceImpl implements TaskService {
         requestMember.canDeleteTask();
         Task deletedTask = basicDetails.deleteTask(taskId);
 
-        var event = new TaskCompletedEvent(projectId, requestMember.getId(), requestMember.getUser().getUsername(), deletedTask.getId(), deletedTask.getTitle());
+        var event = new TaskDeletedEvent(projectId, requestMember.getId(), requestMember.getUser().getUsername(), deletedTask.getId(), deletedTask.getTitle());
         applicationEventPublisher.publishEvent(event);
 
         projectRepository.save(project);

@@ -95,7 +95,7 @@ public class Project {
         return createdMember;
     }
 
-    public void removeMember(Long memberToRemove) {
+    public ProjectMember removeMember(Long memberToRemove) {
         ProjectValidator.validateRemoveMember(this, memberToRemove);
         ProjectMember toRemove = projectMembers.stream()
                 .filter(member -> member.getId().equals(memberToRemove))
@@ -103,6 +103,8 @@ public class Project {
 
         projectMembers.remove(toRemove); // remove from project
         projectInvites.removeIf(invite -> invite.getReceiver().getId().equals(toRemove.getUser().getId())); // remove invite, to enable reinvite
+
+        return toRemove;
     }
 
     public void createInvite(UserEntity sender, UserEntity receiver) {
@@ -119,10 +121,20 @@ public class Project {
         projectRoles.add(role);
     }
 
-    public void deleteRole(int roleId) {
+    public ProjectRole deleteRole(int roleId) {
         ProjectValidator.validateRoleDeletion(this, roleId);
 
-        this.projectRoles.removeIf(role -> role.getId() == roleId);
+        Optional<ProjectRole> roleToDeleteOpt = this.projectRoles.stream()
+                .filter(role -> role.getId() == roleId)
+                .findFirst();
+
+        if (roleToDeleteOpt.isPresent()) {
+            ProjectRole roleToDelete = roleToDeleteOpt.get();
+            this.projectRoles.remove(roleToDelete);
+            return roleToDelete;
+        }
+
+        throw new RoleNotFoundException(roleId);
     }
 
     public ProjectMember assignRole(int roleId, Long projectMemberId, String actingUserId) {

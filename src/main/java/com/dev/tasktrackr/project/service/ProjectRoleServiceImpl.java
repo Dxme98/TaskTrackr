@@ -1,5 +1,9 @@
 package com.dev.tasktrackr.project.service;
 
+import static com.dev.tasktrackr.activity.ProjectActivityEvents.RoleCreatedEvent;
+import static com.dev.tasktrackr.activity.ProjectActivityEvents.RoleDeletedEvent;
+import static com.dev.tasktrackr.activity.ProjectActivityEvents.RoleAssignedEvent;
+
 import com.dev.tasktrackr.project.api.dtos.response.ProjectMemberDto;
 import com.dev.tasktrackr.project.api.dtos.mapper.ProjectMemberMapper;
 import com.dev.tasktrackr.project.api.dtos.mapper.RoleMapper;
@@ -13,6 +17,7 @@ import com.dev.tasktrackr.project.repository.ProjectRoleQueryRepository;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,12 +31,14 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
     private final RoleMapper roleMapper;
     private final ProjectMemberMapper projectMemberMapper;
     private final ProjectRoleQueryRepository projectRoleQueryRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     @Transactional
     public ProjectRoleResponse createProjectRole(String jwtUserId, CreateProjectRoleRequest createProjectRoleRequest, Long projectId) {
         Project project = findProjectWithAttributes(projectId);
         memberCanManageRoles(project, jwtUserId);
+        ProjectMember actingMember = project.findProjectMember(jwtUserId);
 
         project.createRole(createProjectRoleRequest.getName(), createProjectRoleRequest.getPermissions());
 
@@ -41,6 +48,9 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
 
         log.info("ROLLEN ID GENIERTE {}", persistedRole.getId());
 
+        var event = new RoleCreatedEvent(projectId, actingMember.getId(), actingMember.getUser().getUsername(), (long) persistedRole.getId(), persistedRole.getName() );
+        applicationEventPublisher.publishEvent(event);
+
         return roleMapper.toResponse(persistedRole);
     }
 
@@ -49,8 +59,12 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
     public void deleteProjectRole(String jwtUserId, Long projectId, int roleId) {
         Project project = findProjectWithAttributes(projectId);
         memberCanManageRoles(project, jwtUserId);
+        ProjectMember actingMember = project.findProjectMember(jwtUserId);
 
-        project.deleteRole(roleId);
+        ProjectRole deletedRole = project.deleteRole(roleId);
+
+        var event = new RoleDeletedEvent(projectId, actingMember.getId(), actingMember.getUser().getUsername(), (long) deletedRole.getId(), deletedRole.getName() );
+        applicationEventPublisher.publishEvent(event);
 
         projectRepository.save(project);
     }
@@ -60,10 +74,14 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
     public ProjectMemberDto assignRole(String jwtUserId, int roleId, Long memberId, Long projectId) {
         Project project = findProjectWithAttributes(projectId);
         memberCanManageRoles(project, jwtUserId);
+        ProjectMember actingMember = project.findProjectMember(jwtUserId);
 
         ProjectMember updatedMember = project.assignRole(roleId, memberId, jwtUserId);
 
         projectRepository.save(project);
+
+        var event = new RoleAssignedEvent(projectId, actingMember.getId(), actingMember.getUser().getUsername(), (long) roleId, updatedMember.getUser().getUsername(), updatedMember.getProjectRole().getName() );
+        applicationEventPublisher.publishEvent(event);
 
         return projectMemberMapper.toResponse(updatedMember);
     }

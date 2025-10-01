@@ -1,5 +1,7 @@
 package com.dev.tasktrackr.project.service;
 
+import static com.dev.tasktrackr.activity.ProjectActivityEvents.UserJoinedProjectEvent;
+
 import com.dev.tasktrackr.project.api.dtos.mapper.ProjectInviteMapper;
 import com.dev.tasktrackr.project.api.dtos.request.ProjectInviteRequest;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectInviteResponseDto;
@@ -16,6 +18,7 @@ import com.dev.tasktrackr.user.UserEntity;
 import com.dev.tasktrackr.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,7 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
     private final UserRepository userRepository;
     private final ProjectInviteMapper projectInviteMapper;
     private final ProjectInviteQueryRepository projectInviteQueryRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
 
     @Override
@@ -70,6 +74,10 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
         Project savedProject = projectRepository.save(project);
 
         log.info("Invite to Project {} accepted successfully for user: {}", savedProject.getName(), receiver.getUsername());
+        ProjectMember newMember = savedProject.findProjectMember(receiverId); // Temporäre lösung
+
+        var event = new UserJoinedProjectEvent(project.getId(), newMember.getId(), newMember.getUser().getUsername());
+        applicationEventPublisher.publishEvent(event);
 
         return projectInviteMapper.toResponse(invite);
     }
