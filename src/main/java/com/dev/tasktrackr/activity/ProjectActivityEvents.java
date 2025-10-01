@@ -27,4 +27,50 @@ public class ProjectActivityEvents {
             );
         }
     }
+
+    public record TaskCreatedEvent(
+            Long projectId,
+            Long actorId,
+            String actorName,
+            Long taskId,
+            String taskTitle
+    ) implements ActivityEvent {
+
+        @Override
+        public RecordActivityParameter toActivityParameter() {
+            return new RecordActivityParameter(
+                    this.projectId,
+                    ActivityType.TASK_CREATED,
+                    this.actorId,
+                    this.actorName,
+                    this.taskId,
+                    this.taskTitle,
+                    TargetType.TASK,
+                    null
+            );
+        }
+    }
+
+    public record TaskDeletedEvent(
+            Long projectId,
+            Long actorId,
+            String actorName,
+            Long taskId,
+            String taskTitle
+    ) implements ActivityEvent {
+
+        @Override
+        public RecordActivityParameter toActivityParameter() {
+            return new RecordActivityParameter(
+                    this.projectId,
+                    ActivityType.TASK_DELETED,
+                    this.actorId,
+                    this.actorName,
+                    this.taskId,
+                    this.taskTitle,
+                    TargetType.TASK,
+                    null
+            );
+        }
+    }
 }

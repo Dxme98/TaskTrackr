@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -27,6 +29,7 @@ public class ProjectActivity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "activity_type", nullable = false)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     private ActivityType activityType;
 
     @Column(name = "actor_id")
@@ -43,6 +46,7 @@ public class ProjectActivity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "target_type")
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     private TargetType targetType;
 
     @Column(name = "context")

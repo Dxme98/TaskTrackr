@@ -1,6 +1,9 @@
 package com.dev.tasktrackr.project.service;
 
 
+import static com.dev.tasktrackr.activity.ProjectActivityEvents.TaskCompletedEvent;
+import static com.dev.tasktrackr.activity.ProjectActivityEvents.TaskCreatedEvent;
+import static com.dev.tasktrackr.activity.ProjectActivityEvents.TaskDeletedEvent;
 import com.dev.tasktrackr.project.api.dtos.mapper.TaskMapper;
 import com.dev.tasktrackr.project.api.dtos.request.CreateTaskRequest;
 import com.dev.tasktrackr.project.api.dtos.response.TaskResponseDto;
@@ -13,6 +16,7 @@ import com.dev.tasktrackr.project.repository.ProjectRepository;
 import com.dev.tasktrackr.project.repository.TaskQueryRepository;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,6 +30,7 @@ public class TaskServiceImpl implements TaskService {
     private final ProjectRepository projectRepository;
     private final TaskMapper taskMapper;
     private final TaskQueryRepository taskQueryRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     @Transactional
@@ -44,6 +49,9 @@ public class TaskServiceImpl implements TaskService {
 
         Task perisistedTask = basicDetails.findTask(createdTask);
 
+        var event = new TaskCreatedEvent(projectId, taskCreator.getId(), taskCreator.getUser().getUsername(), perisistedTask.getId(), perisistedTask.getTitle());
+        applicationEventPublisher.publishEvent(event);
+
         return taskMapper.toResponse(perisistedTask);
     }
 
@@ -52,12 +60,15 @@ public class TaskServiceImpl implements TaskService {
     public TaskResponseDto completeTask(Long projectId, Long taskId, String jwtUserId) {
         Project project = findProjectById(projectId);
         BasicDetails basicDetails = project.getBasicDetails();
-        Long memberId = project.findProjectMember(jwtUserId).getId();
+        ProjectMember member = project.findProjectMember(jwtUserId);
 
 
-        Task completedTask = basicDetails.completeTask(taskId, memberId);
+        Task completedTask = basicDetails.completeTask(taskId, member.getId());
 
         projectRepository.save(project);
+
+        var event = new TaskCompletedEvent(projectId, member.getId(), member.getUser().getUsername(), completedTask.getId(), completedTask.getTitle());
+        applicationEventPublisher.publishEvent(event);
 
         return taskMapper.toResponse(completedTask);
     }
@@ -70,7 +81,10 @@ public class TaskServiceImpl implements TaskService {
         ProjectMember requestMember = project.findProjectMember(jwtUserId);
 
         requestMember.canDeleteTask();
-        basicDetails.deleteTask(taskId);
+        Task deletedTask = basicDetails.deleteTask(taskId);
+
+        var event = new TaskCompletedEvent(projectId, requestMember.getId(), requestMember.getUser().getUsername(), deletedTask.getId(), deletedTask.getTitle());
+        applicationEventPublisher.publishEvent(event);
 
         projectRepository.save(project);
     }

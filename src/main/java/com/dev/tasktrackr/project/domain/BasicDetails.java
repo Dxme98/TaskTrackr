@@ -54,9 +54,11 @@ public class BasicDetails {
         return task.complete();
     }
 
-    public void deleteTask(Long taskId) {
+    public Task deleteTask(Long taskId) {
         Task task = findTask(taskId);
         tasks.remove(task);
+
+        return task;
     }
 
     private void memberIsAllowedToCompleteTask(Task task, Long memberId) {
