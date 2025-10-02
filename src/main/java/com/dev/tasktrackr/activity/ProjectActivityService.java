@@ -5,5 +5,5 @@ import org.springframework.data.domain.Pageable;
 
 public interface ProjectActivityService {
     void recordActivity(RecordActivityParameter params);
-    public Page<ProjectActivityDto> findActivitiesByProjectId(Long projectId, Pageable pageable);
+     Page<ProjectActivityDto> findActivitiesByProjectId(String requestUserId, Long projectId, Pageable pageable);
 }

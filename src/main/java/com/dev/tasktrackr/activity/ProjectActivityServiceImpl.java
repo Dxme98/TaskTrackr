@@ -30,7 +30,7 @@ public class ProjectActivityServiceImpl implements ProjectActivityService{
 
     @Override
     @Transactional(readOnly = true)
-    public Page<ProjectActivityDto> findActivitiesByProjectId(Long projectId, Pageable pageable) {
-        return null;
+    public Page<ProjectActivityDto> findActivitiesByProjectId(String requestUserId, Long projectId, Pageable pageable) {
+        return projectActivityRepository.findActivitiesByProjectId(projectId, pageable);
     }
 }
