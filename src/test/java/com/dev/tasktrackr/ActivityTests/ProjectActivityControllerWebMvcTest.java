@@ -1,10 +1,9 @@
-package com.dev.tasktrackr.ProjectTests.controller;
+package com.dev.tasktrackr.ActivityTests;
 
 import com.dev.tasktrackr.activity.ActivityType;
 import com.dev.tasktrackr.activity.ProjectActivityController;
 import com.dev.tasktrackr.activity.ProjectActivityDto;
 import com.dev.tasktrackr.activity.ProjectActivityService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -12,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;

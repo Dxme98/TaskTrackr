@@ -1,4 +1,4 @@
-package com.dev.tasktrackr.ProjectTests.service;
+package com.dev.tasktrackr.ActivityTests;
 
 import com.dev.tasktrackr.BaseIntegrationTest;
 import com.dev.tasktrackr.activity.*;
