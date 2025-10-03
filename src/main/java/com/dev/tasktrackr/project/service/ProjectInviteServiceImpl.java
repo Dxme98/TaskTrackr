@@ -42,10 +42,11 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
                 .orElseThrow(() -> new ProjectNotFoundException(projectId));
 
         UserEntity sender =  findUserById(senderId);
-        UserEntity receiver = findUserByUsername(request.getReceiverUsername());
 
         ProjectMember member = project.findProjectMember(senderId);
         member.canInviteUser();
+
+        UserEntity receiver = findUserByUsername(request.getReceiverUsername());
 
         project.createInvite(sender,  receiver);
         Project savedProject = projectRepository.save(project);
