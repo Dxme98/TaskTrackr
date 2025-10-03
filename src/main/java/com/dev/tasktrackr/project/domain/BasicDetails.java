@@ -110,4 +110,11 @@ public class BasicDetails {
                 .findFirst()
                 .orElseThrow(() -> new LinkNotFoundException(linkId));
     }
+
+    public Link findLink(String title) {
+        return this.links.stream()
+                .filter(link -> link.getTitle().equals(title))
+                .findFirst()
+                .orElseThrow(() -> new LinkNotFoundException(null));
+    }
 }
