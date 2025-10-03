@@ -38,6 +38,7 @@ public final class ProjectActivityEvents {
         }
     }
 
+    /**
     public record ProjectDescriptionChangedEvent(Long projectId, Long actorId, String actorName) implements ActivityEvent {
         @Override
         public RecordActivityParameter toActivityParameter() {
@@ -45,7 +46,8 @@ public final class ProjectActivityEvents {
         }
     }
 
-    /**
+
+
     public record ProjectInfoUpdatedEvent(Long projectId, Long actorId, String actorName) implements ActivityEvent {
         @Override
         public RecordActivityParameter toActivityParameter() {
@@ -70,6 +72,7 @@ public final class ProjectActivityEvents {
         }
     }
 
+    /**
     public record UserLeftProjectEvent(Long projectId, Long actorId, String actorName) implements ActivityEvent {
         @Override
         public RecordActivityParameter toActivityParameter() {
@@ -79,7 +82,6 @@ public final class ProjectActivityEvents {
 
     // --- Link-Events ---
 
-    /**
     public record LinkAddedEvent(Long projectId, Long actorId, String actorName, Long linkId, String linkName) implements ActivityEvent {
         @Override
         public RecordActivityParameter toActivityParameter() {
