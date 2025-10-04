@@ -19,8 +19,8 @@ public class Comment {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_story_id", nullable = false)
-    private UserStory userStory;
+    @JoinColumn(name = "sprint_backlog_item_id", nullable = false)
+    private SprintBacklogItem sprintBacklogItem;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")

@@ -33,6 +33,7 @@ public class SprintBacklogItem {
     @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private Set<ProjectMember> assignedMembers = new HashSet<>();
 
-    // Comments missing
+    @OneToMany(mappedBy = "sprintBacklogItem", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<Comment> comments;
 }
 

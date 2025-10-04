@@ -44,7 +44,4 @@ public class UserStory {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StoryStatus status;
-
-    @OneToMany(mappedBy = "userStory", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Comment> comments; // this should be in SprintBacklogItem
 }
