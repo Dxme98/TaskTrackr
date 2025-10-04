@@ -30,7 +30,7 @@ public class SprintBacklogItem {
             joinColumns = @JoinColumn(name = "sprint_backlog_item_id"),
             inverseJoinColumns = @JoinColumn(name = "assigned_member_id")
     )
-    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY)
     private Set<ProjectMember> assignedMembers = new HashSet<>();
 
     @OneToMany(mappedBy = "sprintBacklogItem", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
