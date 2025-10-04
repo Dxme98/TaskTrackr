@@ -2,8 +2,8 @@ package com.dev.tasktrackr.project.service;
 
 import com.dev.tasktrackr.project.api.dtos.request.CreateLinkRequest;
 import com.dev.tasktrackr.project.api.dtos.request.UpdateInformationContentRequest;
-import com.dev.tasktrackr.project.domain.Information;
-import com.dev.tasktrackr.project.domain.Link;
+import com.dev.tasktrackr.project.domain.basic.Information;
+import com.dev.tasktrackr.project.domain.basic.Link;
 
 import java.util.Set;
 

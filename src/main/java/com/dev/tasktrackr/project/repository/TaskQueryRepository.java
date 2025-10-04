@@ -1,7 +1,5 @@
 package com.dev.tasktrackr.project.repository;
 
-import com.dev.tasktrackr.project.domain.BasicDetails;
-import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.Task;
 import com.dev.tasktrackr.project.domain.enums.Status;
 import org.springframework.data.domain.Page;
@@ -10,8 +8,6 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.util.Set;
 
 @Repository
 public interface TaskQueryRepository extends ReadOnlyRepository<Task, Long>{

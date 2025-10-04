@@ -1,4 +1,4 @@
-package com.dev.tasktrackr.project.domain;
+package com.dev.tasktrackr.project.domain.basic;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;

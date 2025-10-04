@@ -1,8 +1,11 @@
-package com.dev.tasktrackr.project.domain;
+package com.dev.tasktrackr.project.domain.basic;
 
 import com.dev.tasktrackr.project.api.dtos.request.CreateLinkRequest;
 import com.dev.tasktrackr.project.api.dtos.request.CreateTaskRequest;
 import com.dev.tasktrackr.project.api.dtos.request.UpdateInformationContentRequest;
+import com.dev.tasktrackr.project.domain.Project;
+import com.dev.tasktrackr.project.domain.ProjectMember;
+import com.dev.tasktrackr.project.domain.Task;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.ProjectMemberNotAllowedToCompleteTaskException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.LinkNotFoundException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.TaskNotFoundException;

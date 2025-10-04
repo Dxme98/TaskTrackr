@@ -1,7 +1,6 @@
 package com.dev.tasktrackr.project.api.dtos.request;
 
-import com.dev.tasktrackr.project.domain.enums.LinkType;
-import com.dev.tasktrackr.project.domain.enums.Priority;
+import com.dev.tasktrackr.project.domain.basic.LinkType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

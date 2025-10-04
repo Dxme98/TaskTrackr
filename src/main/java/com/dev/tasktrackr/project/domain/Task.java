@@ -1,6 +1,7 @@
 package com.dev.tasktrackr.project.domain;
 
 import com.dev.tasktrackr.project.api.dtos.request.CreateTaskRequest;
+import com.dev.tasktrackr.project.domain.basic.BasicDetails;
 import com.dev.tasktrackr.project.domain.enums.Priority;
 import com.dev.tasktrackr.project.domain.enums.Status;
 import jakarta.persistence.*;

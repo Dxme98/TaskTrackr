@@ -1,5 +1,6 @@
-package com.dev.tasktrackr.project.domain;
+package com.dev.tasktrackr.project.domain.scrum;
 
+import com.dev.tasktrackr.project.domain.Project;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

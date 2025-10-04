@@ -4,7 +4,10 @@ import com.dev.tasktrackr.project.api.dtos.request.CreateLinkRequest;
 import com.dev.tasktrackr.project.api.dtos.request.CreateTaskRequest;
 import com.dev.tasktrackr.project.api.dtos.request.UpdateInformationContentRequest;
 import com.dev.tasktrackr.project.domain.*;
-import com.dev.tasktrackr.project.domain.enums.LinkType;
+import com.dev.tasktrackr.project.domain.basic.BasicDetails;
+import com.dev.tasktrackr.project.domain.basic.Information;
+import com.dev.tasktrackr.project.domain.basic.Link;
+import com.dev.tasktrackr.project.domain.basic.LinkType;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.ProjectMemberNotAllowedToCompleteTaskException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.LinkNotFoundException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.TaskNotFoundException;
@@ -21,7 +24,6 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import com.dev.tasktrackr.project.domain.*;
 
 @DisplayName("BasicDetails Entity Tests")
 public class BasicDetailsTests {

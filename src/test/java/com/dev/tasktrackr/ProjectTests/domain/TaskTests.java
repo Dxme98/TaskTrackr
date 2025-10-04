@@ -1,7 +1,7 @@
 package com.dev.tasktrackr.ProjectTests.domain;
 
 import com.dev.tasktrackr.project.api.dtos.request.CreateTaskRequest;
-import com.dev.tasktrackr.project.domain.BasicDetails;
+import com.dev.tasktrackr.project.domain.basic.BasicDetails;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.Task;
 import com.dev.tasktrackr.project.domain.enums.Priority;

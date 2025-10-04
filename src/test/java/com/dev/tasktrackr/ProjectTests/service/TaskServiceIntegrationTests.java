@@ -5,6 +5,7 @@ import com.dev.tasktrackr.project.api.dtos.mapper.TaskMapper;
 import com.dev.tasktrackr.project.api.dtos.request.CreateTaskRequest;
 import com.dev.tasktrackr.project.api.dtos.response.TaskResponseDto;
 import com.dev.tasktrackr.project.domain.*;
+import com.dev.tasktrackr.project.domain.basic.BasicDetails;
 import com.dev.tasktrackr.project.domain.enums.Priority;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
 import com.dev.tasktrackr.project.domain.enums.Status;

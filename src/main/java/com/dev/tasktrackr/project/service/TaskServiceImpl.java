@@ -7,7 +7,7 @@ import static com.dev.tasktrackr.activity.ProjectActivityEvents.TaskDeletedEvent
 import com.dev.tasktrackr.project.api.dtos.mapper.TaskMapper;
 import com.dev.tasktrackr.project.api.dtos.request.CreateTaskRequest;
 import com.dev.tasktrackr.project.api.dtos.response.TaskResponseDto;
-import com.dev.tasktrackr.project.domain.BasicDetails;
+import com.dev.tasktrackr.project.domain.basic.BasicDetails;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.Task;
