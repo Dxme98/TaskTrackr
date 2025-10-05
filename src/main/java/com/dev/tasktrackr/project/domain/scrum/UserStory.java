@@ -1,5 +1,6 @@
 package com.dev.tasktrackr.project.domain.scrum;
 
+import com.dev.tasktrackr.project.api.dtos.request.CreateUserStoryRequest;
 import com.dev.tasktrackr.project.domain.enums.Priority;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -44,4 +45,8 @@ public class UserStory {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StoryStatus status;
+
+    public static UserStory create(CreateUserStoryRequest createUserStoryRequest) {
+        return null;
+    }
 }
