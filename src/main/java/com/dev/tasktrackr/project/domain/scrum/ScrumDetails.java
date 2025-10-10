@@ -39,7 +39,7 @@ public class ScrumDetails {
 
 
     public UserStory createUserStory(CreateUserStoryRequest createUserStoryRequest) {
-        UserStory userStory = UserStory.create(createUserStoryRequest);
+        UserStory userStory = UserStory.create(createUserStoryRequest, this);
 
         userStories.add(userStory);
 

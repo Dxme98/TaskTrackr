@@ -3,7 +3,10 @@ package com.dev.tasktrackr.project.domain.scrum;
 import com.dev.tasktrackr.project.api.dtos.request.CreateUserStoryRequest;
 import com.dev.tasktrackr.project.domain.enums.Priority;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -16,6 +19,9 @@ import java.util.Set;
 })
 @Getter
 @EntityListeners(AuditingEntityListener.class)
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class UserStory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,7 +41,7 @@ public class UserStory {
     @Column(nullable = false)
     private Priority priority;
 
-    @Column(name = "story_points")
+    @Column(name = "story_points", nullable = false)
     private Integer storyPoints;
 
     @Column(nullable = false)
@@ -46,7 +52,15 @@ public class UserStory {
     @Column(nullable = false)
     private StoryStatus status;
 
-    public static UserStory create(CreateUserStoryRequest createUserStoryRequest) {
-        return null;
+
+    public static UserStory create(CreateUserStoryRequest createUserStoryRequest, ScrumDetails scrumDetails) {
+        return UserStory.builder()
+                .priority(createUserStoryRequest.getPriority())
+                .status(createUserStoryRequest.getStatus())
+                .title(createUserStoryRequest.getTitle())
+                .description(createUserStoryRequest.getDescription())
+                .storyPoints(createUserStoryRequest.getStoryPoints())
+                .scrumDetails(scrumDetails)
+                .build();
     }
 }
