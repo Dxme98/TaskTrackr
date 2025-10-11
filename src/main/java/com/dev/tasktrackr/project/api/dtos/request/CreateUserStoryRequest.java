@@ -37,7 +37,8 @@ public class CreateUserStoryRequest {
     @Schema(
             description = "Priorität der User Story.",
             example = "HIGH",
-            requiredMode = Schema.RequiredMode.REQUIRED
+            requiredMode = Schema.RequiredMode.REQUIRED,
+            allowableValues = {"LOW", "MEDIUM", "HIGH"}
     )
     @NotNull(message = "Die Priorität muss angegeben werden.")
     private Priority priority;
@@ -45,6 +46,7 @@ public class CreateUserStoryRequest {
     @Schema(
             description = "Komplexitätsschätzung der User Story in Story Points.",
             example = "5",
+            allowableValues = {"1", "2", "3", "5", "8", "13", "20", "40", "100"},
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     @Min(value = 0, message = "Story Points müssen 0 oder größer sein.")
@@ -53,6 +55,7 @@ public class CreateUserStoryRequest {
     @Schema(
             description = "Initialer Status der User Story. Meist 'TODO'.",
             example = "TODO",
+            allowableValues = {    "NOT_ASSIGNED_TO_SPRINT", "SPRINT_BACKLOG", "IN_PROGRESS", "REVIEW", "DONE"},
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     @NotNull(message = "Der Status darf nicht null sein.")
