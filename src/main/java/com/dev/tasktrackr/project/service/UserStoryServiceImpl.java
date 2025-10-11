@@ -7,6 +7,7 @@ import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.scrum.ScrumDetails;
 import com.dev.tasktrackr.project.domain.scrum.UserStory;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
+import com.dev.tasktrackr.project.repository.UserStoryQueryRepository;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserStoryServiceImpl implements UserStoryService{
     private final ProjectRepository projectRepository;
     private final UserStoryMapper userStoryMapper;
+    private final UserStoryQueryRepository userStoryQueryRepository;
 
     @Override
     @Transactional
@@ -37,7 +39,11 @@ public class UserStoryServiceImpl implements UserStoryService{
     @Override
     @Transactional(readOnly = true)
     public Page<UserStoryResponseDto> getUserStoriesByProjectId(Long projectId, Pageable pageable, String jwtUserId) {
-        return null;
+        Project project = findProjectById(projectId);
+        project.isProjectMember(jwtUserId);
+
+        Page<UserStory> userStories = userStoryQueryRepository.findUserStoriesByProjectId(projectId, pageable);
+        return userStories.map(userStoryMapper::toDto);
     }
 
     private Project findProjectById(Long projectId) {
