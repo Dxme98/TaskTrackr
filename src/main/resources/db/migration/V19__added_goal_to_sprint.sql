@@ -1,0 +1,1 @@
+ALTER TABLE sprints ADD COLUMN goal VARCHAR(500) NOT NULL DEFAULT 'No goal defined';
