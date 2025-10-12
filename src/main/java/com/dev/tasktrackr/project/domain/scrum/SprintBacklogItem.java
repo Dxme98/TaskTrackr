@@ -2,7 +2,10 @@ package com.dev.tasktrackr.project.domain.scrum;
 
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,6 +14,9 @@ import java.util.Set;
 @Entity
 @Table(name = "sprint_backlog_items")
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class SprintBacklogItem {
 
     @Id
@@ -35,5 +41,14 @@ public class SprintBacklogItem {
 
     @OneToMany(mappedBy = "sprintBacklogItem", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<Comment> comments;
+
+    public static SprintBacklogItem create(UserStory userStory, Sprint sprint) {
+        return SprintBacklogItem.builder()
+                .userStory(userStory)
+                .sprint(sprint)
+                .assignedMembers(new HashSet<>())
+                .comments(new HashSet<>())
+                .build();
+    }
 }
 

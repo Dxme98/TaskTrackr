@@ -1,17 +1,18 @@
 package com.dev.tasktrackr.project.domain.scrum;
 
+import com.dev.tasktrackr.project.api.dtos.request.CreateSprintRequest;
 import com.dev.tasktrackr.project.api.dtos.request.CreateUserStoryRequest;
 import com.dev.tasktrackr.project.domain.Project;
+import com.dev.tasktrackr.project.domain.basic.BasicDetails;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.UserStoryNotFoundException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 @Entity
@@ -31,7 +32,7 @@ public class ScrumDetails {
     private Set<UserStory> userStories = new HashSet<>();
 
     @OneToMany(mappedBy = "scrumDetails", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Sprint> sprints = new ArrayList<>();
+    private Set<Sprint> sprints = new HashSet<>();
 
     public ScrumDetails(Project project) {
         this.project = project;
@@ -51,6 +52,28 @@ public class ScrumDetails {
                 .filter(userStory -> userStory.getTitle().equals(title))
                 .findFirst()
                 .orElseThrow(() -> new UserStoryNotFoundException(title));
+    }
+
+    public Sprint createSprint(CreateSprintRequest createSprintRequest) {
+        Sprint createdSprint = Sprint.create(createSprintRequest, this);
+        sprints.add(createdSprint);
+
+        return createdSprint;
+    }
+
+    public List<UserStory> findUserStoriesByIds(Set<Long> ids) {
+        Map<Long, UserStory> userStoryMap = this.userStories.stream()
+                .collect(Collectors.toMap(UserStory::getId, Function.identity()));
+
+        return ids.stream()
+                .map(id -> {
+                    UserStory userStory = userStoryMap.get(id);
+                    if (userStory == null) {
+                        throw new UserStoryNotFoundException("UserStory with ID '" + id + "' not found.");
+                    }
+                    return userStory;
+                })
+                .collect(Collectors.toList());
     }
 }
 
