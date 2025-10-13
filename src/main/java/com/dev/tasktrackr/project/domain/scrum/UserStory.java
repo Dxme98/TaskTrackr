@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -39,24 +41,26 @@ public class UserStory {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     private Priority priority;
 
     @Column(name = "story_points", nullable = false)
     private Integer storyPoints;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "createdat")
     @CreatedDate
     private Instant createdAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     private StoryStatus status;
 
 
     public static UserStory create(CreateUserStoryRequest createUserStoryRequest, ScrumDetails scrumDetails) {
         return UserStory.builder()
                 .priority(createUserStoryRequest.getPriority())
-                .status(createUserStoryRequest.getStatus())
+                .status(StoryStatus.NOT_ASSIGNED_TO_SPRINT)
                 .title(createUserStoryRequest.getTitle())
                 .description(createUserStoryRequest.getDescription())
                 .storyPoints(createUserStoryRequest.getStoryPoints())

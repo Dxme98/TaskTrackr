@@ -1,4 +1,4 @@
-package com.dev.tasktrackr.project.api.controller; // Beispielhafter Package-Name
+package com.dev.tasktrackr.project.api.controller;
 
 import com.dev.tasktrackr.project.api.dtos.request.CreateSprintRequest;
 import com.dev.tasktrackr.project.api.dtos.request.UpdateSprintRequest;

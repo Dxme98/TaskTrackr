@@ -51,13 +51,4 @@ public class CreateUserStoryRequest {
     )
     @Min(value = 0, message = "Story Points müssen 0 oder größer sein.")
     private Integer storyPoints;
-
-    @Schema(
-            description = "Initialer Status der User Story. Meist 'TODO'.",
-            example = "TODO",
-            allowableValues = {    "NOT_ASSIGNED_TO_SPRINT", "SPRINT_BACKLOG", "IN_PROGRESS", "REVIEW", "DONE"},
-            requiredMode = Schema.RequiredMode.REQUIRED
-    )
-    @NotNull(message = "Der Status darf nicht null sein.")
-    private StoryStatus status;
 }
