@@ -1,5 +1,6 @@
 package com.dev.tasktrackr.project.service;
 
+import com.dev.tasktrackr.project.api.dtos.mapper.SprintMapper;
 import com.dev.tasktrackr.project.api.dtos.request.CreateSprintRequest;
 import com.dev.tasktrackr.project.api.dtos.response.SprintResponseDto;
 import com.dev.tasktrackr.project.domain.Project;
@@ -10,6 +11,7 @@ import com.dev.tasktrackr.project.domain.scrum.UserStory;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SprintServiceImpl implements SprintService{
     private final ProjectRepository projectRepository;
+    private final SprintMapper sprintMapper;
 
     // Validation, checks usw fehlen
 
@@ -38,6 +41,20 @@ public class SprintServiceImpl implements SprintService{
 
         projectRepository.save(project);
 
+        // finde perisisted sprint
+        Sprint perisistedSprint = scrumDetails.findSprint(createdSprint);
+
+
+        return sprintMapper.toDto(perisistedSprint);
+    }
+
+    @Override
+    public SprintResponseDto findActiveSprint(Long projectId, String jwtUserId) {
+        return null;
+    }
+
+    @Override
+    public Page<SprintResponseDto> findAllSprintsByProjectId(Long projectId, String jwtUserId) {
         return null;
     }
 
