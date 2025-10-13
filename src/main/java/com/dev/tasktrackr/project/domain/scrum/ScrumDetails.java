@@ -84,5 +84,12 @@ public class ScrumDetails {
                 .findFirst()
                 .orElseThrow(() -> new SprintNotFoundException(sprint.getId()));
     }
+
+    public Sprint findSprintById(Long sprintId) {
+        return sprints.stream()
+                .filter(s -> s.getId().equals(sprintId))
+                .findFirst()
+                .orElseThrow(() -> new SprintNotFoundException(sprintId));
+    }
 }
 

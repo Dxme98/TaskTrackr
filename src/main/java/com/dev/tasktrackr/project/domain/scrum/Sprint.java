@@ -1,14 +1,17 @@
 package com.dev.tasktrackr.project.domain.scrum;
 
 import com.dev.tasktrackr.project.api.dtos.request.CreateSprintRequest;
+import com.dev.tasktrackr.project.api.dtos.request.UpdateSprintRequest;
 import jakarta.persistence.*;
 import lombok.*;
+import org.apache.catalina.User;
 
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "sprints")
@@ -69,6 +72,39 @@ public class Sprint {
         return backlogItems;
     }
 
+    public void update(UpdateSprintRequest request, List<UserStory> userStories) {
+        if (!this.status.equals(SprintStatus.PLANNED)) {
+            throw new IllegalStateException("Only planned sprints can be edited.");
+        }
+
+        this.name = request.getName();
+        this.description = request.getDescription();
+        this.goal = request.getGoal();
+        this.startDate = request.getStartDate();
+        this.endDate = request.getEndDate();
+
+        updateBacklogItems(userStories);
+    }
+
+    private void updateBacklogItems(List<UserStory> userStories) {
+        // Bestehende User Story IDs extrahieren
+        Set<Long> existingStoryIds = this.backlogItems.stream()
+                .map(item -> item.getUserStory().getId())
+                .collect(Collectors.toSet());
+
+        // Neue User Story IDs
+        Set<Long> newStoryIds = userStories.stream()
+                .map(UserStory::getId)
+                .collect(Collectors.toSet());
+
+        // 1. Entferne Items, die nicht mehr in der neuen Liste sind
+        this.backlogItems.removeIf(item -> !newStoryIds.contains(item.getUserStory().getId()));
+
+        // 2. Füge neue User Stories hinzu, die noch nicht im Backlog sind
+        userStories.stream()
+                .filter(story -> !existingStoryIds.contains(story.getId()))
+                .forEach(story -> this.backlogItems.add(SprintBacklogItem.create(story, this)));
+    }
 
     @Override
     public boolean equals(Object o) {

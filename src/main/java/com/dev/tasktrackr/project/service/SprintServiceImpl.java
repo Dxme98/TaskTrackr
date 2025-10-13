@@ -2,6 +2,7 @@ package com.dev.tasktrackr.project.service;
 
 import com.dev.tasktrackr.project.api.dtos.mapper.SprintMapper;
 import com.dev.tasktrackr.project.api.dtos.request.CreateSprintRequest;
+import com.dev.tasktrackr.project.api.dtos.request.UpdateSprintRequest;
 import com.dev.tasktrackr.project.api.dtos.response.SprintResponseDto;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.scrum.ScrumDetails;
@@ -12,9 +13,9 @@ import com.dev.tasktrackr.project.repository.ProjectRepository;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -54,13 +55,27 @@ public class SprintServiceImpl implements SprintService{
     }
 
     @Override
-    public Page<SprintResponseDto> findAllSprintsByProjectId(Long projectId, String jwtUserId) {
+    public Page<SprintResponseDto> findAllSprintsByProjectId(Long projectId, String jwtUserId, Pageable pageable) {
         return null;
     }
 
     @Override
-    public SprintResponseDto editSprint(CreateSprintRequest createSprintRequest, Long projectId, String jwtUserId) {
-        return null;
+    public SprintResponseDto editSprint(UpdateSprintRequest updateSprintRequest, Long sprintId, Long projectId, String jwtUserId) {
+        Project project = findProjectById(projectId);
+        ScrumDetails scrumDetails = project.getScrumDetails();
+
+        // Finde den zu bearbeitenden Sprint über die Domänen-Logik
+        Sprint sprintToEdit = scrumDetails.findSprintById(sprintId);
+
+        // Finde die UserStories, die im Sprint sein sollen
+        List<UserStory> updatedUserStories = scrumDetails.findUserStoriesByIds(updateSprintRequest.getUserStoryIds());
+
+        // Die Entität selbst ist für die Aktualisierung ihrer Daten verantwortlich
+        sprintToEdit.update(updateSprintRequest, updatedUserStories);
+
+        projectRepository.save(project);
+
+        return sprintMapper.toDto(sprintToEdit);
     }
 
     @Override
