@@ -98,6 +98,8 @@ public class Sprint {
 
     public Sprint end() {
 
+        // TODO: Was passiert mit unfinished todos?
+
         if (!this.status.equals(SprintStatus.ACTIVE)) {
             throw new IllegalStateException("Only sprints with status ACTIVE can be finished.");
         }

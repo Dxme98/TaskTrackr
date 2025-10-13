@@ -7,7 +7,6 @@ import com.dev.tasktrackr.project.api.dtos.response.SprintResponseDto;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.scrum.ScrumDetails;
 import com.dev.tasktrackr.project.domain.scrum.Sprint;
-import com.dev.tasktrackr.project.domain.scrum.SprintBacklogItem;
 import com.dev.tasktrackr.project.domain.scrum.UserStory;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
 import com.dev.tasktrackr.project.repository.SprintQueryRepository;
@@ -16,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -29,6 +29,7 @@ public class SprintServiceImpl implements SprintService{
     // Validation, checks usw fehlen
 
     @Override
+    @Transactional
     public SprintResponseDto createSprint(CreateSprintRequest createSprintRequest, Long projectId, String jwtUserId) {
         Project project = findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
@@ -52,6 +53,7 @@ public class SprintServiceImpl implements SprintService{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public SprintResponseDto findActiveSprint(Long projectId, String jwtUserId) {
         Project project = findProjectById(projectId);
         // Die Logik, den aktiven Sprint zu finden, liegt in ScrumDetails
@@ -61,6 +63,7 @@ public class SprintServiceImpl implements SprintService{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<SprintResponseDto> findAllSprintsByProjectId(Long projectId, String jwtUserId, Pageable pageable) {
         // Sicherstellen, dass das Projekt existiert, bevor Sprints abgerufen werden
         if (!projectRepository.existsById(projectId)) {
@@ -72,6 +75,7 @@ public class SprintServiceImpl implements SprintService{
     }
 
     @Override
+    @Transactional
     public SprintResponseDto editSprint(UpdateSprintRequest updateSprintRequest, Long sprintId, Long projectId, String jwtUserId) {
         Project project = findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
@@ -91,6 +95,7 @@ public class SprintServiceImpl implements SprintService{
     }
 
     @Override
+    @Transactional
     public SprintResponseDto startSprint(Long sprintId, Long projectId, String jwtUserId) {
         Project project = findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
@@ -103,6 +108,7 @@ public class SprintServiceImpl implements SprintService{
     }
 
     @Override
+    @Transactional
     public SprintResponseDto endSprint(Long sprintId, Long projectId, String jwtUserId) {
         Project project = findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
