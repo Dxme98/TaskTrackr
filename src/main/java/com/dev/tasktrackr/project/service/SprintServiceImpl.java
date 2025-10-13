@@ -10,6 +10,7 @@ import com.dev.tasktrackr.project.domain.scrum.Sprint;
 import com.dev.tasktrackr.project.domain.scrum.SprintBacklogItem;
 import com.dev.tasktrackr.project.domain.scrum.UserStory;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
+import com.dev.tasktrackr.project.repository.SprintQueryRepository;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,7 @@ import java.util.List;
 public class SprintServiceImpl implements SprintService{
     private final ProjectRepository projectRepository;
     private final SprintMapper sprintMapper;
+    private final SprintQueryRepository sprintQueryRepository;
 
     // Validation, checks usw fehlen
 
@@ -51,12 +53,22 @@ public class SprintServiceImpl implements SprintService{
 
     @Override
     public SprintResponseDto findActiveSprint(Long projectId, String jwtUserId) {
-        return null;
+        Project project = findProjectById(projectId);
+        // Die Logik, den aktiven Sprint zu finden, liegt in ScrumDetails
+        Sprint activeSprint = project.getScrumDetails().findActiveSprint();
+
+        return sprintMapper.toDto(activeSprint);
     }
 
     @Override
     public Page<SprintResponseDto> findAllSprintsByProjectId(Long projectId, String jwtUserId, Pageable pageable) {
-        return null;
+        // Sicherstellen, dass das Projekt existiert, bevor Sprints abgerufen werden
+        if (!projectRepository.existsById(projectId)) {
+            throw new ProjectNotFoundException(projectId);
+        }
+        // Paging direkt über ein spezialisiertes Repository für Lese-Performance (CQRS-Gedanke)
+        Page<Sprint> sprintPage = sprintQueryRepository.findSprintsByProjectId(projectId, pageable);
+        return sprintPage.map(sprintMapper::toDto);
     }
 
     @Override

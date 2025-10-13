@@ -4,6 +4,7 @@ import com.dev.tasktrackr.project.api.dtos.request.CreateSprintRequest;
 import com.dev.tasktrackr.project.api.dtos.request.CreateUserStoryRequest;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.basic.BasicDetails;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.NoActiveSprintFoundException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.SprintNotFoundException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.UserStoryNotFoundException;
@@ -76,6 +77,13 @@ public class ScrumDetails {
                     return userStory;
                 })
                 .collect(Collectors.toList());
+    }
+
+    public Sprint findActiveSprint() {
+        return sprints.stream()
+                .filter(s -> s.getStatus().equals(SprintStatus.ACTIVE))
+                .findFirst()
+                .orElseThrow(() -> new NoActiveSprintFoundException(project.getId()));
     }
 
     public Sprint findSprint(Sprint sprint) {
