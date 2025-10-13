@@ -92,12 +92,26 @@ public class SprintServiceImpl implements SprintService{
 
     @Override
     public SprintResponseDto startSprint(Long sprintId, Long projectId, String jwtUserId) {
-        return null;
+        Project project = findProjectById(projectId);
+        ScrumDetails scrumDetails = project.getScrumDetails();
+
+        Sprint sprintToStart = scrumDetails.startSprint(sprintId);
+
+        projectRepository.save(project);
+
+        return sprintMapper.toDto(sprintToStart);
     }
 
     @Override
     public SprintResponseDto endSprint(Long sprintId, Long projectId, String jwtUserId) {
-        return null;
+        Project project = findProjectById(projectId);
+        ScrumDetails scrumDetails = project.getScrumDetails();
+
+        Sprint sprintToEnd = scrumDetails.endSprint(sprintId);
+
+        projectRepository.save(project);
+
+        return sprintMapper.toDto(sprintToEnd);
     }
 
     private Project findProjectById(Long projectId) {

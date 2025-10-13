@@ -86,6 +86,26 @@ public class Sprint {
         updateBacklogItems(userStories);
     }
 
+    public Sprint start() {
+
+        if (!this.status.equals(SprintStatus.PLANNED)) {
+            throw new IllegalStateException("Only sprints with status PLANNED can be started.");
+        }
+
+        this.status = SprintStatus.ACTIVE;
+        return this;
+    }
+
+    public Sprint end() {
+
+        if (!this.status.equals(SprintStatus.ACTIVE)) {
+            throw new IllegalStateException("Only sprints with status ACTIVE can be finished.");
+        }
+
+        this.status = SprintStatus.DONE;
+        return this;
+    }
+
     private void updateBacklogItems(List<UserStory> userStories) {
         // Bestehende User Story IDs extrahieren
         Set<Long> existingStoryIds = this.backlogItems.stream()

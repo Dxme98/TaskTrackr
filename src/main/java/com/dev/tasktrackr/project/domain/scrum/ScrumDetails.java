@@ -79,6 +79,16 @@ public class ScrumDetails {
                 .collect(Collectors.toList());
     }
 
+    public Sprint startSprint(Long sprintId) {
+        Sprint sprintToStart = findSprintById(sprintId);
+        return  sprintToStart.start();
+    }
+
+    public Sprint endSprint(Long sprintId) {
+        Sprint sprintToEnd = findSprintById(sprintId);
+        return  sprintToEnd.end();
+    }
+
     public Sprint findActiveSprint() {
         return sprints.stream()
                 .filter(s -> s.getStatus().equals(SprintStatus.ACTIVE))
