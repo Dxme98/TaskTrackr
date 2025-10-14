@@ -25,7 +25,6 @@ public class SprintServiceImpl implements SprintService{
     private final ProjectRepository projectRepository;
     private final SprintMapper sprintMapper;
     private final SprintQueryRepository sprintQueryRepository;
-    private final UserStoryQueryRepository userStoryQueryRepository;
 
     // Validation, checks usw fehlen
 

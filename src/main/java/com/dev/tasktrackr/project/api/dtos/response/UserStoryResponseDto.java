@@ -26,6 +26,9 @@ public class UserStoryResponseDto {
     @Schema(description = "Titel der User Story")
     private String title;
 
+    @Schema(description = "Nennt den Namen des Sprints, sofern die UserStory teil eines Sprints ist")
+    private String sprintName;
+
     @Schema(description = "Detaillierte Beschreibung der User Story")
     private String description;
 

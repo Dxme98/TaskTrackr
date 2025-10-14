@@ -57,6 +57,9 @@ public class UserStory {
     @JdbcType(PostgreSQLEnumJdbcType.class)
     private StoryStatus status;
 
+    @OneToOne(mappedBy = "userStory")
+    private SprintBacklogItem sprintBacklogItem;
+
 
     public static UserStory create(CreateUserStoryRequest createUserStoryRequest, ScrumDetails scrumDetails) {
         return UserStory.builder()
