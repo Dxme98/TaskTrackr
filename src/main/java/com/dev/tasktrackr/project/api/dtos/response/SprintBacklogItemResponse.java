@@ -1,5 +1,7 @@
 package com.dev.tasktrackr.project.api.dtos.response;
 
+import com.dev.tasktrackr.project.domain.enums.Status;
+import com.dev.tasktrackr.project.domain.scrum.StoryStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,4 +20,6 @@ public class SprintBacklogItemResponse {
     private String userStoryTitle;
     private Set<ProjectMemberDto> assignedMembers = new HashSet<>();
     private Set<CommentResponseDto> comments;
+    private StoryStatus status;
+    private Integer storyPoints;
 }

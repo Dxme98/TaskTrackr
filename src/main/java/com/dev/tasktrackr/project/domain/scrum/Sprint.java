@@ -5,6 +5,8 @@ import com.dev.tasktrackr.project.api.dtos.request.UpdateSprintRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import org.apache.catalina.User;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -40,6 +42,7 @@ public class Sprint {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     private SprintStatus status = SprintStatus.PLANNED;
 
     @Column(name = "start_date", nullable = false)
@@ -54,12 +57,12 @@ public class Sprint {
 
     public static Sprint create(CreateSprintRequest createSprintRequest, ScrumDetails scrumDetails) {
         return Sprint.builder()
-                .backlogItems(null)
+                .backlogItems(new HashSet<>())
                 .startDate(createSprintRequest.getStartDate())
                 .endDate(createSprintRequest.getEndDate())
                 .description(createSprintRequest.getDescription())
                 .name(createSprintRequest.getName())
-                .status(createSprintRequest.getStatus())
+                .status(SprintStatus.PLANNED)
                 .goal(createSprintRequest.getGoal())
                 .scrumDetails(scrumDetails)
                 .build();

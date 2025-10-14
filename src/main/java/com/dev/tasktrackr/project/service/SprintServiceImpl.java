@@ -5,10 +5,7 @@ import com.dev.tasktrackr.project.api.dtos.request.CreateSprintRequest;
 import com.dev.tasktrackr.project.api.dtos.request.UpdateSprintRequest;
 import com.dev.tasktrackr.project.api.dtos.response.SprintResponseDto;
 import com.dev.tasktrackr.project.domain.Project;
-import com.dev.tasktrackr.project.domain.scrum.ScrumDetails;
-import com.dev.tasktrackr.project.domain.scrum.Sprint;
-import com.dev.tasktrackr.project.domain.scrum.SprintStatus;
-import com.dev.tasktrackr.project.domain.scrum.UserStory;
+import com.dev.tasktrackr.project.domain.scrum.*;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
 import com.dev.tasktrackr.project.repository.SprintQueryRepository;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
@@ -19,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -88,7 +86,7 @@ public class SprintServiceImpl implements SprintService{
         List<UserStory> updatedUserStories = scrumDetails.findUserStoriesByIds(updateSprintRequest.getUserStoryIds());
 
         // Die Entität selbst ist für die Aktualisierung ihrer Daten verantwortlich
-        sprintToEdit.update(updateSprintRequest, updatedUserStories);
+       sprintToEdit.update(updateSprintRequest, updatedUserStories);
 
         projectRepository.save(project);
 

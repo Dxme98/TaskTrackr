@@ -28,6 +28,8 @@ public class SprintBacklogItemMapper {
         dto.setId(sprintBacklogItem.getId());
         dto.setSprintId(sprintBacklogItem.getSprint().getId());
         dto.setUserStoryTitle(sprintBacklogItem.getUserStory().getTitle());
+        dto.setStatus(sprintBacklogItem.getUserStory().getStatus());
+        dto.setStoryPoints(sprintBacklogItem.getUserStory().getStoryPoints());
 
         // Member mappen
         Set<ProjectMemberDto> assignedMembers = sprintBacklogItem.getAssignedMembers()

@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 
@@ -43,12 +44,27 @@ public class SprintBacklogItem {
     private Set<Comment> comments;
 
     public static SprintBacklogItem create(UserStory userStory, Sprint sprint) {
+        userStory.updateStatus(StoryStatus.SPRINT_BACKLOG);
         return SprintBacklogItem.builder()
                 .userStory(userStory)
                 .sprint(sprint)
                 .assignedMembers(new HashSet<>())
                 .comments(new HashSet<>())
                 .build();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SprintBacklogItem that = (SprintBacklogItem) o;
+        // Die Gleichheit wird ausschließlich durch die zugehörige UserStory bestimmt.
+        return Objects.equals(userStory, that.userStory);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userStory);
     }
 }
 
