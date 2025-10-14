@@ -1,7 +1,6 @@
 package com.dev.tasktrackr.project.api.controller;
 
 import com.dev.tasktrackr.project.api.dtos.request.CreateSprintRequest;
-import com.dev.tasktrackr.project.api.dtos.request.UpdateSprintRequest;
 import com.dev.tasktrackr.project.api.dtos.response.PageResponse;
 import com.dev.tasktrackr.project.api.dtos.response.SprintPageResponse;
 import com.dev.tasktrackr.project.api.dtos.response.SprintResponseDto;
@@ -79,22 +78,6 @@ public class SprintController {
         String jwtUserId = jwt.getClaim("sub");
         log.info("Anfrage zum Finden des aktiven Sprints für Projekt {} von Benutzer {}", projectId, jwtUserId);
         SprintResponseDto response = sprintService.findActiveSprint(projectId, jwtUserId);
-        return ResponseEntity.ok(response);
-    }
-
-    @PutMapping("/{sprintId}")
-    @Operation(summary = "Bearbeitet einen bestehenden Sprint", description = "Aktualisiert die Details und die zugeordneten User Stories eines geplanten Sprints.")
-    @ApiResponse(responseCode = "200", description = "Sprint erfolgreich aktualisiert")
-    @ApiErrorResponses.BadRequest
-    public ResponseEntity<SprintResponseDto> editSprint(
-            @PathVariable Long projectId,
-            @PathVariable Long sprintId,
-            @Valid @RequestBody UpdateSprintRequest updateSprintRequest,
-            @AuthenticationPrincipal Jwt jwt) {
-
-        String jwtUserId = jwt.getClaim("sub");
-        log.info("Anfrage zum Bearbeiten von Sprint {} in Projekt {} von Benutzer {}", sprintId, projectId, jwtUserId);
-        SprintResponseDto response = sprintService.editSprint(updateSprintRequest, sprintId, projectId, jwtUserId);
         return ResponseEntity.ok(response);
     }
 

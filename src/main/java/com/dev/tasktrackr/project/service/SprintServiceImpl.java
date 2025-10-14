@@ -2,28 +2,30 @@ package com.dev.tasktrackr.project.service;
 
 import com.dev.tasktrackr.project.api.dtos.mapper.SprintMapper;
 import com.dev.tasktrackr.project.api.dtos.request.CreateSprintRequest;
-import com.dev.tasktrackr.project.api.dtos.request.UpdateSprintRequest;
 import com.dev.tasktrackr.project.api.dtos.response.SprintResponseDto;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.scrum.*;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
 import com.dev.tasktrackr.project.repository.SprintQueryRepository;
+import com.dev.tasktrackr.project.repository.UserStoryQueryRepository;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SprintServiceImpl implements SprintService{
     private final ProjectRepository projectRepository;
     private final SprintMapper sprintMapper;
     private final SprintQueryRepository sprintQueryRepository;
+    private final UserStoryQueryRepository userStoryQueryRepository;
 
     // Validation, checks usw fehlen
 
@@ -71,26 +73,6 @@ public class SprintServiceImpl implements SprintService{
         // Paging direkt über ein spezialisiertes Repository für Lese-Performance (CQRS-Gedanke)
         Page<Sprint> sprintPage = sprintQueryRepository.findSprintsByProjectIdAndStatus(projectId, status, pageable);
         return sprintPage.map(sprintMapper::toDto);
-    }
-
-    @Override
-    @Transactional
-    public SprintResponseDto editSprint(UpdateSprintRequest updateSprintRequest, Long sprintId, Long projectId, String jwtUserId) {
-        Project project = findProjectById(projectId);
-        ScrumDetails scrumDetails = project.getScrumDetails();
-
-        // Finde den zu bearbeitenden Sprint über die Domänen-Logik
-        Sprint sprintToEdit = scrumDetails.findSprintById(sprintId);
-
-        // Finde die UserStories, die im Sprint sein sollen
-        List<UserStory> updatedUserStories = scrumDetails.findUserStoriesByIds(updateSprintRequest.getUserStoryIds());
-
-        // Die Entität selbst ist für die Aktualisierung ihrer Daten verantwortlich
-       sprintToEdit.update(updateSprintRequest, updatedUserStories);
-
-        projectRepository.save(project);
-
-        return sprintMapper.toDto(sprintToEdit);
     }
 
     @Override

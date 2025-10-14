@@ -1,7 +1,6 @@
 package com.dev.tasktrackr.project.service;
 
 import com.dev.tasktrackr.project.api.dtos.request.CreateSprintRequest;
-import com.dev.tasktrackr.project.api.dtos.request.UpdateSprintRequest;
 import com.dev.tasktrackr.project.api.dtos.response.SprintResponseDto;
 import com.dev.tasktrackr.project.domain.scrum.SprintStatus;
 import org.springframework.data.domain.Page;
@@ -11,7 +10,6 @@ public interface SprintService {
     SprintResponseDto createSprint(CreateSprintRequest createSprintRequest, Long projectId, String jwtUserId);
     SprintResponseDto findActiveSprint( Long projectId, String jwtUserId);
     Page<SprintResponseDto> findAllSprintsByProjectIdAndStatus(Long projectId, String jwtUserId, Pageable pageable, SprintStatus status);
-    SprintResponseDto editSprint(UpdateSprintRequest updateSprintRequest, Long sprintId, Long projectId, String jwtUserId);
     SprintResponseDto startSprint(Long sprintId, Long projectId, String jwtUserId);
     SprintResponseDto endSprint(Long sprintId, Long projectId, String jwtUserId);
 }
