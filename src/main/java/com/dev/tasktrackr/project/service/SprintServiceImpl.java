@@ -7,6 +7,7 @@ import com.dev.tasktrackr.project.api.dtos.response.SprintResponseDto;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.scrum.ScrumDetails;
 import com.dev.tasktrackr.project.domain.scrum.Sprint;
+import com.dev.tasktrackr.project.domain.scrum.SprintStatus;
 import com.dev.tasktrackr.project.domain.scrum.UserStory;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
 import com.dev.tasktrackr.project.repository.SprintQueryRepository;
@@ -64,13 +65,13 @@ public class SprintServiceImpl implements SprintService{
 
     @Override
     @Transactional(readOnly = true)
-    public Page<SprintResponseDto> findAllSprintsByProjectId(Long projectId, String jwtUserId, Pageable pageable) {
+    public Page<SprintResponseDto> findAllSprintsByProjectIdAndStatus(Long projectId, String jwtUserId, Pageable pageable, SprintStatus status) {
         // Sicherstellen, dass das Projekt existiert, bevor Sprints abgerufen werden
         if (!projectRepository.existsById(projectId)) {
             throw new ProjectNotFoundException(projectId);
         }
         // Paging direkt über ein spezialisiertes Repository für Lese-Performance (CQRS-Gedanke)
-        Page<Sprint> sprintPage = sprintQueryRepository.findSprintsByProjectId(projectId, pageable);
+        Page<Sprint> sprintPage = sprintQueryRepository.findSprintsByProjectIdAndStatus(projectId, status, pageable);
         return sprintPage.map(sprintMapper::toDto);
     }
 

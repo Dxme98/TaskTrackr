@@ -5,6 +5,7 @@ import com.dev.tasktrackr.project.api.dtos.request.UpdateSprintRequest;
 import com.dev.tasktrackr.project.api.dtos.response.PageResponse;
 import com.dev.tasktrackr.project.api.dtos.response.SprintPageResponse;
 import com.dev.tasktrackr.project.api.dtos.response.SprintResponseDto;
+import com.dev.tasktrackr.project.domain.scrum.SprintStatus;
 import com.dev.tasktrackr.project.service.SprintService;
 import com.dev.tasktrackr.shared.api.annotation.ApiErrorResponses;
 import io.swagger.v3.oas.annotations.Operation;
@@ -48,7 +49,7 @@ public class SprintController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping
+    @GetMapping("/{status}")
     @Operation(summary = "Listet alle Sprints für ein Projekt auf",
             description = "Gibt eine paginierte Liste aller Sprints für das angegebene Projekt zurück.")
     @ApiResponse(responseCode = "200",
@@ -56,6 +57,7 @@ public class SprintController {
             content = @Content(schema = @Schema(implementation = SprintPageResponse.class)))
     public ResponseEntity<PageResponse<SprintResponseDto>> getAllSprints(
             @PathVariable Long projectId,
+            @PathVariable SprintStatus status,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size,
             @AuthenticationPrincipal Jwt jwt) {
@@ -63,7 +65,7 @@ public class SprintController {
         String jwtUserId = jwt.getClaim("sub");
         log.info("Anfrage zum Abrufen der Sprints für Projekt {} von Benutzer {}", projectId, jwtUserId);
         PageRequest pageable = PageRequest.of(page, size);
-        Page<SprintResponseDto> sprintPage = sprintService.findAllSprintsByProjectId(projectId, jwtUserId, pageable);
+        Page<SprintResponseDto> sprintPage = sprintService.findAllSprintsByProjectIdAndStatus(projectId, jwtUserId, pageable, status);
         return ResponseEntity.ok(PageResponse.from(sprintPage));
     }
 
@@ -111,7 +113,7 @@ public class SprintController {
     }
 
     @PostMapping("/{sprintId}/end")
-    @Operation(summary = "Beendet einen laufenden Sprint", description = "Ändert den Status eines Sprints von 'IN_PROGRESS' zu 'COMPLETED'.")
+    @Operation(summary = "Beendet einen laufenden Sprint", description = "Ändert den Status eines Sprints von 'ACTIVE' zu 'DONE'.")
     @ApiResponse(responseCode = "200", description = "Sprint erfolgreich beendet")
     public ResponseEntity<SprintResponseDto> endSprint(
             @PathVariable Long projectId,
