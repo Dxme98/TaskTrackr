@@ -1,14 +1,10 @@
 package com.dev.tasktrackr.project.api.dtos.mapper;
 
-import com.dev.tasktrackr.project.api.dtos.response.SprintBacklogItemResponse;
 import com.dev.tasktrackr.project.api.dtos.response.SprintResponseDto;
 import com.dev.tasktrackr.project.api.dtos.response.SprintSummaryItemResponse;
 import com.dev.tasktrackr.project.domain.scrum.Sprint;
-import com.dev.tasktrackr.project.domain.scrum.SprintBacklogItem;
 import com.dev.tasktrackr.project.domain.scrum.SprintSummaryItem;
-import com.dev.tasktrackr.project.domain.scrum.StoryStatus;
 import lombok.RequiredArgsConstructor;
-import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;

@@ -6,9 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -23,8 +21,8 @@ public class ScrumBoardResponseDto {
     private int completedStoryPoints;
     private List<ProjectMemberDto> projectMembers = new ArrayList<>();
 
-    private List<BoardUserStoryDto> todo = new ArrayList<>();
-    private List<BoardUserStoryDto> inProgress = new ArrayList<>();
-    private List<BoardUserStoryDto> review = new ArrayList<>();
-    private List<BoardUserStoryDto> done = new ArrayList<>();
+    private List<SprintBacklogItemResponse> todo = new ArrayList<>();
+    private List<SprintBacklogItemResponse> inProgress = new ArrayList<>();
+    private List<SprintBacklogItemResponse> review = new ArrayList<>();
+    private List<SprintBacklogItemResponse> done = new ArrayList<>();
 }

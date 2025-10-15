@@ -1,25 +1,24 @@
 package com.dev.tasktrackr.project.api.dtos.response;
 
-import com.dev.tasktrackr.project.domain.enums.Status;
-import com.dev.tasktrackr.project.domain.scrum.StoryStatus;
+import com.dev.tasktrackr.project.domain.enums.Priority;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
-@AllArgsConstructor
+@Data
 @NoArgsConstructor
-@Getter
-@Setter
+@AllArgsConstructor
 public class SprintBacklogItemResponse {
-    private Long id;
-    private Long sprintId;
-    private String userStoryTitle;
-    private Set<ProjectMemberDto> assignedMembers = new HashSet<>();
-    private Set<CommentResponseDto> comments;
-    private StoryStatus status;
-    private Integer storyPoints;
+    private Long id; // sprintBacklogItemId
+    private String title;
+    private String description;
+    private int storyPoints;
+    private Priority priority;
+    private String status;
+    private List<CommentDto> blockers = new ArrayList<>();
+    private List<CommentDto> comments = new ArrayList<>();
+    private List<String> assignees = new ArrayList<>();
 }
