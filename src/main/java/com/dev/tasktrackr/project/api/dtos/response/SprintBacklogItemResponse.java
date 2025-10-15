@@ -1,6 +1,7 @@
 package com.dev.tasktrackr.project.api.dtos.response;
 
 import com.dev.tasktrackr.project.domain.enums.Priority;
+import com.dev.tasktrackr.project.domain.scrum.StoryStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,8 +18,8 @@ public class SprintBacklogItemResponse {
     private String description;
     private int storyPoints;
     private Priority priority;
-    private String status;
-    private List<CommentDto> blockers = new ArrayList<>();
-    private List<CommentDto> comments = new ArrayList<>();
+    private StoryStatus status;
+    private List<CommentResponseDto> blockers = new ArrayList<>();
+    private List<CommentResponseDto> comments = new ArrayList<>();
     private List<String> assignees = new ArrayList<>();
 }

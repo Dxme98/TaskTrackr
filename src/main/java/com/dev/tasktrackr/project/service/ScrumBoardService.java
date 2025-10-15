@@ -6,12 +6,12 @@ import com.dev.tasktrackr.project.api.dtos.response.SprintBacklogItemResponse;
 import com.dev.tasktrackr.project.domain.scrum.StoryStatus;
 
 public interface ScrumBoardService {
-    ScrumBoardResponseDto getScrumBoard(Long projectId, String jwtUserId);
+    ScrumBoardResponseDto getScrumBoard(Long projectId, Long sprintId, String jwtUserId);
     SprintBacklogItemResponse updateUserStoryStatus(Long projectId, Long userStoryId, StoryStatus newStatus, String jwtUserId);
     SprintBacklogItemResponse assignMemberToStory(Long projectId, Long userStoryId, Long memberId, String jwtUserId);
     SprintBacklogItemResponse unassignMemberFromStory(Long projectId, Long userStoryId, Long memberId, String jwtUserId);
     SprintBacklogItemResponse addCommentToStory(Long projectId, Long userStoryId, CreateCommentRequest commentRequest, String jwtUserId);
     void removeCommentFromStory(Long projectId, Long userStoryId, Long commentId, String jwtUserId);
     SprintBacklogItemResponse addBlockerToStory(Long projectId, Long userStoryId, CreateCommentRequest commentRequest, String jwtUserId);
-    void removeBlockerFromStory(Long projectId, Long userStoryId, Long blockerId, String jwtUserId); // Annahme: Blocker haben auch eine ID
+    void removeBlockerFromStory(Long projectId, Long userStoryId, Long blockerId, String jwtUserId);
 }

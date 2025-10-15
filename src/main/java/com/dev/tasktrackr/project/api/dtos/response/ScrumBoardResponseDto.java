@@ -11,6 +11,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class ScrumBoardResponseDto {
     private String sprintName;
     private String sprintGoal;
