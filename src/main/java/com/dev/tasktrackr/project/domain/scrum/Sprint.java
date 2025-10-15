@@ -51,10 +51,14 @@ public class Sprint {
     @OneToMany(mappedBy = "sprint", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<SprintBacklogItem> backlogItems = new HashSet<>();
 
+    @OneToMany(mappedBy = "sprint", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<SprintSummaryItem> sprintSummaryItems = new HashSet<>();
+
 
     public static Sprint create(CreateSprintRequest createSprintRequest, ScrumDetails scrumDetails) {
         return Sprint.builder()
                 .backlogItems(new HashSet<>())
+                .sprintSummaryItems(new HashSet<>())
                 .startDate(createSprintRequest.getStartDate())
                 .endDate(createSprintRequest.getEndDate())
                 .description(createSprintRequest.getDescription())
@@ -65,11 +69,16 @@ public class Sprint {
                 .build();
     }
 
-    public Set<SprintBacklogItem> addUserStoriesToSprint(List<UserStory> userStories) {
+    public void addUserStoriesToSprint(List<UserStory> userStories) {
         userStories
-                .forEach(story -> backlogItems.add(SprintBacklogItem.create(story, this)));
+                .forEach(
+                        story -> backlogItems.add(SprintBacklogItem.create(story, this)));
+    }
 
-        return backlogItems;
+    public void addSprintSummaryItems(List<UserStory> userStories) {
+        userStories
+                .forEach(
+                        story -> sprintSummaryItems.add(SprintSummaryItem.create(story, this)));
     }
 
     public Sprint start() {

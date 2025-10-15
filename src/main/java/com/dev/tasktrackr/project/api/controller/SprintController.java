@@ -45,6 +45,11 @@ public class SprintController {
         String jwtUserId = jwt.getClaim("sub");
         log.info("Anfrage zum Erstellen eines Sprints im Projekt {} von Benutzer {}", projectId, jwtUserId);
         SprintResponseDto response = sprintService.createSprint(createSprintRequest, projectId, jwtUserId);
+
+        log.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+        log.info(response.getSprintSummaryItems().toString());
+        log.info(response.getSprintSummaryItems().size() + " Sprint erfolgreich erstellt");
+
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -78,6 +83,7 @@ public class SprintController {
         String jwtUserId = jwt.getClaim("sub");
         log.info("Anfrage zum Finden des aktiven Sprints für Projekt {} von Benutzer {}", projectId, jwtUserId);
         SprintResponseDto response = sprintService.findActiveSprint(projectId, jwtUserId);
+
         return ResponseEntity.ok(response);
     }
 

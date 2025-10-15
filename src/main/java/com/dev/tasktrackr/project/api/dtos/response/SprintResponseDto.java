@@ -1,6 +1,5 @@
 package com.dev.tasktrackr.project.api.dtos.response;
 
-import com.dev.tasktrackr.project.domain.scrum.SprintBacklogItem;
 import com.dev.tasktrackr.project.domain.scrum.SprintStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,5 +27,5 @@ public class SprintResponseDto {
     private int totalStoryPoints;
     private int completedStoryPoints;
     private double progressPercentage;
-    private Set<SprintBacklogItemResponse> sprintBacklogItems = new HashSet<>();
+    private Set<SprintSummaryItemResponse> sprintSummaryItems = new HashSet<>();
 }

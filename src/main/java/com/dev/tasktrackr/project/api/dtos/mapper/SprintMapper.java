@@ -2,8 +2,10 @@ package com.dev.tasktrackr.project.api.dtos.mapper;
 
 import com.dev.tasktrackr.project.api.dtos.response.SprintBacklogItemResponse;
 import com.dev.tasktrackr.project.api.dtos.response.SprintResponseDto;
+import com.dev.tasktrackr.project.api.dtos.response.SprintSummaryItemResponse;
 import com.dev.tasktrackr.project.domain.scrum.Sprint;
 import com.dev.tasktrackr.project.domain.scrum.SprintBacklogItem;
+import com.dev.tasktrackr.project.domain.scrum.SprintSummaryItem;
 import com.dev.tasktrackr.project.domain.scrum.StoryStatus;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.Mapper;
@@ -16,7 +18,7 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class SprintMapper {
-    private final SprintBacklogItemMapper sprintBacklogItemMapper;
+    private final SprintSummaryItemMapper sprintSummaryItemMapper;
 
     /**
      * Wandelt eine Sprint-Entität in ein SprintResponseDto um.
@@ -40,31 +42,31 @@ public class SprintMapper {
         dto.setStartDate(sprint.getStartDate());
         dto.setEndDate(sprint.getEndDate());
 
-        Set<SprintBacklogItem> backlogItems = sprint.getBacklogItems();
+        Set<SprintSummaryItem> sprintSummaryItems = sprint.getSprintSummaryItems();
 
         // 2. Abgeleitete Felder berechnen und Backlog-Items mappen
-        if (backlogItems == null || backlogItems.isEmpty()) {
+        if (sprintSummaryItems == null || sprintSummaryItems.isEmpty()) {
             // Standardwerte für einen leeren Sprint
             dto.setTotalStories(0);
             dto.setCompletedStories(0);
             dto.setTotalStoryPoints(0);
             dto.setCompletedStoryPoints(0);
             dto.setProgressPercentage(0.0);
-            dto.setSprintBacklogItems(Collections.emptySet());
+            dto.setSprintSummaryItems(Collections.emptySet());
         } else {
             // Gesamtanzahl der Story Points berechnen
-            int totalStoryPoints = backlogItems.stream()
-                    .mapToInt(item -> item.getUserStory().getStoryPoints()) // Annahme: Methode existiert
+            int totalStoryPoints = sprintSummaryItems.stream()
+                    .mapToInt(SprintSummaryItem::getStoryPoints)
                     .sum();
 
             // Abgeschlossene Items filtern (Annahme: UserStory hat einen Status)
-            Set<SprintBacklogItem> completedItems = backlogItems.stream()
-                    .filter(item -> item.getUserStory().getStatus().equals(StoryStatus.DONE)) // Annahme
+            Set<SprintSummaryItem> completedItems = sprintSummaryItems.stream()
+                    .filter(SprintSummaryItem::isCompleted)
                     .collect(Collectors.toSet());
 
             // Story Points der abgeschlossenen Items berechnen
             int completedStoryPoints = completedItems.stream()
-                    .mapToInt(item -> item.getUserStory().getStoryPoints()) // Annahme
+                    .mapToInt(SprintSummaryItem::getStoryPoints)
                     .sum();
 
             // Fortschritt in Prozent berechnen (sicherstellen, dass nicht durch 0 geteilt wird)
@@ -73,17 +75,17 @@ public class SprintMapper {
                     : 0.0;
 
             // Die Liste der Backlog Items ebenfalls in DTOs umwandeln
-            Set<SprintBacklogItemResponse> itemDtos = backlogItems.stream()
-                    .map(sprintBacklogItemMapper::toDto) // Verwendung des injizierten Mappers
+            Set<SprintSummaryItemResponse> itemDtos = sprintSummaryItems.stream()
+                    .map(sprintSummaryItemMapper::toDto) // Verwendung des injizierten Mappers
                     .collect(Collectors.toSet());
 
             // Berechnete Werte im DTO setzen
-            dto.setTotalStories(backlogItems.size());
+            dto.setTotalStories(sprintSummaryItems.size());
             dto.setCompletedStories(completedItems.size());
             dto.setTotalStoryPoints(totalStoryPoints);
             dto.setCompletedStoryPoints(completedStoryPoints);
             dto.setProgressPercentage(Math.round(progressPercentage * 100.0) / 100.0); // Auf 2 Nachkommastellen runden
-            dto.setSprintBacklogItems(itemDtos);
+            dto.setSprintSummaryItems(itemDtos);
         }
 
         return dto;

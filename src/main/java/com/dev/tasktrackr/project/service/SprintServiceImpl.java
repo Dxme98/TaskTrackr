@@ -42,6 +42,7 @@ public class SprintServiceImpl implements SprintService{
 
         // Mappe die UserStories zu Sprintbacklogitems und füge sie dem sprint hinzu
         createdSprint.addUserStoriesToSprint(userStories);
+        createdSprint.addSprintSummaryItems(userStories);
 
         projectRepository.save(project);
 
