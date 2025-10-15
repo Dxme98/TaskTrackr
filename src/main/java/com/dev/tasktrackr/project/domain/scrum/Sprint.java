@@ -1,6 +1,8 @@
 package com.dev.tasktrackr.project.domain.scrum;
 
 import com.dev.tasktrackr.project.api.dtos.request.CreateSprintRequest;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.SprintBacklogItemNotFoundException;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.SprintSummaryItemNotFoundException;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcType;
@@ -103,15 +105,41 @@ public class Sprint {
         return this;
     }
 
-    private void updateBacklogItems(List<UserStory> userStories) {
-        Set<SprintBacklogItem> newBacklogItems = new HashSet<>();
+    public SprintBacklogItem updateBacklogItemStatus(Long backlogItemId, StoryStatus newStatus) {
+        SprintBacklogItem itemToUpdate = findBacklogItemById(backlogItemId);
+        itemToUpdate.getUserStory().updateStatus(newStatus);
+        Long userStoryId = itemToUpdate.getUserStory().getId();
 
-        for (UserStory story : userStories) {
-            SprintBacklogItem newItem = SprintBacklogItem.create(story, this);
-            newBacklogItems.add(newItem);
-            story.updateStatus(StoryStatus.SPRINT_BACKLOG);
+        if(newStatus == StoryStatus.DONE) {
+            markSprintSummaryItemAsComplete(userStoryId);
+        } else {
+            markSprintSummaryItemAsNotComplete(userStoryId);
         }
-        this.backlogItems = newBacklogItems;
+
+        return itemToUpdate;
+    }
+
+    public void markSprintSummaryItemAsComplete(Long userStoryId) {
+        SprintSummaryItem itemToUpdate = findSprintSummaryItemByUserStoryId(userStoryId);
+        itemToUpdate.complete();
+    }
+
+    public void markSprintSummaryItemAsNotComplete(Long userStoryId) {
+        SprintSummaryItem itemToUpdate = findSprintSummaryItemByUserStoryId(userStoryId);
+        itemToUpdate.notComplete();
+    }
+
+
+    public SprintBacklogItem findBacklogItemById(Long backlogId) {
+        return backlogItems.stream()
+                .filter(item -> item.getId().equals(backlogId))
+                .findFirst().orElseThrow(() -> new SprintBacklogItemNotFoundException(backlogId));
+    }
+
+    public SprintSummaryItem findSprintSummaryItemByUserStoryId(Long userStoryId) {
+        return sprintSummaryItems.stream()
+                .filter(item -> item.getUserStory().getId().equals(userStoryId))
+                .findFirst().orElseThrow(() -> new SprintSummaryItemNotFoundException(userStoryId));
     }
 
     @Override

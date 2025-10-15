@@ -25,6 +25,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+
 public class UserStory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

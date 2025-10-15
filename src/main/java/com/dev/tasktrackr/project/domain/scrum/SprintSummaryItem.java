@@ -54,4 +54,11 @@ public class SprintSummaryItem {
                 .isCompleted(false)
                 .build();
     }
+
+    public void complete() {
+        this.isCompleted = true;
+    }
+    public void notComplete() {
+        this.isCompleted = false;
+    }
 }

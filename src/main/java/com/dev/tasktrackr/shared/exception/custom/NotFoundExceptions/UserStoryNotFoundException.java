@@ -8,4 +8,8 @@ public class UserStoryNotFoundException extends AppException {
     public UserStoryNotFoundException(String title) {
         super("Userstory with Title: " + title + " not found", ErrorCode.USERSTORY_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
+
+    public UserStoryNotFoundException(Long id) {
+        super("Userstory with ID: " + id + " not found", ErrorCode.USERSTORY_NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
 }

@@ -79,6 +79,11 @@ public class ScrumDetails {
                 .collect(Collectors.toList());
     }
 
+    public SprintBacklogItem updateBacklogItemStatusInActiveSprint(Long backlogItemId, StoryStatus newStatus) {
+        Sprint activeSprint = findActiveSprint();
+        return activeSprint.updateBacklogItemStatus(backlogItemId, newStatus);
+    }
+
     public Sprint startSprint(Long sprintId) {
         Sprint sprintToStart = findSprintById(sprintId);
         return  sprintToStart.start();
@@ -108,6 +113,13 @@ public class ScrumDetails {
                 .filter(s -> s.getId().equals(sprintId))
                 .findFirst()
                 .orElseThrow(() -> new SprintNotFoundException(sprintId));
+    }
+
+    public UserStory findUserStoryById(Long userStoryId) {
+        return userStories.stream()
+                .filter(s -> s.getId().equals(userStoryId))
+                .findFirst()
+                .orElseThrow(() -> new UserStoryNotFoundException(userStoryId));
     }
 }
 
