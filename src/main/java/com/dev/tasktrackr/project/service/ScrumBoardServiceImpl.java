@@ -30,8 +30,6 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
         ScrumDetails scrumDetails = project.getScrumDetails();
         Sprint sprint = scrumDetails.findActiveSprint(); // check if active
 
-        projectRepository.save(project);
-
 
         return scrumBoardMapper.toResponse(sprint, project.getProjectMembers());
     }
@@ -98,9 +96,9 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
         ScrumDetails scrumDetails = project.getScrumDetails();
         ProjectMember member = project.findProjectMember(jwtUserId); // check permission
 
-        projectRepository.save(project);
-
         scrumDetails.removeCommentFromStory(backlogItemId, commentId);
+
+        projectRepository.save(project);
     }
 
     @Override
