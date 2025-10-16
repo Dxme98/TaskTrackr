@@ -83,7 +83,11 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
 
     @Override
     public void removeCommentFromStory(Long projectId, Long backlogItemId, Long commentId, String jwtUserId) {
+        Project project = findProjectById(projectId);
+        ScrumDetails scrumDetails = project.getScrumDetails();
+        ProjectMember member = project.findProjectMember(jwtUserId); // check permission
 
+        scrumDetails.removeCommentFromStory(backlogItemId, commentId);
     }
 
     @Override
@@ -101,7 +105,11 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
 
     @Override
     public void removeBlockerFromStory(Long projectId, Long backlogItemId, Long blockerId, String jwtUserId) {
+        Project project = findProjectById(projectId);
+        ScrumDetails scrumDetails = project.getScrumDetails();
+        ProjectMember member = project.findProjectMember(jwtUserId); // check permission
 
+        scrumDetails.removeCommentFromStory(backlogItemId, blockerId);
     }
 
     private Project findProjectById(Long projectId) {

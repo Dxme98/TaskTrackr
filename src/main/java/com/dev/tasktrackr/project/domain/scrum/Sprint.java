@@ -151,6 +151,11 @@ public class Sprint {
         return backlogItem.addBlocker(member, commentRequest);
     }
 
+    public void removeCommentFromStory(Long backlogItemId, Long commentId) {
+        SprintBacklogItem backlogItem = findBacklogItemById(backlogItemId);
+        backlogItem.removeComment(commentId);
+    }
+
 
     public SprintBacklogItem findBacklogItemById(Long backlogId) {
         return backlogItems.stream()
