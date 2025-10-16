@@ -1,7 +1,9 @@
 package com.dev.tasktrackr.project.domain.scrum;
 
+import com.dev.tasktrackr.project.api.dtos.request.CreateCommentRequest;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -12,6 +14,7 @@ import java.time.Instant;
 @Table(name = "comments")
 @Getter
 @EntityListeners(AuditingEntityListener.class)
+@Builder
 public class Comment {
 
     @Id
@@ -36,4 +39,46 @@ public class Comment {
     @Column(name = "created_at")
     @CreatedDate
     private Instant createdAt;
+
+    public static Comment createComment(ProjectMember member, CreateCommentRequest commentRequest, SprintBacklogItem sprintBacklogItem) {
+        return  Comment.builder()
+                .sprintBacklogItem(sprintBacklogItem)
+                .message(commentRequest.getMessage())
+                .createdBy(member)
+                .type(CommentType.COMMENT)
+                .build();
+    }
+
+    public static Comment createBlocker(ProjectMember member, CreateCommentRequest commentRequest, SprintBacklogItem sprintBacklogItem) {
+        return  Comment.builder()
+                .sprintBacklogItem(sprintBacklogItem)
+                .message(commentRequest.getMessage())
+                .createdBy(member)
+                .type(CommentType.BLOCKER)
+                .build();
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

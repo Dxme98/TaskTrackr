@@ -1,8 +1,10 @@
 package com.dev.tasktrackr.project.domain.scrum;
 
+import com.dev.tasktrackr.project.api.dtos.request.CreateCommentRequest;
 import com.dev.tasktrackr.project.api.dtos.request.CreateSprintRequest;
 import com.dev.tasktrackr.project.api.dtos.request.CreateUserStoryRequest;
 import com.dev.tasktrackr.project.domain.Project;
+import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.basic.BasicDetails;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.NoActiveSprintFoundException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
@@ -82,6 +84,26 @@ public class ScrumDetails {
     public SprintBacklogItem updateBacklogItemStatusInActiveSprint(Long backlogItemId, StoryStatus newStatus) {
         Sprint activeSprint = findActiveSprint();
         return activeSprint.updateBacklogItemStatus(backlogItemId, newStatus);
+    }
+
+    public SprintBacklogItem assignMemberToStory(Long backlogItemId, ProjectMember member) {
+        Sprint activeSprint = findActiveSprint();
+        return activeSprint.assignMemberToStory(backlogItemId, member);
+    }
+
+    public SprintBacklogItem unassignMemberFromStory(Long backlogItemId, ProjectMember member) {
+        Sprint activeSprint = findActiveSprint();
+        return activeSprint.unassignMemberFromStory(backlogItemId, member);
+    }
+
+    public SprintBacklogItem addCommentToStory(Long backlogItemId, ProjectMember member, CreateCommentRequest commentRequest) {
+        Sprint activeSprint = findActiveSprint();
+        return activeSprint.addCommentToStory(backlogItemId, member, commentRequest);
+    }
+
+    public SprintBacklogItem addBlockerToStory(Long backlogItemId, ProjectMember member, CreateCommentRequest commentRequest) {
+        Sprint activeSprint = findActiveSprint();
+        return activeSprint.addBlockerToStory(backlogItemId, member, commentRequest);
     }
 
     public Sprint startSprint(Long sprintId) {

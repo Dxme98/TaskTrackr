@@ -6,6 +6,7 @@ import com.dev.tasktrackr.project.api.dtos.request.CreateCommentRequest;
 import com.dev.tasktrackr.project.api.dtos.response.ScrumBoardResponseDto;
 import com.dev.tasktrackr.project.api.dtos.response.SprintBacklogItemResponse;
 import com.dev.tasktrackr.project.domain.Project;
+import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.scrum.*;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
@@ -45,20 +46,39 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     @Override
     public SprintBacklogItemResponse assignMemberToStory(Long projectId, Long backlogItemId, Long memberId, String jwtUserId) {
         Project project = findProjectById(projectId);
+        ScrumDetails scrumDetails = project.getScrumDetails();
+        ProjectMember member = project.findProjectMember(memberId);
 
+        SprintBacklogItem backlogItem = scrumDetails.assignMemberToStory(backlogItemId, member);
 
+        projectRepository.save(project);
 
-        return null;
+        return sprintBacklogItemMapper.toResponse(backlogItem);
     }
 
     @Override
     public SprintBacklogItemResponse unassignMemberFromStory(Long projectId, Long backlogItemId, Long memberId, String jwtUserId) {
-        return null;
+        Project project = findProjectById(projectId);
+        ScrumDetails scrumDetails = project.getScrumDetails();
+        ProjectMember member = project.findProjectMember(memberId);
+
+        SprintBacklogItem backlogItem = scrumDetails.unassignMemberFromStory(backlogItemId, member);
+
+        projectRepository.save(project);
+
+        return sprintBacklogItemMapper.toResponse(backlogItem);
     }
 
     @Override
     public SprintBacklogItemResponse addCommentToStory(Long projectId, Long backlogItemId, CreateCommentRequest commentRequest, String jwtUserId) {
-        return null;
+        Project project = findProjectById(projectId);
+        ScrumDetails scrumDetails = project.getScrumDetails();
+        ProjectMember member = project.findProjectMember(jwtUserId);
+
+        SprintBacklogItem backlogItem = scrumDetails.addCommentToStory(backlogItemId, member, commentRequest);
+        // ID COULD BE NULL
+
+        return sprintBacklogItemMapper.toResponse(backlogItem);
     }
 
     @Override
@@ -68,7 +88,15 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
 
     @Override
     public SprintBacklogItemResponse addBlockerToStory(Long projectId, Long backlogItemId, CreateCommentRequest commentRequest, String jwtUserId) {
-        return null;
+        Project project = findProjectById(projectId);
+        ScrumDetails scrumDetails = project.getScrumDetails();
+        ProjectMember member = project.findProjectMember(jwtUserId);
+
+        SprintBacklogItem backlogItem = scrumDetails.addBlockerToStory(backlogItemId, member, commentRequest);
+
+        // ID COULD BE NULL!
+
+        return sprintBacklogItemMapper.toResponse(backlogItem);
     }
 
     @Override

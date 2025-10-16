@@ -1,6 +1,8 @@
 package com.dev.tasktrackr.project.domain.scrum;
 
+import com.dev.tasktrackr.project.api.dtos.request.CreateCommentRequest;
 import com.dev.tasktrackr.project.api.dtos.request.CreateSprintRequest;
+import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.SprintBacklogItemNotFoundException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.SprintSummaryItemNotFoundException;
 import jakarta.persistence.*;
@@ -127,6 +129,26 @@ public class Sprint {
     public void markSprintSummaryItemAsNotComplete(Long userStoryId) {
         SprintSummaryItem itemToUpdate = findSprintSummaryItemByUserStoryId(userStoryId);
         itemToUpdate.notComplete();
+    }
+
+    public SprintBacklogItem assignMemberToStory(Long backlogItemId, ProjectMember member) {
+        SprintBacklogItem backlogItem = findBacklogItemById(backlogItemId);
+        return backlogItem.assignMember(member);
+    }
+
+    public SprintBacklogItem unassignMemberFromStory(Long backlogItemId, ProjectMember member) {
+        SprintBacklogItem backlogItem = findBacklogItemById(backlogItemId);
+        return backlogItem.unassignMember(member);
+    }
+
+    public SprintBacklogItem addCommentToStory(Long backlogItemId, ProjectMember member, CreateCommentRequest commentRequest) {
+        SprintBacklogItem backlogItem = findBacklogItemById(backlogItemId);
+        return backlogItem.addComment(member, commentRequest);
+    }
+
+    public SprintBacklogItem addBlockerToStory(Long backlogItemId, ProjectMember member, CreateCommentRequest commentRequest) {
+        SprintBacklogItem backlogItem = findBacklogItemById(backlogItemId);
+        return backlogItem.addBlocker(member, commentRequest);
     }
 
 

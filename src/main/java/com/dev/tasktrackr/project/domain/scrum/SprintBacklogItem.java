@@ -1,5 +1,6 @@
 package com.dev.tasktrackr.project.domain.scrum;
 
+import com.dev.tasktrackr.project.api.dtos.request.CreateCommentRequest;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -51,6 +52,32 @@ public class SprintBacklogItem {
                 .assignedMembers(new HashSet<>())
                 .comments(new HashSet<>())
                 .build();
+    }
+
+    SprintBacklogItem assignMember(ProjectMember member) {
+        assignedMembers.add(member);
+        return this;
+    }
+
+    SprintBacklogItem unassignMember(ProjectMember member) {
+        assignedMembers.remove(member);
+        return this;
+    }
+
+    SprintBacklogItem addComment(ProjectMember member, CreateCommentRequest commentRequest) {
+        Comment comment = Comment.createComment(member, commentRequest, this);
+        this.comments.add(comment);
+        return this;
+    }
+
+    SprintBacklogItem addBlocker(ProjectMember member, CreateCommentRequest commentRequest) {
+        Comment comment = Comment.createBlocker(member, commentRequest, this);
+        this.comments.add(comment);
+        return this;
+    }
+
+    void removeComment(Long commentId) {
+        this.comments.removeIf(comment -> comment.getId().equals(commentId));
     }
 
     @Override

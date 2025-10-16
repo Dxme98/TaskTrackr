@@ -208,6 +208,13 @@ public class Project {
                 .orElseThrow(() -> new UserNotProjectMemberException(userId));
     }
 
+    public ProjectMember findProjectMember(Long memberId) {
+        return this.getProjectMembers().stream()
+                .filter(member -> member.getId().equals(memberId))
+                .findFirst()
+                .orElseThrow(() -> new ProjectMemberNotFoundException(memberId));
+    }
+
     public void isProjectMember(String userId) {
         this.getProjectMembers().stream()
                 .filter(member -> member.getUser().getId().equals(userId))
