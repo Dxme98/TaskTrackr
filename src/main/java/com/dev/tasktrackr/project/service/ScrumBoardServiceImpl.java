@@ -12,6 +12,7 @@ import com.dev.tasktrackr.project.repository.ProjectRepository;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,16 +24,20 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     // TODO: Berechtigungsprüfungen und Validierungen hinzufügen
 
     @Override
+    @Transactional(readOnly = true)
     public ScrumBoardResponseDto getScrumBoard(Long projectId,  String jwtUserId) {
         Project project = findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
         Sprint sprint = scrumDetails.findActiveSprint(); // check if active
+
+        projectRepository.save(project);
 
 
         return scrumBoardMapper.toResponse(sprint, project.getProjectMembers());
     }
 
     @Override
+    @Transactional
     public SprintBacklogItemResponse updateUserStoryStatus(Long projectId, Long backlogItemId, StoryStatus newStatus, String jwtUserId) {
         Project project = findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
@@ -44,6 +49,7 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     }
 
     @Override
+    @Transactional
     public SprintBacklogItemResponse assignMemberToStory(Long projectId, Long backlogItemId, Long memberId, String jwtUserId) {
         Project project = findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
@@ -57,6 +63,7 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     }
 
     @Override
+    @Transactional
     public SprintBacklogItemResponse unassignMemberFromStory(Long projectId, Long backlogItemId, Long memberId, String jwtUserId) {
         Project project = findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
@@ -70,6 +77,7 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     }
 
     @Override
+    @Transactional
     public SprintBacklogItemResponse addCommentToStory(Long projectId, Long backlogItemId, CreateCommentRequest commentRequest, String jwtUserId) {
         Project project = findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
@@ -78,19 +86,25 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
         SprintBacklogItem backlogItem = scrumDetails.addCommentToStory(backlogItemId, member, commentRequest);
         // ID COULD BE NULL
 
+        projectRepository.save(project);
+
         return sprintBacklogItemMapper.toResponse(backlogItem);
     }
 
     @Override
+    @Transactional
     public void removeCommentFromStory(Long projectId, Long backlogItemId, Long commentId, String jwtUserId) {
         Project project = findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
         ProjectMember member = project.findProjectMember(jwtUserId); // check permission
 
+        projectRepository.save(project);
+
         scrumDetails.removeCommentFromStory(backlogItemId, commentId);
     }
 
     @Override
+    @Transactional
     public SprintBacklogItemResponse addBlockerToStory(Long projectId, Long backlogItemId, CreateCommentRequest commentRequest, String jwtUserId) {
         Project project = findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
@@ -100,14 +114,19 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
 
         // ID COULD BE NULL!
 
+        projectRepository.save(project);
+
         return sprintBacklogItemMapper.toResponse(backlogItem);
     }
 
     @Override
+    @Transactional
     public void removeBlockerFromStory(Long projectId, Long backlogItemId, Long blockerId, String jwtUserId) {
         Project project = findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
         ProjectMember member = project.findProjectMember(jwtUserId); // check permission
+
+        projectRepository.save(project);
 
         scrumDetails.removeCommentFromStory(backlogItemId, blockerId);
     }
