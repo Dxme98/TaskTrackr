@@ -38,7 +38,7 @@ public class SprintController {
     @ApiResponse(responseCode = "201", description = "Sprint erfolgreich erstellt", content = @Content(schema = @Schema(implementation = SprintResponseDto.class)))
     @ApiErrorResponses.BadRequest
     public ResponseEntity<SprintResponseDto> createSprint(
-            @PathVariable Long projectId,
+            @PathVariable(name = "projectId") Long projectId,
             @Valid @RequestBody CreateSprintRequest createSprintRequest,
             @AuthenticationPrincipal Jwt jwt) {
 
@@ -60,8 +60,8 @@ public class SprintController {
             description = "Sprints erfolgreich geladen",
             content = @Content(schema = @Schema(implementation = SprintPageResponse.class)))
     public ResponseEntity<PageResponse<SprintResponseDto>> getAllSprints(
-            @PathVariable Long projectId,
-            @PathVariable SprintStatus status,
+            @PathVariable(name = "projectId") Long projectId,
+            @PathVariable(name = "status") SprintStatus status,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size,
             @AuthenticationPrincipal Jwt jwt) {
@@ -77,7 +77,7 @@ public class SprintController {
     @Operation(summary = "Findet den aktiven Sprint", description = "Gibt den aktuell laufenden Sprint für das angegebene Projekt zurück.")
     @ApiResponse(responseCode = "200", description = "Aktiver Sprint erfolgreich gefunden")
     public ResponseEntity<SprintResponseDto> getActiveSprint(
-            @PathVariable Long projectId,
+            @PathVariable(name = "projectId") Long projectId,
             @AuthenticationPrincipal Jwt jwt) {
 
         String jwtUserId = jwt.getClaim("sub");
@@ -91,8 +91,8 @@ public class SprintController {
     @Operation(summary = "Startet einen geplanten Sprint", description = "Ändert den Status eines Sprints von 'PLANNED' zu 'IN_PROGRESS'.")
     @ApiResponse(responseCode = "200", description = "Sprint erfolgreich gestartet")
     public ResponseEntity<SprintResponseDto> startSprint(
-            @PathVariable Long projectId,
-            @PathVariable Long sprintId,
+            @PathVariable(name = "projectId") Long projectId,
+            @PathVariable(name = "sprintId") Long sprintId,
             @AuthenticationPrincipal Jwt jwt) {
 
         String jwtUserId = jwt.getClaim("sub");
@@ -105,8 +105,8 @@ public class SprintController {
     @Operation(summary = "Beendet einen laufenden Sprint", description = "Ändert den Status eines Sprints von 'ACTIVE' zu 'DONE'.")
     @ApiResponse(responseCode = "200", description = "Sprint erfolgreich beendet")
     public ResponseEntity<SprintResponseDto> endSprint(
-            @PathVariable Long projectId,
-            @PathVariable Long sprintId,
+            @PathVariable(name = "projectId") Long projectId,
+            @PathVariable(name = "sprintId") Long sprintId,
             @AuthenticationPrincipal Jwt jwt) {
 
         String jwtUserId = jwt.getClaim("sub");

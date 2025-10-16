@@ -46,7 +46,7 @@ public class UserStoryController {
     )
     @ApiErrorResponses.BadRequest
     public ResponseEntity<UserStoryResponseDto> createUserStory(
-            @PathVariable Long projectId,
+            @PathVariable(name = "projectId") Long projectId,
             @Valid @RequestBody CreateUserStoryRequest createUserStoryRequest,
             @AuthenticationPrincipal Jwt jwt) {
 
@@ -69,7 +69,7 @@ public class UserStoryController {
             content = @Content(schema = @Schema(implementation = UserStoryPageResponse.class))
     )
     public ResponseEntity<PageResponse<UserStoryResponseDto>> getUserStories(
-            @PathVariable Long projectId,
+            @PathVariable(name = "projectId") Long projectId,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size,
             @AuthenticationPrincipal Jwt jwt) {
