@@ -80,6 +80,14 @@ public class SprintBacklogItem {
         this.comments.removeIf(comment -> comment.getId().equals(commentId));
     }
 
+    void detachFromSprint() {
+        userStory.detachBacklogItem();
+    }
+
+    boolean isCompleted() {
+        return this.userStory.getStatus().equals(StoryStatus.DONE);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

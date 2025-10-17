@@ -73,6 +73,11 @@ public class UserStory {
                 .build();
     }
 
+    public void detachBacklogItem() {
+        this.sprintBacklogItem = null;
+        this.status =  StoryStatus.NOT_ASSIGNED_TO_SPRINT;
+    }
+
     public void updateStatus(StoryStatus status) {
         this.status = status;
     }

@@ -96,15 +96,22 @@ public class Sprint {
     }
 
     public Sprint end() {
-
-        // TODO: Was passiert mit unfinished todos?
-
         if (!this.status.equals(SprintStatus.ACTIVE)) {
             throw new IllegalStateException("Only sprints with status ACTIVE can be finished.");
         }
-
+        handleUncompletedBacklogItems();
         this.status = SprintStatus.DONE;
         return this;
+    }
+
+    private void handleUncompletedBacklogItems() {
+        this.backlogItems.removeIf(backlogItem -> {
+            if(!backlogItem.isCompleted()) {
+                backlogItem.detachFromSprint();
+                return true;
+            }
+            return false;
+        });
     }
 
     public SprintBacklogItem updateBacklogItemStatus(Long backlogItemId, StoryStatus newStatus) {
