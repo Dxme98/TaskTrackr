@@ -64,7 +64,11 @@ public class Comment {
                 .type(CommentType.BLOCKER)
                 .build();
     }
-}
+
+    public boolean isBlocker() {
+        return type.equals(CommentType.BLOCKER);
+    }
+ }
 
 
 

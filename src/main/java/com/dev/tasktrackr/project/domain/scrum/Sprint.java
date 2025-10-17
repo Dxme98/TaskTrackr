@@ -2,6 +2,7 @@ package com.dev.tasktrackr.project.domain.scrum;
 
 import com.dev.tasktrackr.project.api.dtos.request.CreateCommentRequest;
 import com.dev.tasktrackr.project.api.dtos.request.CreateSprintRequest;
+import com.dev.tasktrackr.project.api.dtos.response.ActiveSprintData;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.SprintBacklogItemNotFoundException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.SprintSummaryItemNotFoundException;
@@ -11,6 +12,7 @@ import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -102,6 +104,47 @@ public class Sprint {
         handleUncompletedBacklogItems();
         this.status = SprintStatus.DONE;
         return this;
+    }
+
+    public ActiveSprintData getData() {
+        int totalStories = this.backlogItems.size();
+
+        int finishedStories = (int) this.backlogItems.stream()
+                .filter(SprintBacklogItem::isCompleted)
+                .count();
+
+        int totalPoints = this.backlogItems.stream()
+                .mapToInt(item -> item.getUserStory().getStoryPoints())
+                .sum();
+
+        int finishedPoints = this.backlogItems.stream()
+                .filter(SprintBacklogItem::isCompleted)
+                .mapToInt(item -> item.getUserStory().getStoryPoints())
+                .sum();
+
+        LocalDate today = LocalDate.now();
+
+        long daysLeftLong = ChronoUnit.DAYS.between(today, this.endDate);
+        int daysLeft = (int) Math.max(0, daysLeftLong);
+
+        int averageDailyVelocity = 0;
+
+        if (today.isAfter(this.startDate) || today.isEqual(this.startDate)) {
+            long daysPassedLong = ChronoUnit.DAYS.between(this.startDate, today) + 1;
+            int daysPassed = (int) daysPassedLong;
+
+            if (daysPassed > 0 && finishedPoints > 0) {
+                averageDailyVelocity = finishedPoints / daysPassed;
+            }
+        }
+        return ActiveSprintData.builder()
+                .totalStories(totalStories)
+                .finishedStories(finishedStories)
+                .totalPoints(totalPoints)
+                .finishedPoints(finishedPoints)
+                .daysLeft(daysLeft)
+                .averageDailyVelocity(averageDailyVelocity)
+                .build();
     }
 
     private void handleUncompletedBacklogItems() {

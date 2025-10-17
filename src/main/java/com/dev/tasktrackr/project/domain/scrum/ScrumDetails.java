@@ -3,6 +3,9 @@ package com.dev.tasktrackr.project.domain.scrum;
 import com.dev.tasktrackr.project.api.dtos.request.CreateCommentRequest;
 import com.dev.tasktrackr.project.api.dtos.request.CreateSprintRequest;
 import com.dev.tasktrackr.project.api.dtos.request.CreateUserStoryRequest;
+import com.dev.tasktrackr.project.api.dtos.response.ActiveSprintData;
+import com.dev.tasktrackr.project.api.dtos.response.ScrumMemberStatisticDto;
+import com.dev.tasktrackr.project.api.dtos.response.ScrumProjectStatisticsDto;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.basic.BasicDetails;
@@ -121,6 +124,11 @@ public class ScrumDetails {
         return  sprintToEnd.end();
     }
 
+    public ActiveSprintData getActiveSprintData() {
+        Sprint activeSprint = findActiveSprint();
+        return activeSprint.getData();
+    }
+
     public Sprint findActiveSprint() {
         return sprints.stream()
                 .filter(s -> s.getStatus().equals(SprintStatus.ACTIVE))
@@ -147,6 +155,125 @@ public class ScrumDetails {
                 .filter(s -> s.getId().equals(userStoryId))
                 .findFirst()
                 .orElseThrow(() -> new UserStoryNotFoundException(userStoryId));
+    }
+
+
+    public List<ScrumMemberStatisticDto> getMemberStatisticsList() {
+
+        Sprint activeSprint;
+        try {
+            // 1. Aktiven Sprint finden
+            activeSprint = findActiveSprint();
+        } catch (NoActiveSprintFoundException e) {
+            // 2. Kein aktiver Sprint? Leere Statistik für alle Mitglieder zurückgeben.
+            return project.getProjectMembers().stream()
+                    .map(member -> ScrumMemberStatisticDto.builder()
+                            // ANNNAHME 1: Der Pfad zum Username ist user.username
+                            .username(member.getUser().getUsername())
+                            .build()) // Alle int-Werte sind standardmäßig 0
+                    .collect(Collectors.toList());
+        }
+
+        Set<SprintBacklogItem> sprintItems = activeSprint.getBacklogItems();
+
+        Map<ProjectMember, List<SprintBacklogItem>> itemsByMember = new HashMap<>();
+        project.getProjectMembers().forEach(member -> itemsByMember.put(member, new ArrayList<>()));
+
+        for (SprintBacklogItem item : sprintItems) {
+            for (ProjectMember assignedMember : item.getAssignedMembers()) {
+                if (itemsByMember.containsKey(assignedMember)) {
+                    itemsByMember.get(assignedMember).add(item);
+                }
+            }
+        }
+
+        // 6. Die Statistik-DTOs für jedes Mitglied erstellen
+        return itemsByMember.entrySet().stream()
+                .map(entry -> {
+                    ProjectMember member = entry.getKey();
+                    List<SprintBacklogItem> memberItems = entry.getValue();
+
+                    int totalTasks = memberItems.size();
+                    int finishedTasks = 0;
+                    int totalPoints = 0;
+                    int finishedPoints = 0;
+                    int totalBlocker = 0;
+                    int tasksInBacklog = 0;
+                    int tasksInProgress = 0;
+                    int tasksInReview = 0;
+                    int tasksInDone = 0;
+
+                    for (SprintBacklogItem item : memberItems) {
+                        UserStory story = item.getUserStory();
+                        totalPoints += story.getStoryPoints();
+
+                        totalBlocker += (int) item.getComments().stream()
+                                .filter(Comment::isBlocker)
+                                .count();
+
+                        switch (story.getStatus()) {
+                            case SPRINT_BACKLOG:
+                                tasksInBacklog++;
+                                break;
+                            case IN_PROGRESS:
+                                tasksInProgress++;
+                                break;
+                            case REVIEW:
+                                tasksInReview++;
+                                break;
+                            case DONE:
+                                tasksInDone++;
+                                finishedTasks++;
+                                finishedPoints += story.getStoryPoints();
+                                break;
+                            default:
+                                // Ignoriert andere Status wie NOT_ASSIGNED_TO_SPRINT
+                                break;
+                        }
+                    }
+
+                    int percentage = (totalTasks == 0) ? 0 : (int) Math.round(((double) finishedTasks / totalTasks) * 100);
+
+                    return ScrumMemberStatisticDto.builder()
+                            .username(member.getUser().getUsername()) // ANNNAHME 1
+                            .totalTasks(totalTasks)
+                            .finishedTasks(finishedTasks)
+                            .finishedTasksPercentage(percentage)
+                            .totalPoints(totalPoints)
+                            .finishedPoints(finishedPoints)
+                            .totalBlocker(totalBlocker)
+                            .tasksInBacklog(tasksInBacklog)
+                            .tasksInProgress(tasksInProgress)
+                            .tasksInReview(tasksInReview)
+                            .tasksInDone(tasksInDone)
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+    public ScrumProjectStatisticsDto getProjectStatistics() {
+        List<Sprint> finishedSprints = this.sprints.stream()
+                .filter(sprint -> sprint.getStatus().equals(SprintStatus.DONE))
+                .toList(); // .collect(Collectors.toList()) für ältere Java-Versionen
+
+        int finishedSprintsCount = finishedSprints.size();
+
+        int totalCompletedPoints = finishedSprints.stream()
+                .flatMap(sprint -> sprint.getBacklogItems().stream()) // Alle Items aus allen Sprints
+                .mapToInt(item -> item.getUserStory().getStoryPoints()) // Die Punkte jedes Items
+                .sum(); // Alles summieren
+
+
+        int averageVelocity = 0;
+        if (finishedSprintsCount > 0) {
+            averageVelocity = totalCompletedPoints / finishedSprintsCount;
+        }
+
+        return ScrumProjectStatisticsDto.builder()
+                .finishedSprints(finishedSprintsCount)
+                .totalCompletedPoints(totalCompletedPoints)
+                .averageVelocity(averageVelocity)
+                .build();
     }
 }
 
