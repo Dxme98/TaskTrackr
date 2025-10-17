@@ -10,6 +10,7 @@ import com.dev.tasktrackr.project.repository.ProjectRepository;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ import java.util.List;
 public class ScrumReportsService {
     private final ProjectRepository projectRepository;
 
+    @Transactional(readOnly = true)
     public ScrumReportsDto getScrumReport(Long projectId, String jwtUserId) {
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
         ScrumDetails scrumDetails = project.getScrumDetails();
