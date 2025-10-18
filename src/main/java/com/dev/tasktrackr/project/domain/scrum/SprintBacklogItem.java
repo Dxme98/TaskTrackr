@@ -2,6 +2,7 @@ package com.dev.tasktrackr.project.domain.scrum;
 
 import com.dev.tasktrackr.project.api.dtos.request.CreateCommentRequest;
 import com.dev.tasktrackr.project.domain.ProjectMember;
+import com.dev.tasktrackr.shared.exception.custom.BadRequestExceptions.InvalidMemberAssignmentException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.CommentNotFoundException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -57,11 +58,19 @@ public class SprintBacklogItem {
     }
 
     SprintBacklogItem assignMember(ProjectMember member) {
+        if(userStory.getStatus() != StoryStatus.SPRINT_BACKLOG) {
+            throw new InvalidMemberAssignmentException();
+        }
+
         assignedMembers.add(member);
         return this;
     }
 
     SprintBacklogItem unassignMember(ProjectMember member) {
+        if(userStory.getStatus() != StoryStatus.SPRINT_BACKLOG) {
+            throw new InvalidMemberAssignmentException();
+        }
+
         assignedMembers.remove(member);
         return this;
     }
