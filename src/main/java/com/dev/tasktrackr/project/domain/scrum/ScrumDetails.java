@@ -125,8 +125,12 @@ public class ScrumDetails {
     }
 
     public ActiveSprintData getActiveSprintData() {
-        Sprint activeSprint = findActiveSprint();
-        return activeSprint.getData();
+        try {
+            Sprint activeSprint = findActiveSprint();
+            return activeSprint.getData();
+        } catch (NoActiveSprintFoundException ex) {
+            return ActiveSprintData.builder().build();
+        }
     }
 
     public Sprint findActiveSprint() {
