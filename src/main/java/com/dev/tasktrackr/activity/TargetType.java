@@ -4,5 +4,8 @@ public enum TargetType {
     PROJECT_MEMBER,
     TASK,
     ROLE,
-    PROJECT
+    PROJECT,
+    SPRINT,
+    USER_STORY,
+    COMMENT
 }

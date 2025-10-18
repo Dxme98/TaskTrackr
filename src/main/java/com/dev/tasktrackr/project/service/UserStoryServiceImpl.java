@@ -1,15 +1,18 @@
 package com.dev.tasktrackr.project.service;
 
+import com.dev.tasktrackr.activity.ProjectActivityEvents;
 import com.dev.tasktrackr.project.api.dtos.mapper.UserStoryMapper;
 import com.dev.tasktrackr.project.api.dtos.request.CreateUserStoryRequest;
 import com.dev.tasktrackr.project.api.dtos.response.UserStoryResponseDto;
 import com.dev.tasktrackr.project.domain.Project;
+import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.scrum.ScrumDetails;
 import com.dev.tasktrackr.project.domain.scrum.UserStory;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
 import com.dev.tasktrackr.project.repository.UserStoryQueryRepository;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,17 +24,26 @@ public class UserStoryServiceImpl implements UserStoryService{
     private final ProjectRepository projectRepository;
     private final UserStoryMapper userStoryMapper;
     private final UserStoryQueryRepository userStoryQueryRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
+
+    // TODO USERSTORY DELETION + EVENT
 
     @Override
     @Transactional
     public UserStoryResponseDto createUserStory(Long projectId, CreateUserStoryRequest createUserStoryRequest, String jwtUserId) {
         Project project = findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
+        ProjectMember member = project.findProjectMember(jwtUserId);
 
         UserStory createdUserStory = scrumDetails.createUserStory(createUserStoryRequest);
         projectRepository.save(project);
 
         UserStory perisistedUserStory = scrumDetails.findUserStoryByTitle(createdUserStory.getTitle());
+
+        var event = new ProjectActivityEvents.UserStoryCreatedEvent(
+                projectId, member.getId(), member.getUser().getUsername(),
+                perisistedUserStory.getId(), perisistedUserStory.getTitle());
+        applicationEventPublisher.publishEvent(event);
 
         return userStoryMapper.toDto(perisistedUserStory);
     }

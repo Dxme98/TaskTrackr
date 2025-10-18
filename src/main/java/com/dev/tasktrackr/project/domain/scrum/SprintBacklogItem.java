@@ -2,6 +2,7 @@ package com.dev.tasktrackr.project.domain.scrum;
 
 import com.dev.tasktrackr.project.api.dtos.request.CreateCommentRequest;
 import com.dev.tasktrackr.project.domain.ProjectMember;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.CommentNotFoundException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 
@@ -76,9 +78,20 @@ public class SprintBacklogItem {
         return this;
     }
 
-    void removeComment(Long commentId) {
-        this.comments.removeIf(comment -> comment.getId().equals(commentId));
+    Comment removeComment(Long commentId) {
+        Optional<Comment> commentToRemove = this.comments.stream()
+                .filter(comment -> comment.getId().equals(commentId))
+                .findFirst();
+
+        if (commentToRemove.isPresent()) {
+            Comment foundComment = commentToRemove.get();
+            this.comments.remove(foundComment);
+            return foundComment;
+        }
+
+        throw new CommentNotFoundException(commentId);
     }
+
 
     void detachFromSprint() {
         userStory.detachBacklogItem();

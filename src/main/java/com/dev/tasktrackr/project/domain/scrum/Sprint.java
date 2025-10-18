@@ -201,9 +201,9 @@ public class Sprint {
         return backlogItem.addBlocker(member, commentRequest);
     }
 
-    public void removeCommentFromStory(Long backlogItemId, Long commentId) {
+    public Comment removeCommentFromStory(Long backlogItemId, Long commentId) {
         SprintBacklogItem backlogItem = findBacklogItemById(backlogItemId);
-        backlogItem.removeComment(commentId);
+        return backlogItem.removeComment(commentId);
     }
 
 

@@ -1,5 +1,6 @@
 package com.dev.tasktrackr.project.service;
 
+import com.dev.tasktrackr.activity.ProjectActivityEvents;
 import com.dev.tasktrackr.project.api.dtos.mapper.ScrumBoardMapper;
 import com.dev.tasktrackr.project.api.dtos.mapper.SprintBacklogItemMapper;
 import com.dev.tasktrackr.project.api.dtos.request.CreateCommentRequest;
@@ -11,6 +12,7 @@ import com.dev.tasktrackr.project.domain.scrum.*;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +22,7 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     private final ProjectRepository projectRepository;
     private final ScrumBoardMapper scrumBoardMapper;
     private final SprintBacklogItemMapper sprintBacklogItemMapper;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     // TODO: Berechtigungsprüfungen und Validierungen hinzufügen
 
@@ -39,9 +42,17 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     public SprintBacklogItemResponse updateUserStoryStatus(Long projectId, Long backlogItemId, StoryStatus newStatus, String jwtUserId) {
         Project project = findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
+        ProjectMember member = project.findProjectMember(jwtUserId);
 
-        SprintBacklogItem backlogItem = scrumDetails.updateBacklogItemStatusInActiveSprint( backlogItemId, newStatus);;
+        SprintBacklogItem backlogItem = scrumDetails.updateBacklogItemStatusInActiveSprint( backlogItemId, newStatus);
+
         projectRepository.save(project); // should update weil ist nicht neu? checken
+
+
+        var event = new ProjectActivityEvents.UserStoryStatusUpdatedEvent(
+                projectId, member.getId(), member.getUser().getUsername(),
+                backlogItem.getUserStory().getId(), backlogItem.getUserStory().getTitle(), newStatus.name());
+        applicationEventPublisher.publishEvent(event);
 
         return sprintBacklogItemMapper.toResponse(backlogItem);
     }
@@ -86,6 +97,11 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
 
         projectRepository.save(project);
 
+        var event = new ProjectActivityEvents.CommentCreatedEvent(
+                projectId, member.getId(), member.getUser().getUsername(),
+                backlogItem.getUserStory().getId(), backlogItem.getUserStory().getTitle());
+        applicationEventPublisher.publishEvent(event);
+
         return sprintBacklogItemMapper.toResponse(backlogItem);
     }
 
@@ -114,6 +130,11 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
 
         projectRepository.save(project);
 
+        var event = new ProjectActivityEvents.BlockerCreatedEvent(
+                projectId, member.getId(), member.getUser().getUsername(),
+                backlogItem.getUserStory().getId(), backlogItem.getUserStory().getTitle(), commentRequest.getMessage());
+        applicationEventPublisher.publishEvent(event);
+
         return sprintBacklogItemMapper.toResponse(backlogItem);
     }
 
@@ -123,10 +144,16 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
         Project project = findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
         ProjectMember member = project.findProjectMember(jwtUserId); // check permission
+        SprintBacklogItem backlogItem = scrumDetails.findActiveSprint().findBacklogItemById(backlogItemId);
+
+        Comment removedComment = scrumDetails.removeCommentFromStory(backlogItemId, blockerId);
 
         projectRepository.save(project);
 
-        scrumDetails.removeCommentFromStory(backlogItemId, blockerId);
+        var event = new ProjectActivityEvents.BlockerResolvedEvent(
+                projectId, member.getId(), member.getUser().getUsername(),
+                backlogItem.getUserStory().getId(), backlogItem.getUserStory().getTitle(), removedComment.getMessage());
+        applicationEventPublisher.publishEvent(event);
     }
 
     private Project findProjectById(Long projectId) {

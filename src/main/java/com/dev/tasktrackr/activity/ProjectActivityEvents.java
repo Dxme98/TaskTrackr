@@ -113,4 +113,77 @@ public final class ProjectActivityEvents {
             return new RecordActivityParameter(projectId, ActivityType.ROLE_DELETED, actorId, actorName, roleId, roleName, TargetType.ROLE, null);
         }
     }
+
+
+    // --- Scrum-Events
+    public record UserStoryCreatedEvent(Long projectId, Long actorId, String actorName, Long userStoryId, String userStoryTitle) implements ActivityEvent {
+        @Override
+        public RecordActivityParameter toActivityParameter() {
+            return new RecordActivityParameter(projectId, ActivityType.USER_STORY_CREATED, actorId, actorName, userStoryId, userStoryTitle, TargetType.USER_STORY, null);
+        }
+    }
+
+    // TODO
+    public record UserStoryDeletedEvent(Long projectId, Long actorId, String actorName, Long userStoryId, String userStoryTitle) implements ActivityEvent {
+        @Override
+        public RecordActivityParameter toActivityParameter() {
+            return new RecordActivityParameter(projectId, ActivityType.USER_STORY_DELETED, actorId, actorName, userStoryId, userStoryTitle, TargetType.USER_STORY, null);
+        }
+    }
+
+    public record UserStoryStatusUpdatedEvent(Long projectId, Long actorId, String actorName, Long userStoryId, String userStoryTitle, String newStatus) implements ActivityEvent {
+        @Override
+        public RecordActivityParameter toActivityParameter() {
+            String contextJson = String.format("{\"storyStatus\":\"%s\"}", newStatus);
+            return new RecordActivityParameter(projectId, ActivityType.USER_STORY_STATUS_UPDATED, actorId, actorName, userStoryId, userStoryTitle, TargetType.USER_STORY, contextJson);
+        }
+    }
+
+    // --- Kommentar- & Blocker-Events ---
+    public record CommentCreatedEvent(Long projectId, Long actorId, String actorName, Long storyId, String storyTitle) implements ActivityEvent {
+        @Override
+        public RecordActivityParameter toActivityParameter() {
+            return new RecordActivityParameter(this.projectId, ActivityType.COMMENT_CREATED, this.actorId, this.actorName, this.storyId, this.storyTitle, TargetType.USER_STORY, null);
+        }
+    }
+
+    public record BlockerCreatedEvent(Long projectId, Long actorId, String actorName, Long storyId, String storyTitle, String blockerName) implements ActivityEvent {
+        @Override
+        public RecordActivityParameter toActivityParameter() {
+            String contextJson = String.format("{\"commentId\":%s}", blockerName);
+            return new RecordActivityParameter(this.projectId, ActivityType.BLOCKER_CREATED, this.actorId, this.actorName, this.storyId, this.storyTitle, TargetType.USER_STORY, contextJson);
+        }
+    }
+
+    public record BlockerResolvedEvent(Long projectId, Long actorId, String actorName, Long storyId, String storyTitle, String blockerName) implements ActivityEvent {
+        @Override
+        public RecordActivityParameter toActivityParameter() {
+            String contextJson = String.format("{\"commentId\":%s}", blockerName);
+            return new RecordActivityParameter(this.projectId, ActivityType.BLOCKER_RESOLVED, this.actorId, this.actorName, this.storyId, this.storyTitle, TargetType.USER_STORY, contextJson);
+        }
+    }
+
+    // --- Sprint-Events ---
+
+    public record SprintCreatedEvent(Long projectId, Long actorId, String actorName, Long sprintId, String sprintName) implements ActivityEvent {
+        @Override
+        public RecordActivityParameter toActivityParameter() {
+            return new RecordActivityParameter(this.projectId, ActivityType.SPRINT_CREATED, this.actorId, this.actorName, this.sprintId, this.sprintName, TargetType.SPRINT, null);
+        }
+    }
+
+    public record SprintStartedEvent(Long projectId, Long actorId, String actorName, Long sprintId, String sprintName) implements ActivityEvent {
+        @Override
+        public RecordActivityParameter toActivityParameter() {
+            return new RecordActivityParameter(this.projectId, ActivityType.SPRINT_STARTED, this.actorId, this.actorName, this.sprintId, this.sprintName, TargetType.SPRINT, null);
+        }
+    }
+
+    public record SprintEndedEvent(Long projectId, Long actorId, String actorName, Long sprintId, String sprintName) implements ActivityEvent {
+        @Override
+        public RecordActivityParameter toActivityParameter() {
+            return new RecordActivityParameter(this.projectId, ActivityType.SPRINT_ENDED, this.actorId, this.actorName, this.sprintId, this.sprintName, TargetType.SPRINT, null);
+        }
+    }
+
 }
