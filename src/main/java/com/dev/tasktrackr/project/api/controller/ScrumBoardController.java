@@ -37,7 +37,7 @@ public class ScrumBoardController {
             content = @Content(schema = @Schema(implementation = ScrumBoardResponseDto.class)))
     public ResponseEntity<ScrumBoardResponseDto> getActiveScrumBoard(
             @AuthenticationPrincipal Jwt jwt,
-            @PathVariable Long projectId) {
+            @PathVariable(name = "projectId") Long projectId) {
         log.info("Request to get active scrum board for project {}", projectId);
         String userId = jwt.getClaim("sub");
         ScrumBoardResponseDto response = scrumBoardService.getScrumBoard(projectId, userId);
@@ -50,8 +50,8 @@ public class ScrumBoardController {
             content = @Content(schema = @Schema(implementation = SprintBacklogItemResponse.class)))
     public ResponseEntity<SprintBacklogItemResponse> updateUserStoryStatus(
             @AuthenticationPrincipal Jwt jwt,
-            @PathVariable Long projectId,
-            @PathVariable Long backlogItemId,
+            @PathVariable(name = "projectId") Long projectId,
+            @PathVariable(name = "backlogItemId") Long backlogItemId,
             @Valid @RequestBody UpdateStatusRequest request) {
         log.info("Request to update status for backlog item {} in project {}", backlogItemId, projectId);
         String userId = jwt.getClaim("sub");
@@ -65,8 +65,8 @@ public class ScrumBoardController {
             content = @Content(schema = @Schema(implementation = SprintBacklogItemResponse.class)))
     public ResponseEntity<SprintBacklogItemResponse> assignMember(
             @AuthenticationPrincipal Jwt jwt,
-            @PathVariable Long projectId,
-            @PathVariable Long backlogItemId,
+            @PathVariable(name = "projectId") Long projectId,
+            @PathVariable(name = "backlogItemId") Long backlogItemId,
             @Valid @RequestBody AssignMemberRequest request) {
         log.info("Request to assign member {} to item {}", request.getMemberId(), backlogItemId);
         String userId = jwt.getClaim("sub");
@@ -80,9 +80,9 @@ public class ScrumBoardController {
             content = @Content(schema = @Schema(implementation = SprintBacklogItemResponse.class)))
     public ResponseEntity<SprintBacklogItemResponse> unassignMember(
             @AuthenticationPrincipal Jwt jwt,
-            @PathVariable Long projectId,
-            @PathVariable Long backlogItemId,
-            @PathVariable Long memberId) {
+            @PathVariable(name = "projectId") Long projectId,
+            @PathVariable(name = "backlogItemId") Long backlogItemId,
+            @PathVariable(name = "memberId") Long memberId) {
         log.info("Request to unassign member {} from item {}", memberId, backlogItemId);
         String userId = jwt.getClaim("sub");
         SprintBacklogItemResponse response = scrumBoardService.unassignMemberFromStory(projectId, backlogItemId, memberId, userId);
@@ -95,8 +95,8 @@ public class ScrumBoardController {
             content = @Content(schema = @Schema(implementation = SprintBacklogItemResponse.class)))
     public ResponseEntity<SprintBacklogItemResponse> addComment(
             @AuthenticationPrincipal Jwt jwt,
-            @PathVariable Long projectId,
-            @PathVariable Long backlogItemId,
+            @PathVariable(name = "projectId") Long projectId,
+            @PathVariable(name = "backlogItemId")Long backlogItemId,
             @Valid @RequestBody CreateCommentRequest request) {
         log.info("Request to add comment to item {}", backlogItemId);
         String userId = jwt.getClaim("sub");
@@ -109,9 +109,9 @@ public class ScrumBoardController {
     @ApiResponse(responseCode = "204", description = "Comment removed successfully")
     public ResponseEntity<Void> removeComment(
             @AuthenticationPrincipal Jwt jwt,
-            @PathVariable Long projectId,
-            @PathVariable Long backlogItemId,
-            @PathVariable Long commentId) {
+            @PathVariable(name = "projectId") Long projectId,
+            @PathVariable(name = "backlogItemId") Long backlogItemId,
+            @PathVariable(name = "commentId") Long commentId) {
         log.info("Request to remove comment {} from item {}", commentId, backlogItemId);
         String userId = jwt.getClaim("sub");
         scrumBoardService.removeCommentFromStory(projectId, backlogItemId, commentId, userId);
@@ -124,8 +124,8 @@ public class ScrumBoardController {
             content = @Content(schema = @Schema(implementation = SprintBacklogItemResponse.class)))
     public ResponseEntity<SprintBacklogItemResponse> addBlocker(
             @AuthenticationPrincipal Jwt jwt,
-            @PathVariable Long projectId,
-            @PathVariable Long backlogItemId,
+            @PathVariable(name = "projectId") Long projectId,
+            @PathVariable(name = "backlogItemId") Long backlogItemId,
             @Valid @RequestBody CreateCommentRequest request) {
         log.info("Request to add blocker to item {}", backlogItemId);
         String userId = jwt.getClaim("sub");
@@ -138,9 +138,9 @@ public class ScrumBoardController {
     @ApiResponse(responseCode = "204", description = "Blocker removed successfully")
     public ResponseEntity<Void> removeBlocker(
             @AuthenticationPrincipal Jwt jwt,
-            @PathVariable Long projectId,
-            @PathVariable Long backlogItemId,
-            @PathVariable Long blockerId) {
+            @PathVariable(name = "projectId") Long projectId,
+            @PathVariable(name = "backlogItemId") Long backlogItemId,
+            @PathVariable(name = "blockerId") Long blockerId) {
         log.info("Request to remove blocker {} from item {}", blockerId, backlogItemId);
         String userId = jwt.getClaim("sub");
         scrumBoardService.removeBlockerFromStory(projectId, backlogItemId, blockerId, userId);
