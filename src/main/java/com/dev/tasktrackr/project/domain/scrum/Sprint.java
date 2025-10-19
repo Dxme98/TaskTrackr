@@ -4,6 +4,7 @@ import com.dev.tasktrackr.project.api.dtos.request.CreateCommentRequest;
 import com.dev.tasktrackr.project.api.dtos.request.CreateSprintRequest;
 import com.dev.tasktrackr.project.api.dtos.response.ActiveSprintData;
 import com.dev.tasktrackr.project.domain.ProjectMember;
+import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.PermissionDeniedException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.SprintBacklogItemNotFoundException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.SprintSummaryItemNotFoundException;
 import jakarta.persistence.*;
@@ -157,8 +158,13 @@ public class Sprint {
         });
     }
 
-    public SprintBacklogItem updateBacklogItemStatus(Long backlogItemId, StoryStatus newStatus) {
+    public SprintBacklogItem updateBacklogItemStatus(Long backlogItemId, StoryStatus newStatus, ProjectMember member) {
         SprintBacklogItem itemToUpdate = findBacklogItemById(backlogItemId);
+
+        if(!member.canUpdateStoryStatus() && !itemToUpdate.memberIsAssigned(member)) {
+            throw new PermissionDeniedException("You do not have permission to update story status.");
+        }
+
         itemToUpdate.getUserStory().updateStatus(newStatus);
         Long userStoryId = itemToUpdate.getUserStory().getId();
 

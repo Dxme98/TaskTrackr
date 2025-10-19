@@ -104,4 +104,52 @@ public class ProjectMember {
             throw new PermissionDeniedException("You do not have permission to manage roles.");
         }
     }
+
+    // SCRUM
+    public void canCreateUserStory() {
+        if (!projectRole.hasPermission(PermissionName.SCRUM_CREATE_USER_STORY)) {
+            throw new PermissionDeniedException("You do not have permission to create user stories.");
+        }
+    }
+
+    public void canDeleteUserStory() {
+        if (!projectRole.hasPermission(PermissionName.SCRUM_DELETE_USER_STORY)) {
+            throw new PermissionDeniedException("You do not have permission to delete user stories.");
+        }
+    }
+
+    public void canPlanSprint() {
+        if (!projectRole.hasPermission(PermissionName.SCRUM_PLAN_SPRINT)) {
+            throw new PermissionDeniedException("You do not have permission to plan sprints.");
+        }
+    }
+
+    public void canStartSprint() {
+        if (!projectRole.hasPermission(PermissionName.SCRUM_START_SPRINT)) {
+            throw new PermissionDeniedException("You do not have permission to start sprints.");
+        }
+    }
+
+    public void canEndSprint() {
+        if (!projectRole.hasPermission(PermissionName.SCRUM_END_SPRINT)) {
+            throw new PermissionDeniedException("You do not have permission to end sprints.");
+        }
+    }
+
+    public void canAssignUserToStory() {
+        if (!projectRole.hasPermission(PermissionName.SCRUM_ASSIGN_USER_TO_STORY)) {
+            throw new PermissionDeniedException("You do not have permission to assign users to stories.");
+        }
+    }
+
+    public void canDeleteCommentsAndBlocker() {
+        if (!projectRole.hasPermission(PermissionName.SCRUM_CAN_DELETE_COMMENTS_AND_BLOCKER)) {
+            throw new PermissionDeniedException("You do not have permission to delete Comments.");
+        }
+    }
+
+    public boolean canUpdateStoryStatus() {
+        // Special handling to check extra permission (if assigned to task, user is also allowed to update even without permission)
+        return projectRole.hasPermission(PermissionName.SCRUM_UPDATE_STORY_STATUS);
+    }
 }

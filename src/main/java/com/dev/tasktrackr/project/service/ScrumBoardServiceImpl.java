@@ -31,7 +31,7 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     public ScrumBoardResponseDto getScrumBoard(Long projectId,  String jwtUserId) {
         Project project = findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
-        Sprint sprint = scrumDetails.findActiveSprint(); // check if active
+        Sprint sprint = scrumDetails.findActiveSprint();
 
 
         return scrumBoardMapper.toResponse(sprint, project.getProjectMembers());
@@ -44,9 +44,9 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
         ScrumDetails scrumDetails = project.getScrumDetails();
         ProjectMember member = project.findProjectMember(jwtUserId);
 
-        SprintBacklogItem backlogItem = scrumDetails.updateBacklogItemStatusInActiveSprint( backlogItemId, newStatus);
+        SprintBacklogItem backlogItem = scrumDetails.updateBacklogItemStatusInActiveSprint( backlogItemId, newStatus, member);
 
-        projectRepository.save(project); // should update weil ist nicht neu? checken
+        projectRepository.save(project);
 
 
         var event = new ProjectActivityEvents.UserStoryStatusUpdatedEvent(
@@ -64,6 +64,8 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
         ScrumDetails scrumDetails = project.getScrumDetails();
         ProjectMember member = project.findProjectMember(memberId);
 
+        member.canAssignUserToStory();
+
         SprintBacklogItem backlogItem = scrumDetails.assignMemberToStory(backlogItemId, member);
 
         projectRepository.save(project);
@@ -77,6 +79,8 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
         Project project = findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
         ProjectMember member = project.findProjectMember(memberId);
+
+        member.canAssignUserToStory();
 
         SprintBacklogItem backlogItem = scrumDetails.unassignMemberFromStory(backlogItemId, member);
 
@@ -110,7 +114,9 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     public void removeCommentFromStory(Long projectId, Long backlogItemId, Long commentId, String jwtUserId) {
         Project project = findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
-        ProjectMember member = project.findProjectMember(jwtUserId); // check permission
+        ProjectMember member = project.findProjectMember(jwtUserId);
+
+        member.canDeleteCommentsAndBlocker();
 
         scrumDetails.removeCommentFromStory(backlogItemId, commentId);
 
@@ -125,8 +131,6 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
         ProjectMember member = project.findProjectMember(jwtUserId);
 
         SprintBacklogItem backlogItem = scrumDetails.addBlockerToStory(backlogItemId, member, commentRequest);
-
-        // ID COULD BE NULL!
 
         projectRepository.save(project);
 
@@ -143,8 +147,10 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     public void removeBlockerFromStory(Long projectId, Long backlogItemId, Long blockerId, String jwtUserId) {
         Project project = findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
-        ProjectMember member = project.findProjectMember(jwtUserId); // check permission
+        ProjectMember member = project.findProjectMember(jwtUserId);
         SprintBacklogItem backlogItem = scrumDetails.findActiveSprint().findBacklogItemById(backlogItemId);
+
+        member.canDeleteCommentsAndBlocker();
 
         Comment removedComment = scrumDetails.removeCommentFromStory(backlogItemId, blockerId);
 

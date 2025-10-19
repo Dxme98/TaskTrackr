@@ -39,6 +39,8 @@ public class SprintServiceImpl implements SprintService{
         ScrumDetails scrumDetails = project.getScrumDetails();
         ProjectMember member = project.findProjectMember(jwtUserId);
 
+        member.canPlanSprint();
+
         // Erstelle Sprint
         Sprint createdSprint = scrumDetails.createSprint(createSprintRequest);
 
@@ -92,6 +94,8 @@ public class SprintServiceImpl implements SprintService{
         ScrumDetails scrumDetails = project.getScrumDetails();
         ProjectMember member = project.findProjectMember(jwtUserId);
 
+        member.canStartSprint();
+
         Sprint sprintToStart = scrumDetails.startSprint(sprintId);
 
         projectRepository.save(project);
@@ -109,6 +113,8 @@ public class SprintServiceImpl implements SprintService{
         Project project = findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
         ProjectMember member = project.findProjectMember(jwtUserId);
+
+        member.canEndSprint();
 
         Sprint sprintToEnd = scrumDetails.endSprint(sprintId);
 

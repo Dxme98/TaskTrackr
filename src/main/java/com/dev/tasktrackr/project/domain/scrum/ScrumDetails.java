@@ -86,9 +86,9 @@ public class ScrumDetails {
                 .collect(Collectors.toList());
     }
 
-    public SprintBacklogItem updateBacklogItemStatusInActiveSprint(Long backlogItemId, StoryStatus newStatus) {
+    public SprintBacklogItem updateBacklogItemStatusInActiveSprint(Long backlogItemId, StoryStatus newStatus, ProjectMember member) {
         Sprint activeSprint = findActiveSprint();
-        return activeSprint.updateBacklogItemStatus(backlogItemId, newStatus);
+        return activeSprint.updateBacklogItemStatus(backlogItemId, newStatus, member);
     }
 
     public SprintBacklogItem assignMemberToStory(Long backlogItemId, ProjectMember member) {
@@ -180,15 +180,12 @@ public class ScrumDetails {
 
         Sprint activeSprint;
         try {
-            // 1. Aktiven Sprint finden
             activeSprint = findActiveSprint();
         } catch (NoActiveSprintFoundException e) {
-            // 2. Kein aktiver Sprint? Leere Statistik für alle Mitglieder zurückgeben.
             return project.getProjectMembers().stream()
                     .map(member -> ScrumMemberStatisticDto.builder()
-                            // ANNNAHME 1: Der Pfad zum Username ist user.username
                             .username(member.getUser().getUsername())
-                            .build()) // Alle int-Werte sind standardmäßig 0
+                            .build())
                     .collect(Collectors.toList());
         }
 
@@ -272,14 +269,14 @@ public class ScrumDetails {
     public ScrumProjectStatisticsDto getProjectStatistics() {
         List<Sprint> finishedSprints = this.sprints.stream()
                 .filter(sprint -> sprint.getStatus().equals(SprintStatus.DONE))
-                .toList(); // .collect(Collectors.toList()) für ältere Java-Versionen
+                .toList();
 
         int finishedSprintsCount = finishedSprints.size();
 
         int totalCompletedPoints = finishedSprints.stream()
-                .flatMap(sprint -> sprint.getBacklogItems().stream()) // Alle Items aus allen Sprints
-                .mapToInt(item -> item.getUserStory().getStoryPoints()) // Die Punkte jedes Items
-                .sum(); // Alles summieren
+                .flatMap(sprint -> sprint.getBacklogItems().stream())
+                .mapToInt(item -> item.getUserStory().getStoryPoints())
+                .sum();
 
 
         int averageVelocity = 0;

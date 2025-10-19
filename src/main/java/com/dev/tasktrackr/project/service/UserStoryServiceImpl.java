@@ -35,6 +35,8 @@ public class UserStoryServiceImpl implements UserStoryService{
         ScrumDetails scrumDetails = project.getScrumDetails();
         ProjectMember member = project.findProjectMember(jwtUserId);
 
+        member.canCreateUserStory();
+
         UserStory createdUserStory = scrumDetails.createUserStory(createUserStoryRequest);
         projectRepository.save(project);
 
@@ -54,6 +56,8 @@ public class UserStoryServiceImpl implements UserStoryService{
         Project project = findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
         ProjectMember member = project.findProjectMember(jwtUserId);
+
+        member.canDeleteUserStory();
 
         UserStory deletedUserStory = scrumDetails.deleteUserStory(userStoryId);
 

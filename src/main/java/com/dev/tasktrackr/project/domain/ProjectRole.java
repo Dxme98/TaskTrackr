@@ -66,9 +66,9 @@ public class ProjectRole {
         }
 
         if (type == ProjectType.SCRUM) {
-            // BASIC, COMMON und SCRUM Permissions hinzufügen
+            // COMMON und SCRUM Permissions hinzufügen
             role.permissions.addAll(getCommonPermissions());
-          //  role.permissions.addAll(getScrumPermissions());
+            role.permissions.addAll(getScrumPermissions());
         }
 
         return role;
@@ -106,9 +106,16 @@ public class ProjectRole {
     }
 
     private static Set<PermissionName> getScrumPermissions() {
-        // TODO
-
-        return null;
+        return EnumSet.of(
+                PermissionName.SCRUM_CREATE_USER_STORY,
+                PermissionName.SCRUM_DELETE_USER_STORY,
+                PermissionName.SCRUM_PLAN_SPRINT,
+                PermissionName.SCRUM_START_SPRINT,
+                PermissionName.SCRUM_END_SPRINT,
+                PermissionName.SCRUM_ASSIGN_USER_TO_STORY,
+                PermissionName.SCRUM_UPDATE_STORY_STATUS,
+                PermissionName.SCRUM_CAN_DELETE_COMMENTS_AND_BLOCKER
+        );
     }
 
 
