@@ -9,6 +9,7 @@ import com.dev.tasktrackr.project.api.dtos.response.ScrumProjectStatisticsDto;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.basic.BasicDetails;
+import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.UserStoryIsPartOfSprintException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.NoActiveSprintFoundException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.SprintNotFoundException;
@@ -17,6 +18,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.function.Function;
@@ -112,6 +114,18 @@ public class ScrumDetails {
     public Comment removeCommentFromStory(Long backlogItemId, Long commentId) {
         Sprint activeSprint = findActiveSprint();
         return activeSprint.removeCommentFromStory(backlogItemId, commentId);
+    }
+
+    public UserStory deleteUserStory(Long userStoryId) {
+       UserStory toDelete = findUserStoryById(userStoryId);
+
+       if(toDelete.getStatus() != StoryStatus.NOT_ASSIGNED_TO_SPRINT) {
+           throw new UserStoryIsPartOfSprintException(userStoryId);
+       }
+
+       userStories.remove(toDelete);
+
+       return toDelete;
     }
 
     public Sprint startSprint(Long sprintId) {

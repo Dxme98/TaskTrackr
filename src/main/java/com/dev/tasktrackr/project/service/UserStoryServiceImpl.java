@@ -49,6 +49,23 @@ public class UserStoryServiceImpl implements UserStoryService{
     }
 
     @Override
+    @Transactional
+    public void deleteUserStory(Long projectId, Long userStoryId, String jwtUserId) {
+        Project project = findProjectById(projectId);
+        ScrumDetails scrumDetails = project.getScrumDetails();
+        ProjectMember member = project.findProjectMember(jwtUserId);
+
+        UserStory deletedUserStory = scrumDetails.deleteUserStory(userStoryId);
+
+        var event = new ProjectActivityEvents.UserStoryDeletedEvent(
+                projectId, member.getId(), member.getUser().getUsername(),
+                deletedUserStory.getId(), deletedUserStory.getTitle());
+        applicationEventPublisher.publishEvent(event);
+
+        projectRepository.save(project);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public Page<UserStoryResponseDto> getUserStoriesByProjectId(Long projectId, Pageable pageable, String jwtUserId) {
         Project project = findProjectById(projectId);

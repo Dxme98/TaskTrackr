@@ -93,7 +93,7 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
         ProjectMember member = project.findProjectMember(jwtUserId);
 
         SprintBacklogItem backlogItem = scrumDetails.addCommentToStory(backlogItemId, member, commentRequest);
-        // ID COULD BE NULL
+
 
         projectRepository.save(project);
 

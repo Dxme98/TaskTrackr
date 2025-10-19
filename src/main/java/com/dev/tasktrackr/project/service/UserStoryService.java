@@ -7,5 +7,6 @@ import org.springframework.data.domain.Pageable;
 
 public interface UserStoryService {
     UserStoryResponseDto createUserStory(Long projectId, CreateUserStoryRequest createUserStoryRequest, String jwtUserId);
+    void deleteUserStory(Long projectId, Long userStoryId, String jwtUserId);
     Page<UserStoryResponseDto> getUserStoriesByProjectId(Long projectId, Pageable pageable, String jwtUserId);
 }

@@ -58,6 +58,22 @@ public class UserStoryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @DeleteMapping("/{userStoryId}")
+    @Operation(summary = "Löscht eine User Story", description = "Löscht eine User Story anhand ihrer ID aus dem angegebenen Projekt.")
+    @ApiResponse(responseCode = "204", description = "User Story erfolgreich gelöscht")
+    public ResponseEntity<Void> deleteUserStory(
+            @PathVariable(name = "projectId") Long projectId,
+            @PathVariable(name = "userStoryId") Long userStoryId,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        String jwtUserId = jwt.getClaim("sub");
+        log.info("Anfrage zum Löschen der User Story {} im Projekt {} von Benutzer {}", userStoryId, projectId, jwtUserId);
+
+        userStoryService.deleteUserStory(projectId, userStoryId, jwtUserId);
+
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping
     @Operation(
             summary = "Listet User Stories für ein Projekt auf",
