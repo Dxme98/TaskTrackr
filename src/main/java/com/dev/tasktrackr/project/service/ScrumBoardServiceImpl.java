@@ -63,8 +63,9 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
         Project project = findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
         ProjectMember member = project.findProjectMember(memberId);
+        ProjectMember requestedMember = project.findProjectMember(jwtUserId);
 
-        member.canAssignUserToStory();
+        requestedMember.canAssignUserToStory();
 
         SprintBacklogItem backlogItem = scrumDetails.assignMemberToStory(backlogItemId, member);
 
@@ -79,8 +80,9 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
         Project project = findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
         ProjectMember member = project.findProjectMember(memberId);
+        ProjectMember requestedMember = project.findProjectMember(jwtUserId);
 
-        member.canAssignUserToStory();
+        requestedMember.canAssignUserToStory();
 
         SprintBacklogItem backlogItem = scrumDetails.unassignMemberFromStory(backlogItemId, member);
 
