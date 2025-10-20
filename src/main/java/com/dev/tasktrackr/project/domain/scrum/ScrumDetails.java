@@ -9,6 +9,7 @@ import com.dev.tasktrackr.project.api.dtos.response.ScrumProjectStatisticsDto;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.basic.BasicDetails;
+import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.ActiveSprintAlreadyExistsException;
 import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.UserStoryIsPartOfSprintException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.NoActiveSprintFoundException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
@@ -129,6 +130,11 @@ public class ScrumDetails {
     }
 
     public Sprint startSprint(Long sprintId) {
+
+        if(hasActiveSprint()) {
+            throw new ActiveSprintAlreadyExistsException();
+        }
+
         Sprint sprintToStart = findSprintById(sprintId);
         return  sprintToStart.start();
     }
@@ -153,6 +159,11 @@ public class ScrumDetails {
                 .findFirst()
                 .orElseThrow(() -> new NoActiveSprintFoundException(project.getId()));
     }
+    private boolean hasActiveSprint() {
+        return sprints.stream()
+                .anyMatch(s -> s.getStatus().equals(SprintStatus.ACTIVE));
+    }
+
 
     public Sprint findSprint(Sprint sprint) {
         return sprints.stream()
