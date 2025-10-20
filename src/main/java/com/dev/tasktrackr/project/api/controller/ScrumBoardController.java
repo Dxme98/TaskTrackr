@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Scrum Board", description = "Operations related to the project's Scrum Board")
 @Slf4j
 @RequiredArgsConstructor
-@ApiErrorResponses.CommonErrors
+@ApiErrorResponses.SecuredResourceEndpoint
 public class ScrumBoardController {
 
     private final ScrumBoardService scrumBoardService;
@@ -48,6 +48,7 @@ public class ScrumBoardController {
     @Operation(summary = "Update the status of a backlog item", description = "Moves a user story to a different column on the board (e.g., from 'IN_PROGRESS' to 'REVIEW').")
     @ApiResponse(responseCode = "200", description = "Status updated successfully",
             content = @Content(schema = @Schema(implementation = SprintBacklogItemResponse.class)))
+    @ApiErrorResponses.BadRequest
     public ResponseEntity<SprintBacklogItemResponse> updateUserStoryStatus(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable(name = "projectId") Long projectId,
@@ -63,6 +64,8 @@ public class ScrumBoardController {
     @Operation(summary = "Assign a member to a backlog item")
     @ApiResponse(responseCode = "200", description = "Member assigned successfully",
             content = @Content(schema = @Schema(implementation = SprintBacklogItemResponse.class)))
+    @ApiErrorResponses.BadRequest
+    @ApiErrorResponses.Conflict
     public ResponseEntity<SprintBacklogItemResponse> assignMember(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable(name = "projectId") Long projectId,
@@ -78,6 +81,8 @@ public class ScrumBoardController {
     @Operation(summary = "Unassign a member from a backlog item")
     @ApiResponse(responseCode = "200", description = "Member unassigned successfully",
             content = @Content(schema = @Schema(implementation = SprintBacklogItemResponse.class)))
+    @ApiErrorResponses.BadRequest
+    @ApiErrorResponses.Conflict
     public ResponseEntity<SprintBacklogItemResponse> unassignMember(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable(name = "projectId") Long projectId,
@@ -93,6 +98,7 @@ public class ScrumBoardController {
     @Operation(summary = "Add a comment to a backlog item")
     @ApiResponse(responseCode = "201", description = "Comment added successfully",
             content = @Content(schema = @Schema(implementation = SprintBacklogItemResponse.class)))
+    @ApiErrorResponses.BadRequest
     public ResponseEntity<SprintBacklogItemResponse> addComment(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable(name = "projectId") Long projectId,
@@ -122,6 +128,7 @@ public class ScrumBoardController {
     @Operation(summary = "Add a blocker to a backlog item")
     @ApiResponse(responseCode = "201", description = "Blocker added successfully",
             content = @Content(schema = @Schema(implementation = SprintBacklogItemResponse.class)))
+    @ApiErrorResponses.BadRequest
     public ResponseEntity<SprintBacklogItemResponse> addBlocker(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable(name = "projectId") Long projectId,

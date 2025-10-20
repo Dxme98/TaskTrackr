@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Sprints", description = "Operationen zur Verwaltung von Sprints innerhalb eines Scrum-Projekts")
 @Slf4j
 @RequiredArgsConstructor
-@ApiErrorResponses.CommonErrors
+@ApiErrorResponses.SecuredResourceEndpoint
 public class SprintController {
 
     private final SprintService sprintService;
@@ -37,6 +37,7 @@ public class SprintController {
     @Operation(summary = "Erstellt einen neuen Sprint", description = "Erstellt einen neuen Sprint innerhalb des angegebenen Projekts und weist ihm User Stories zu.")
     @ApiResponse(responseCode = "201", description = "Sprint erfolgreich erstellt", content = @Content(schema = @Schema(implementation = SprintResponseDto.class)))
     @ApiErrorResponses.BadRequest
+    @ApiErrorResponses.Conflict
     public ResponseEntity<SprintResponseDto> createSprint(
             @PathVariable(name = "projectId") Long projectId,
             @Valid @RequestBody CreateSprintRequest createSprintRequest,
@@ -45,10 +46,6 @@ public class SprintController {
         String jwtUserId = jwt.getClaim("sub");
         log.info("Anfrage zum Erstellen eines Sprints im Projekt {} von Benutzer {}", projectId, jwtUserId);
         SprintResponseDto response = sprintService.createSprint(createSprintRequest, projectId, jwtUserId);
-
-        log.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-        log.info(response.getSprintSummaryItems().toString());
-        log.info(response.getSprintSummaryItems().size() + " Sprint erfolgreich erstellt");
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -90,6 +87,7 @@ public class SprintController {
     @PostMapping("/{sprintId}/start")
     @Operation(summary = "Startet einen geplanten Sprint", description = "Ändert den Status eines Sprints von 'PLANNED' zu 'IN_PROGRESS'.")
     @ApiResponse(responseCode = "200", description = "Sprint erfolgreich gestartet")
+    @ApiErrorResponses.BadRequest
     public ResponseEntity<SprintResponseDto> startSprint(
             @PathVariable(name = "projectId") Long projectId,
             @PathVariable(name = "sprintId") Long sprintId,

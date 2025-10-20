@@ -30,7 +30,7 @@ import com.dev.tasktrackr.project.api.dtos.response.PageResponse;
 @Tag(name = "User Stories", description = "Operationen zur Verwaltung von User Stories innerhalb eines Scrum-Projekts")
 @Slf4j
 @RequiredArgsConstructor
-@ApiErrorResponses.CommonErrors
+@ApiErrorResponses.SecuredResourceEndpoint
 public class UserStoryController {
     private final UserStoryService userStoryService;
 
