@@ -63,21 +63,6 @@ public class ScrumDetails {
         return createdSprint;
     }
 
-    public List<UserStory> findUserStoriesByIds(Set<Long> ids) {
-        Map<Long, UserStory> userStoryMap = this.userStories.stream()
-                .collect(Collectors.toMap(UserStory::getId, Function.identity()));
-
-        return ids.stream()
-                .map(id -> {
-                    UserStory userStory = userStoryMap.get(id);
-                    if (userStory == null) {
-                        throw new UserStoryNotFoundException("UserStory with ID '" + id + "' not found.");
-                    }
-                    return userStory;
-                })
-                .collect(Collectors.toList());
-    }
-
     public SprintBacklogItem updateBacklogItemStatusInActiveSprint(Long backlogItemId, StoryStatus newStatus, ProjectMember member) {
         Sprint activeSprint = findActiveSprint();
         return activeSprint.updateBacklogItemStatus(backlogItemId, newStatus, member);
@@ -141,14 +126,6 @@ public class ScrumDetails {
     private boolean hasActiveSprint() {
         return sprints.stream()
                 .anyMatch(s -> s.getStatus().equals(SprintStatus.ACTIVE));
-    }
-
-
-    public Sprint findSprint(Sprint sprint) {
-        return sprints.stream()
-                .filter(s -> s.equals(sprint))
-                .findFirst()
-                .orElseThrow(() -> new SprintNotFoundException(sprint.getId()));
     }
 
     public Sprint findSprintById(Long sprintId) {
