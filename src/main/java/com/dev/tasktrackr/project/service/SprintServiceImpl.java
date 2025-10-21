@@ -106,8 +106,7 @@ public class SprintServiceImpl implements SprintService{
         // load data
         ScrumDetails scrumDetails = findProjectById(projectId).getScrumDetails();
         ProjectMember member = findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
-        Sprint sprintToStart = sprintQueryRepository.findSprintById(sprintId)
-                .orElseThrow(() -> new SprintNotFoundException(sprintId));
+        Sprint sprintToStart = findSprintById(sprintId);
 
         // check permission
         member.canStartSprint();
@@ -132,25 +131,30 @@ public class SprintServiceImpl implements SprintService{
     @Override
     @Transactional
     public SprintResponseDto endSprint(Long sprintId, Long projectId, String jwtUserId) {
-        Project project = findProjectById(projectId);
-        ScrumDetails scrumDetails = project.getScrumDetails();
-        ProjectMember member = project.findProjectMember(jwtUserId);
+        ScrumDetails scrumDetails = findProjectById(projectId).getScrumDetails();
+        ProjectMember member = findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
+        Sprint sprintToEnd = findSprintById(sprintId);
 
         member.canEndSprint();
 
-        Sprint sprintToEnd = scrumDetails.endSprint(sprintId);
+        scrumDetails.endSprint(sprintToEnd);
 
-        projectRepository.save(project);
+        Sprint perisistedSprint = sprintQueryRepository.save(sprintToEnd);
 
         var event = new ProjectActivityEvents.SprintEndedEvent(
-                projectId, member.getId(), member.getUser().getUsername(), sprintToEnd.getId(), sprintToEnd.getName());
+                projectId, member.getId(), member.getUser().getUsername(), perisistedSprint.getId(), perisistedSprint.getName());
         applicationEventPublisher.publishEvent(event);
 
-        return sprintMapper.toDto(sprintToEnd);
+        return sprintMapper.toDto(perisistedSprint);
     }
 
     private Project findProjectById(Long projectId) {
         return projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
+    }
+
+    private Sprint findSprintById(Long sprintId) {
+        return sprintQueryRepository.findSprintById(sprintId)
+                .orElseThrow(() -> new SprintNotFoundException(sprintId));
     }
 
     private ProjectMember findProjectMemberWithPermissionsRolesAndUser(String userId, Long projectId) {

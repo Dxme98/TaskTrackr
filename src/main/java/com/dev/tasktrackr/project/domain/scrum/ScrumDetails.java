@@ -90,8 +90,7 @@ public class ScrumDetails {
         sprintToStart.start();
     }
 
-    public Sprint endSprint(Long sprintId) {
-        Sprint sprintToEnd = findSprintById(sprintId);
+    public Sprint endSprint(Sprint sprintToEnd) {
         return  sprintToEnd.end();
     }
 

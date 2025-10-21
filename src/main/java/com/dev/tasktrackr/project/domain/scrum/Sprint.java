@@ -102,6 +102,7 @@ public class Sprint {
         if (!this.status.equals(SprintStatus.ACTIVE)) {
             throw new IllegalStateException("Only sprints with status ACTIVE can be finished.");
         }
+
         handleUncompletedBacklogItems();
         this.status = SprintStatus.DONE;
         return this;
