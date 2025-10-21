@@ -43,9 +43,7 @@ public class UserStoryServiceImpl implements UserStoryService{
         member.canCreateUserStory();
 
         // check if valid
-        if(userStoryRepository.existsByTitleAndScrumDetailsId(createUserStoryRequest.getTitle(), projectId)) {
-            throw new UserStoryTitleAlreadyExistsException(createUserStoryRequest.getTitle());
-        }
+        checkForUniqueUserStoryTitle(createUserStoryRequest.getTitle(), projectId);
 
         // create and save
         UserStory createdUserStory = scrumDetails.createUserStory(createUserStoryRequest);
@@ -79,10 +77,7 @@ public class UserStoryServiceImpl implements UserStoryService{
     @Transactional(readOnly = true)
     public Page<UserStoryResponseDto> getUserStoriesByProjectId(Long projectId, Pageable pageable, String jwtUserId) {
 
-        // Check membership
-        if(!projectMemberQueryRepository.existsByUserIdAndProjectId(jwtUserId, projectId)) {
-            throw new UserNotProjectMemberException(jwtUserId);
-        }
+        checkProjectMemberShip(projectId, jwtUserId);
 
         return userStoryRepository.findUserStoriesByScrumDetailsId(projectId, pageable);
     }
@@ -100,5 +95,17 @@ public class UserStoryServiceImpl implements UserStoryService{
     private ProjectMember findProjectMemberWithPermissionsRolesAndUser(String userId, Long projectId) {
        return projectMemberQueryRepository.findProjectMemberWithPermissionsRolesAndUser(projectId, userId)
                .orElseThrow(() -> new UserNotProjectMemberException(userId));
+    }
+
+    private void checkForUniqueUserStoryTitle(String title, Long projectId) {
+        if(userStoryRepository.existsByTitleAndScrumDetailsId(title, projectId)) {
+            throw new UserStoryTitleAlreadyExistsException(title);
+        }
+    }
+
+    private void checkProjectMemberShip(Long projectId, String userId) {
+        if(!projectMemberQueryRepository.existsByUserIdAndProjectId(userId, projectId)) {
+            throw new UserNotProjectMemberException(userId);
+        }
     }
 }

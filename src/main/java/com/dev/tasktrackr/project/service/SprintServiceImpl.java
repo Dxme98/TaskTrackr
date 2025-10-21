@@ -76,10 +76,7 @@ public class SprintServiceImpl implements SprintService{
     @Transactional(readOnly = true)
     public SprintResponseDto findActiveSprint(Long projectId, String jwtUserId) {
 
-        // check projectmembership
-        if(!projectMemberQueryRepository.existsByUserIdAndProjectId(jwtUserId, projectId)) {
-            throw new UserNotProjectMemberException(jwtUserId);
-        }
+        checkProjectMemberShip(projectId, jwtUserId);
 
         // find active sprint with relevant data
         Sprint activeSprint = sprintQueryRepository.findActiveSprintByProjectId(projectId)
@@ -91,10 +88,8 @@ public class SprintServiceImpl implements SprintService{
     @Override
     @Transactional(readOnly = true)
     public Page<SprintResponseDto> findAllSprintsByProjectIdAndStatus(Long projectId, String jwtUserId, Pageable pageable, SprintStatus status) {
-        // check projectmembership
-        if(!projectMemberQueryRepository.existsByUserIdAndProjectId(jwtUserId, projectId)) {
-            throw new UserNotProjectMemberException(jwtUserId);
-        }
+
+        checkProjectMemberShip(projectId, jwtUserId);
 
         Page<Sprint> sprintPage = sprintQueryRepository.findSprintsByProjectIdAndStatus(projectId, status, pageable);
         return sprintPage.map(sprintMapper::toDto);
@@ -108,13 +103,9 @@ public class SprintServiceImpl implements SprintService{
         ProjectMember member = findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
         Sprint sprintToStart = findSprintById(sprintId);
 
-        // check permission
+        // check permission and active sprint
         member.canStartSprint();
-
-        // check if active sprint exists (only 1 per project)
-        if(sprintQueryRepository.existsActiveSprintForProject(projectId)) {
-            throw new ActiveSprintAlreadyExistsException();
-        }
+        checkForExistingActiveSprint(projectId);
 
         // start sprint
         scrumDetails.startSprint(sprintToStart);
@@ -160,6 +151,18 @@ public class SprintServiceImpl implements SprintService{
     private ProjectMember findProjectMemberWithPermissionsRolesAndUser(String userId, Long projectId) {
         return projectMemberQueryRepository.findProjectMemberWithPermissionsRolesAndUser(projectId, userId)
                 .orElseThrow(() -> new UserNotProjectMemberException(userId));
+    }
+
+    private void checkForExistingActiveSprint(Long projectId) {
+        if(sprintQueryRepository.existsActiveSprintForProject(projectId)) {
+            throw new ActiveSprintAlreadyExistsException();
+        }
+    }
+
+    private void checkProjectMemberShip(Long projectId, String userId) {
+        if(!projectMemberQueryRepository.existsByUserIdAndProjectId(userId, projectId)) {
+            throw new UserNotProjectMemberException(userId);
+        }
     }
 
 }
