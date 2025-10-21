@@ -33,6 +33,7 @@ public class UserStoryServiceImpl implements UserStoryService{
 
 
     @Override
+    @Transactional
     public UserStoryResponseDto createUserStory(Long projectId, CreateUserStoryRequest createUserStoryRequest, String jwtUserId) {
         // load
         ScrumDetails scrumDetails = findProjectById(projectId).getScrumDetails();
