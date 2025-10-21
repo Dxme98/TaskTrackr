@@ -12,9 +12,7 @@ import com.dev.tasktrackr.project.domain.scrum.*;
 import com.dev.tasktrackr.project.repository.ProjectMemberQueryRepository;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
 import com.dev.tasktrackr.project.repository.SprintQueryRepository;
-import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.UserNotProjectMemberException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.NoActiveSprintFoundException;
-import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -31,11 +29,12 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     private final ApplicationEventPublisher applicationEventPublisher;
     private final SprintQueryRepository sprintQueryRepository;
     private final ProjectMemberQueryRepository projectMemberQueryRepository;
+    private final ProjectAccessService projectAccessService;
 
     @Override
     @Transactional(readOnly = true)
     public ScrumBoardResponseDto getScrumBoard(Long projectId,  String jwtUserId) {
-        checkProjectMemberShip(projectId, jwtUserId);
+        projectAccessService.checkProjectMemberShip(projectId, jwtUserId);
 
         Set<ProjectMember> projectMemberSet = projectMemberQueryRepository.findAllProjectMembersByProjectId(projectId);
         Sprint activeSprint = findActiveSprint(projectId);
@@ -46,7 +45,7 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     @Override
     @Transactional
     public SprintBacklogItemResponse updateUserStoryStatus(Long projectId, Long backlogItemId, StoryStatus newStatus, String jwtUserId) {
-        Project project = findProjectById(projectId);
+        Project project = projectAccessService.findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
         ProjectMember member = project.findProjectMember(jwtUserId);
 
@@ -66,7 +65,7 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     @Override
     @Transactional
     public SprintBacklogItemResponse assignMemberToStory(Long projectId, Long backlogItemId, Long memberId, String jwtUserId) {
-        Project project = findProjectById(projectId);
+        Project project = projectAccessService.findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
         ProjectMember member = project.findProjectMember(memberId);
         ProjectMember requestedMember = project.findProjectMember(jwtUserId);
@@ -83,7 +82,7 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     @Override
     @Transactional
     public SprintBacklogItemResponse unassignMemberFromStory(Long projectId, Long backlogItemId, Long memberId, String jwtUserId) {
-        Project project = findProjectById(projectId);
+        Project project = projectAccessService.findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
         ProjectMember member = project.findProjectMember(memberId);
         ProjectMember requestedMember = project.findProjectMember(jwtUserId);
@@ -100,7 +99,7 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     @Override
     @Transactional
     public SprintBacklogItemResponse addCommentToStory(Long projectId, Long backlogItemId, CreateCommentRequest commentRequest, String jwtUserId) {
-        Project project = findProjectById(projectId);
+        Project project = projectAccessService.findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
         ProjectMember member = project.findProjectMember(jwtUserId);
 
@@ -120,7 +119,7 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     @Override
     @Transactional
     public void removeCommentFromStory(Long projectId, Long backlogItemId, Long commentId, String jwtUserId) {
-        Project project = findProjectById(projectId);
+        Project project = projectAccessService.findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
         ProjectMember member = project.findProjectMember(jwtUserId);
 
@@ -134,7 +133,7 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     @Override
     @Transactional
     public SprintBacklogItemResponse addBlockerToStory(Long projectId, Long backlogItemId, CreateCommentRequest commentRequest, String jwtUserId) {
-        Project project = findProjectById(projectId);
+        Project project = projectAccessService.findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
         ProjectMember member = project.findProjectMember(jwtUserId);
 
@@ -153,7 +152,7 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     @Override
     @Transactional
     public void removeBlockerFromStory(Long projectId, Long backlogItemId, Long blockerId, String jwtUserId) {
-        Project project = findProjectById(projectId);
+        Project project = projectAccessService.findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
         ProjectMember member = project.findProjectMember(jwtUserId);
         SprintBacklogItem backlogItem = scrumDetails.findActiveSprint().findBacklogItemById(backlogItemId);
@@ -170,19 +169,8 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
         applicationEventPublisher.publishEvent(event);
     }
 
-    private Project findProjectById(Long projectId) {
-        return projectRepository.findById(projectId)
-                .orElseThrow(() -> new ProjectNotFoundException(projectId));
-    }
-
     private Sprint findActiveSprint(Long projectId) {
         return sprintQueryRepository.findActiveSprintByProjectId(projectId)
                 .orElseThrow(() -> new NoActiveSprintFoundException(projectId));
-    }
-
-    private void checkProjectMemberShip(Long projectId, String userId) {
-        if(!projectMemberQueryRepository.existsByUserIdAndProjectId(userId, projectId)) {
-            throw new UserNotProjectMemberException(userId);
-        }
     }
 }

@@ -31,21 +31,20 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Slf4j
 public class SprintServiceImpl implements SprintService{
-    private final ProjectRepository projectRepository;
     private final SprintMapper sprintMapper;
     private final SprintQueryRepository sprintQueryRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
-    private final ProjectMemberQueryRepository projectMemberQueryRepository;
     private final UserStoryRepository userStoryRepository;
+    private final ProjectAccessService projectAccessService;
 
 
     @Override
     @Transactional
     public SprintResponseDto createSprint(CreateSprintRequest createSprintRequest, Long projectId, String jwtUserId) {
         // load data
-        Project project = findProjectById(projectId);
+        Project project = projectAccessService.findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
-        ProjectMember member = findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
+        ProjectMember member = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
 
         // check permission
         member.canPlanSprint();
@@ -76,7 +75,7 @@ public class SprintServiceImpl implements SprintService{
     @Transactional(readOnly = true)
     public SprintResponseDto findActiveSprint(Long projectId, String jwtUserId) {
 
-        checkProjectMemberShip(projectId, jwtUserId);
+        projectAccessService.checkProjectMemberShip(projectId, jwtUserId);
 
         // find active sprint with relevant data
         Sprint activeSprint = sprintQueryRepository.findActiveSprintByProjectId(projectId)
@@ -89,7 +88,7 @@ public class SprintServiceImpl implements SprintService{
     @Transactional(readOnly = true)
     public Page<SprintResponseDto> findAllSprintsByProjectIdAndStatus(Long projectId, String jwtUserId, Pageable pageable, SprintStatus status) {
 
-        checkProjectMemberShip(projectId, jwtUserId);
+        projectAccessService.checkProjectMemberShip(projectId, jwtUserId);
 
         Page<Sprint> sprintPage = sprintQueryRepository.findSprintsByProjectIdAndStatus(projectId, status, pageable);
         return sprintPage.map(sprintMapper::toDto);
@@ -99,8 +98,8 @@ public class SprintServiceImpl implements SprintService{
     @Transactional
     public SprintResponseDto startSprint(Long sprintId, Long projectId, String jwtUserId) {
         // load data
-        ScrumDetails scrumDetails = findProjectById(projectId).getScrumDetails();
-        ProjectMember member = findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
+        ScrumDetails scrumDetails = projectAccessService.findProjectById(projectId).getScrumDetails();
+        ProjectMember member = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
         Sprint sprintToStart = findSprintById(sprintId);
 
         // check permission and active sprint
@@ -122,8 +121,8 @@ public class SprintServiceImpl implements SprintService{
     @Override
     @Transactional
     public SprintResponseDto endSprint(Long sprintId, Long projectId, String jwtUserId) {
-        ScrumDetails scrumDetails = findProjectById(projectId).getScrumDetails();
-        ProjectMember member = findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
+        ScrumDetails scrumDetails = projectAccessService.findProjectById(projectId).getScrumDetails();
+        ProjectMember member = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
         Sprint sprintToEnd = findSprintById(sprintId);
 
         member.canEndSprint();
@@ -139,29 +138,17 @@ public class SprintServiceImpl implements SprintService{
         return sprintMapper.toDto(perisistedSprint);
     }
 
-    private Project findProjectById(Long projectId) {
-        return projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
-    }
+
+    /** --- Helper Methods ---  */
 
     private Sprint findSprintById(Long sprintId) {
         return sprintQueryRepository.findSprintById(sprintId)
                 .orElseThrow(() -> new SprintNotFoundException(sprintId));
     }
 
-    private ProjectMember findProjectMemberWithPermissionsRolesAndUser(String userId, Long projectId) {
-        return projectMemberQueryRepository.findProjectMemberWithPermissionsRolesAndUser(projectId, userId)
-                .orElseThrow(() -> new UserNotProjectMemberException(userId));
-    }
-
     private void checkForExistingActiveSprint(Long projectId) {
         if(sprintQueryRepository.existsActiveSprintForProject(projectId)) {
             throw new ActiveSprintAlreadyExistsException();
-        }
-    }
-
-    private void checkProjectMemberShip(Long projectId, String userId) {
-        if(!projectMemberQueryRepository.existsByUserIdAndProjectId(userId, projectId)) {
-            throw new UserNotProjectMemberException(userId);
         }
     }
 

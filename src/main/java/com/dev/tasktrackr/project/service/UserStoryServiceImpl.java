@@ -25,19 +25,18 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class UserStoryServiceImpl implements UserStoryService{
-    private final ProjectRepository projectRepository;
     private final UserStoryMapper userStoryMapper;
     private final UserStoryRepository userStoryRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
-    private final ProjectMemberQueryRepository projectMemberQueryRepository;
+    private final ProjectAccessService projectAccessService;
 
 
     @Override
     @Transactional
     public UserStoryResponseDto createUserStory(Long projectId, CreateUserStoryRequest createUserStoryRequest, String jwtUserId) {
         // load
-        ScrumDetails scrumDetails = findProjectById(projectId).getScrumDetails();
-        ProjectMember member = findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
+        ScrumDetails scrumDetails = projectAccessService.findProjectById(projectId).getScrumDetails();
+        ProjectMember member = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
 
         // check permission
         member.canCreateUserStory();
@@ -61,7 +60,7 @@ public class UserStoryServiceImpl implements UserStoryService{
     @Override
     @Transactional
     public void deleteUserStory(Long projectId, Long userStoryId, String jwtUserId) {
-        ProjectMember member = findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
+        ProjectMember member = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
         UserStory userStoryToDelete = findUserStoryById(userStoryId);
 
         member.canDeleteUserStory();
@@ -77,35 +76,22 @@ public class UserStoryServiceImpl implements UserStoryService{
     @Transactional(readOnly = true)
     public Page<UserStoryResponseDto> getUserStoriesByProjectId(Long projectId, Pageable pageable, String jwtUserId) {
 
-        checkProjectMemberShip(projectId, jwtUserId);
+        projectAccessService.checkProjectMemberShip(projectId, jwtUserId);
 
         return userStoryRepository.findUserStoriesByScrumDetailsId(projectId, pageable);
     }
 
-    private Project findProjectById(Long projectId) {
-        return projectRepository.findById(projectId)
-                .orElseThrow(() -> new ProjectNotFoundException(projectId));
-    }
+
+    /** --- Helper Methods ---  */
 
     private UserStory findUserStoryById(Long userStoryId) {
         return userStoryRepository.findById(userStoryId)
                 .orElseThrow(() -> new UserStoryNotFoundException(userStoryId));
     }
 
-    private ProjectMember findProjectMemberWithPermissionsRolesAndUser(String userId, Long projectId) {
-       return projectMemberQueryRepository.findProjectMemberWithPermissionsRolesAndUser(projectId, userId)
-               .orElseThrow(() -> new UserNotProjectMemberException(userId));
-    }
-
     private void checkForUniqueUserStoryTitle(String title, Long projectId) {
         if(userStoryRepository.existsByTitleAndScrumDetailsId(title, projectId)) {
             throw new UserStoryTitleAlreadyExistsException(title);
-        }
-    }
-
-    private void checkProjectMemberShip(Long projectId, String userId) {
-        if(!projectMemberQueryRepository.existsByUserIdAndProjectId(userId, projectId)) {
-            throw new UserNotProjectMemberException(userId);
         }
     }
 }
