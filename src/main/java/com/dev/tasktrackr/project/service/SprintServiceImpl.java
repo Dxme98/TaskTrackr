@@ -7,8 +7,12 @@ import com.dev.tasktrackr.project.api.dtos.response.SprintResponseDto;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.scrum.*;
+import com.dev.tasktrackr.project.repository.ProjectMemberQueryRepository;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
 import com.dev.tasktrackr.project.repository.SprintQueryRepository;
+import com.dev.tasktrackr.project.repository.UserStoryRepository;
+import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.UserNotProjectMemberException;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.NoActiveSprintFoundException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -28,34 +33,35 @@ public class SprintServiceImpl implements SprintService{
     private final SprintMapper sprintMapper;
     private final SprintQueryRepository sprintQueryRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final ProjectMemberQueryRepository projectMemberQueryRepository;
+    private final UserStoryRepository userStoryRepository;
 
-    // Validation, checks usw fehlen
 
     @Override
     @Transactional
     public SprintResponseDto createSprint(CreateSprintRequest createSprintRequest, Long projectId, String jwtUserId) {
+        // load data
         Project project = findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
-        ProjectMember member = project.findProjectMember(jwtUserId);
+        ProjectMember member = findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
 
+        // check permission
         member.canPlanSprint();
 
-        // Erstelle Sprint
+        // create sprint
         Sprint createdSprint = scrumDetails.createSprint(createSprintRequest);
 
-        // Extrahiere ausgewählte UserStories aus übergebenen IDs
-        List<UserStory> userStories = scrumDetails.findUserStoriesByIds(createSprintRequest.getUserStoryIds());
+        // load stories for sprint
+        List<UserStory> userStories = userStoryRepository.findAllByIdsAndProjectId(createSprintRequest.getUserStoryIds(), projectId);
 
-        // Mappe die UserStories zu Sprintbacklogitems und füge sie dem sprint hinzu
+        // add stories to sprint, and create sprint summary item for each story
         createdSprint.addUserStoriesToSprint(userStories);
         createdSprint.addSprintSummaryItems(userStories);
 
-        projectRepository.save(project);
+        // save
+        Sprint perisistedSprint = sprintQueryRepository.save(createdSprint);
 
-        // finde perisisted sprint
-        Sprint perisistedSprint = scrumDetails.findSprint(createdSprint);
-
-
+        // send event
         var event = new ProjectActivityEvents.SprintCreatedEvent(
                 projectId, member.getId(), member.getUser().getUsername(), perisistedSprint.getId(), perisistedSprint.getName());
         applicationEventPublisher.publishEvent(event);
@@ -67,9 +73,15 @@ public class SprintServiceImpl implements SprintService{
     @Override
     @Transactional(readOnly = true)
     public SprintResponseDto findActiveSprint(Long projectId, String jwtUserId) {
-        Project project = findProjectById(projectId);
-        // Die Logik, den aktiven Sprint zu finden, liegt in ScrumDetails
-        Sprint activeSprint = project.getScrumDetails().findActiveSprint();
+
+        // check projectmembership
+        if(!projectMemberQueryRepository.existsByUserIdAndProjectId(jwtUserId, projectId)) {
+            throw new UserNotProjectMemberException(jwtUserId);
+        }
+
+        // find active sprint with relevant data
+        Sprint activeSprint = sprintQueryRepository.findActiveSprintByProjectId(projectId)
+                .orElseThrow(() -> new NoActiveSprintFoundException(projectId));
 
         return sprintMapper.toDto(activeSprint);
     }
@@ -77,11 +89,6 @@ public class SprintServiceImpl implements SprintService{
     @Override
     @Transactional(readOnly = true)
     public Page<SprintResponseDto> findAllSprintsByProjectIdAndStatus(Long projectId, String jwtUserId, Pageable pageable, SprintStatus status) {
-        // Sicherstellen, dass das Projekt existiert, bevor Sprints abgerufen werden
-        if (!projectRepository.existsById(projectId)) {
-            throw new ProjectNotFoundException(projectId);
-        }
-        // Paging direkt über ein spezialisiertes Repository für Lese-Performance (CQRS-Gedanke)
         Page<Sprint> sprintPage = sprintQueryRepository.findSprintsByProjectIdAndStatus(projectId, status, pageable);
         return sprintPage.map(sprintMapper::toDto);
     }
@@ -128,6 +135,11 @@ public class SprintServiceImpl implements SprintService{
 
     private Project findProjectById(Long projectId) {
         return projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
+    }
+
+    private ProjectMember findProjectMemberWithPermissionsRolesAndUser(String userId, Long projectId) {
+        return projectMemberQueryRepository.findProjectMemberWithPermissionsRolesAndUser(projectId, userId)
+                .orElseThrow(() -> new UserNotProjectMemberException(userId));
     }
 
 }

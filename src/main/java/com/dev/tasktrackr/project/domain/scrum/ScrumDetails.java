@@ -108,14 +108,6 @@ public class ScrumDetails {
         return activeSprint.removeCommentFromStory(backlogItemId, commentId);
     }
 
-    public void deleteUserStory(UserStory userStory) {
-
-       if(userStory.getStatus() != StoryStatus.NOT_ASSIGNED_TO_SPRINT) {
-           throw new UserStoryIsPartOfSprintException(userStory.getId());
-       }
-       userStories.remove(userStory);
-    }
-
     public Sprint startSprint(Long sprintId) {
 
         if(hasActiveSprint()) {
@@ -165,14 +157,6 @@ public class ScrumDetails {
                 .findFirst()
                 .orElseThrow(() -> new SprintNotFoundException(sprintId));
     }
-
-    public UserStory findUserStoryById(Long userStoryId) {
-        return userStories.stream()
-                .filter(s -> s.getId().equals(userStoryId))
-                .findFirst()
-                .orElseThrow(() -> new UserStoryNotFoundException(userStoryId));
-    }
-
 
     public List<ScrumMemberStatisticDto> getMemberStatisticsList() {
 

@@ -4,19 +4,17 @@ import com.dev.tasktrackr.project.api.dtos.response.UserStoryResponseDto;
 import com.dev.tasktrackr.project.domain.scrum.UserStory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Set;
+
 @Repository
 public interface UserStoryRepository extends JpaRepository<UserStory, Long> {
-
-    // Can be dto-projection
-    /**
-    @Query("SELECT u FROM UserStory u WHERE u.scrumDetails.id = :projectId")
-    Page<UserStory> findUserStoriesByProjectId(@Param("projectId") Long projectId, Pageable pageable);
-     */
 
     @Query("""
         SELECT new com.dev.tasktrackr.project.api.dtos.response.UserStoryResponseDto(
@@ -40,10 +38,12 @@ public interface UserStoryRepository extends JpaRepository<UserStory, Long> {
     );
 
 
-
-
-    @Query("SELECT u FROM UserStory u WHERE u.scrumDetails.id = :projectId AND u.title = :title")
-    UserStory findUserStoryByTitleAndProjectId(@Param("title")String title, @Param("projectId")Long projectId);
-
     boolean existsByTitleAndScrumDetailsId(@Param("title")String title, @Param("projectId")Long scrumDetailsId);
+
+    @EntityGraph(attributePaths = {"sprintBacklogItem"})
+    @Query("SELECT us FROM UserStory us WHERE us.id IN :ids AND us.scrumDetails.project.id = :projectId")
+    List<UserStory> findAllByIdsAndProjectId(
+            @Param("ids") Set<Long> ids,
+            @Param("projectId") Long projectId
+    );
 }
