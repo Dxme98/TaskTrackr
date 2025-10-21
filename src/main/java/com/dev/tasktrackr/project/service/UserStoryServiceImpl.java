@@ -8,9 +8,13 @@ import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.scrum.ScrumDetails;
 import com.dev.tasktrackr.project.domain.scrum.UserStory;
+import com.dev.tasktrackr.project.repository.ProjectMemberQueryRepository;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
-import com.dev.tasktrackr.project.repository.UserStoryQueryRepository;
+import com.dev.tasktrackr.project.repository.UserStoryRepository;
+import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.UserNotProjectMemberException;
+import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.UserStoryTitleAlreadyExistsException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.UserStoryNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -23,25 +27,30 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserStoryServiceImpl implements UserStoryService{
     private final ProjectRepository projectRepository;
     private final UserStoryMapper userStoryMapper;
-    private final UserStoryQueryRepository userStoryQueryRepository;
+    private final UserStoryRepository userStoryRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final ProjectMemberQueryRepository projectMemberQueryRepository;
 
-    // TODO USERSTORY DELETION + EVENT
 
     @Override
-    @Transactional
     public UserStoryResponseDto createUserStory(Long projectId, CreateUserStoryRequest createUserStoryRequest, String jwtUserId) {
-        Project project = findProjectById(projectId);
-        ScrumDetails scrumDetails = project.getScrumDetails();
-        ProjectMember member = project.findProjectMember(jwtUserId);
+        // load
+        ScrumDetails scrumDetails = findProjectById(projectId).getScrumDetails();
+        ProjectMember member = findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
 
+        // check permission
         member.canCreateUserStory();
 
+        // check if valid
+        if(userStoryRepository.existsByTitleAndScrumDetailsId(createUserStoryRequest.getTitle(), projectId)) {
+            throw new UserStoryTitleAlreadyExistsException(createUserStoryRequest.getTitle());
+        }
+
+        // create and save
         UserStory createdUserStory = scrumDetails.createUserStory(createUserStoryRequest);
-        projectRepository.save(project);
+        UserStory perisistedUserStory = userStoryRepository.save(createdUserStory);
 
-        UserStory perisistedUserStory = scrumDetails.findUserStoryByTitle(createdUserStory.getTitle());
-
+        // send event
         var event = new ProjectActivityEvents.UserStoryCreatedEvent(
                 projectId, member.getId(), member.getUser().getUsername(),
                 perisistedUserStory.getId(), perisistedUserStory.getTitle());
@@ -53,34 +62,42 @@ public class UserStoryServiceImpl implements UserStoryService{
     @Override
     @Transactional
     public void deleteUserStory(Long projectId, Long userStoryId, String jwtUserId) {
-        Project project = findProjectById(projectId);
-        ScrumDetails scrumDetails = project.getScrumDetails();
-        ProjectMember member = project.findProjectMember(jwtUserId);
+        ProjectMember member = findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
+        UserStory userStoryToDelete = findUserStoryById(userStoryId);
 
         member.canDeleteUserStory();
-
-        UserStory deletedUserStory = scrumDetails.deleteUserStory(userStoryId);
+        userStoryRepository.delete(userStoryToDelete);
 
         var event = new ProjectActivityEvents.UserStoryDeletedEvent(
                 projectId, member.getId(), member.getUser().getUsername(),
-                deletedUserStory.getId(), deletedUserStory.getTitle());
+                userStoryToDelete.getId(), userStoryToDelete.getTitle());
         applicationEventPublisher.publishEvent(event);
-
-        projectRepository.save(project);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<UserStoryResponseDto> getUserStoriesByProjectId(Long projectId, Pageable pageable, String jwtUserId) {
-        Project project = findProjectById(projectId);
-        project.isProjectMember(jwtUserId);
 
-        Page<UserStory> userStories = userStoryQueryRepository.findUserStoriesByProjectId(projectId, pageable);
-        return userStories.map(userStoryMapper::toDto);
+        // Check membership
+        if(!projectMemberQueryRepository.existsByUserIdAndProjectId(jwtUserId, projectId)) {
+            throw new UserNotProjectMemberException(jwtUserId);
+        }
+
+        return userStoryRepository.findUserStoriesByScrumDetailsId(projectId, pageable);
     }
 
     private Project findProjectById(Long projectId) {
         return projectRepository.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException(projectId));
+    }
+
+    private UserStory findUserStoryById(Long userStoryId) {
+        return userStoryRepository.findById(userStoryId)
+                .orElseThrow(() -> new UserStoryNotFoundException(userStoryId));
+    }
+
+    private ProjectMember findProjectMemberWithPermissionsRolesAndUser(String userId, Long projectId) {
+       return projectMemberQueryRepository.findProjectMemberWithPermissionsRolesAndUser(projectId, userId)
+               .orElseThrow(() -> new UserNotProjectMemberException(userId));
     }
 }

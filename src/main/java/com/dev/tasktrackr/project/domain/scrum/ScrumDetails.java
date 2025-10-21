@@ -19,6 +19,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -40,7 +41,7 @@ public class ScrumDetails {
     private Project project;
 
     @OneToMany(mappedBy = "scrumDetails", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<UserStory> userStories = new HashSet<>();
+    private List<UserStory> userStories = new ArrayList<>();
 
     @OneToMany(mappedBy = "scrumDetails", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<Sprint> sprints = new HashSet<>();
@@ -51,19 +52,9 @@ public class ScrumDetails {
 
 
     public UserStory createUserStory(CreateUserStoryRequest createUserStoryRequest) {
-        UserStory userStory = UserStory.create(createUserStoryRequest, this);
-
-        userStories.add(userStory);
-
-        return userStory;
+        return UserStory.create(createUserStoryRequest, this);
     }
 
-    public UserStory findUserStoryByTitle(String title) {
-        return userStories.stream()
-                .filter(userStory -> userStory.getTitle().equals(title))
-                .findFirst()
-                .orElseThrow(() -> new UserStoryNotFoundException(title));
-    }
 
     public Sprint createSprint(CreateSprintRequest createSprintRequest) {
         Sprint createdSprint = Sprint.create(createSprintRequest, this);
@@ -117,16 +108,12 @@ public class ScrumDetails {
         return activeSprint.removeCommentFromStory(backlogItemId, commentId);
     }
 
-    public UserStory deleteUserStory(Long userStoryId) {
-       UserStory toDelete = findUserStoryById(userStoryId);
+    public void deleteUserStory(UserStory userStory) {
 
-       if(toDelete.getStatus() != StoryStatus.NOT_ASSIGNED_TO_SPRINT) {
-           throw new UserStoryIsPartOfSprintException(userStoryId);
+       if(userStory.getStatus() != StoryStatus.NOT_ASSIGNED_TO_SPRINT) {
+           throw new UserStoryIsPartOfSprintException(userStory.getId());
        }
-
-       userStories.remove(toDelete);
-
-       return toDelete;
+       userStories.remove(userStory);
     }
 
     public Sprint startSprint(Long sprintId) {
