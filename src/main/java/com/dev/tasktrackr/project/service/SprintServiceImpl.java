@@ -89,6 +89,11 @@ public class SprintServiceImpl implements SprintService{
     @Override
     @Transactional(readOnly = true)
     public Page<SprintResponseDto> findAllSprintsByProjectIdAndStatus(Long projectId, String jwtUserId, Pageable pageable, SprintStatus status) {
+        // check projectmembership
+        if(!projectMemberQueryRepository.existsByUserIdAndProjectId(jwtUserId, projectId)) {
+            throw new UserNotProjectMemberException(jwtUserId);
+        }
+
         Page<Sprint> sprintPage = sprintQueryRepository.findSprintsByProjectIdAndStatus(projectId, status, pageable);
         return sprintPage.map(sprintMapper::toDto);
     }
