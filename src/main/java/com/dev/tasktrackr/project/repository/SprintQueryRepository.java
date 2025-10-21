@@ -23,4 +23,10 @@ public interface SprintQueryRepository extends JpaRepository<Sprint, Long> {
     @EntityGraph(attributePaths = {"sprintSummaryItems"})
     @Query("SELECT s FROM Sprint s WHERE s.status = 'ACTIVE' AND s.scrumDetails.id = :projectId")
     Optional<Sprint> findActiveSprintByProjectId(Long projectId);
+
+    @EntityGraph(attributePaths = {"sprintSummaryItems"})
+    Optional<Sprint> findSprintById(Long id);
+
+    @Query("SELECT EXISTS (SELECT 1 FROM Sprint s WHERE s.scrumDetails.id = :projectId AND s.status = 'ACTIVE')")
+    boolean existsActiveSprintForProject(@Param("projectId") Long projectId);
 }

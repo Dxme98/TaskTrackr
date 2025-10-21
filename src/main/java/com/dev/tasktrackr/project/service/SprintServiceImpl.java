@@ -12,8 +12,10 @@ import com.dev.tasktrackr.project.repository.ProjectRepository;
 import com.dev.tasktrackr.project.repository.SprintQueryRepository;
 import com.dev.tasktrackr.project.repository.UserStoryRepository;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.UserNotProjectMemberException;
+import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.ActiveSprintAlreadyExistsException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.NoActiveSprintFoundException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.SprintNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -101,21 +103,30 @@ public class SprintServiceImpl implements SprintService{
     @Override
     @Transactional
     public SprintResponseDto startSprint(Long sprintId, Long projectId, String jwtUserId) {
-        Project project = findProjectById(projectId);
-        ScrumDetails scrumDetails = project.getScrumDetails();
-        ProjectMember member = project.findProjectMember(jwtUserId);
+        // load data
+        ScrumDetails scrumDetails = findProjectById(projectId).getScrumDetails();
+        ProjectMember member = findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
+        Sprint sprintToStart = sprintQueryRepository.findSprintById(sprintId)
+                .orElseThrow(() -> new SprintNotFoundException(sprintId));
 
+        // check permission
         member.canStartSprint();
 
-        Sprint sprintToStart = scrumDetails.startSprint(sprintId);
+        // check if active sprint exists (only 1 per project)
+        if(sprintQueryRepository.existsActiveSprintForProject(projectId)) {
+            throw new ActiveSprintAlreadyExistsException();
+        }
 
-        projectRepository.save(project);
+        // start sprint
+        scrumDetails.startSprint(sprintToStart);
+
+        Sprint perisistedSprint = sprintQueryRepository.save(sprintToStart);
 
         var event = new ProjectActivityEvents.SprintStartedEvent(
-                projectId, member.getId(), member.getUser().getUsername(), sprintToStart.getId(), sprintToStart.getName());
+                projectId, member.getId(), member.getUser().getUsername(), perisistedSprint.getId(), perisistedSprint.getName());
         applicationEventPublisher.publishEvent(event);
 
-        return sprintMapper.toDto(sprintToStart);
+        return sprintMapper.toDto(perisistedSprint);
     }
 
     @Override

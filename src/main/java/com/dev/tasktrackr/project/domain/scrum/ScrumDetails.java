@@ -86,14 +86,8 @@ public class ScrumDetails {
         return activeSprint.removeCommentFromStory(backlogItemId, commentId);
     }
 
-    public Sprint startSprint(Long sprintId) {
-
-        if(hasActiveSprint()) {
-            throw new ActiveSprintAlreadyExistsException();
-        }
-
-        Sprint sprintToStart = findSprintById(sprintId);
-        return  sprintToStart.start();
+    public void startSprint(Sprint sprintToStart) {
+        sprintToStart.start();
     }
 
     public Sprint endSprint(Long sprintId) {
