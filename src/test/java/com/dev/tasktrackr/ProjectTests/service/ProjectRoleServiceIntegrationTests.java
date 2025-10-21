@@ -84,7 +84,7 @@ public class ProjectRoleServiceIntegrationTests extends BaseIntegrationTest {
             assertThat(result.getPermissions()).containsExactlyInAnyOrderElementsOf(permissions);
 
             // Verify in database
-            Project savedProject = projectRepository.findProjectWithRolesAndPermissions(testProject.getId()).get();
+            Project savedProject = projectRepository.findProjectWithRoles(testProject.getId()).get();
             assertThat(savedProject.getProjectRoles()).hasSize(3); // OWNER + BASE + Developer
         }
 
@@ -166,7 +166,7 @@ public class ProjectRoleServiceIntegrationTests extends BaseIntegrationTest {
             assertThat(result.getId()).isGreaterThan(0);
 
             // Verify ID is actually persisted
-            Project savedProject = projectRepository.findProjectWithRolesAndPermissions(testProject.getId()).get();
+            Project savedProject = projectRepository.findProjectWithRoles(testProject.getId()).get();
             boolean roleExists = savedProject.getProjectRoles().stream()
                     .anyMatch(role -> role.getId() == result.getId());
             assertThat(roleExists).isTrue();
@@ -206,7 +206,7 @@ public class ProjectRoleServiceIntegrationTests extends BaseIntegrationTest {
             ));
 
             // Then
-            Project savedProject = projectRepository.findProjectWithRolesAndPermissions(testProject.getId()).get();
+            Project savedProject = projectRepository.findProjectWithRoles(testProject.getId()).get();
             boolean roleExists = savedProject.getProjectRoles().stream()
                     .anyMatch(role -> role.getId() == customRoleId);
             assertThat(roleExists).isFalse();

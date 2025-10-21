@@ -113,7 +113,7 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
     }
 
     private Project findProjectWithAttributes(Long projectId) {
-        return projectRepository.findProjectWithRolesAndPermissions(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
+        return projectRepository.findProjectWithRoles(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
     }
 
     private void memberCanManageRoles(Project project, String jwtUserId) {

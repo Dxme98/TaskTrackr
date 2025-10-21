@@ -9,12 +9,18 @@ import com.dev.tasktrackr.project.api.dtos.response.SprintBacklogItemResponse;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.scrum.*;
+import com.dev.tasktrackr.project.repository.ProjectMemberQueryRepository;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
+import com.dev.tasktrackr.project.repository.SprintQueryRepository;
+import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.UserNotProjectMemberException;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.NoActiveSprintFoundException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -23,18 +29,18 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     private final ScrumBoardMapper scrumBoardMapper;
     private final SprintBacklogItemMapper sprintBacklogItemMapper;
     private final ApplicationEventPublisher applicationEventPublisher;
-
-    // TODO: Berechtigungsprüfungen und Validierungen hinzufügen
+    private final SprintQueryRepository sprintQueryRepository;
+    private final ProjectMemberQueryRepository projectMemberQueryRepository;
 
     @Override
     @Transactional(readOnly = true)
     public ScrumBoardResponseDto getScrumBoard(Long projectId,  String jwtUserId) {
-        Project project = findProjectById(projectId);
-        ScrumDetails scrumDetails = project.getScrumDetails();
-        Sprint sprint = scrumDetails.findActiveSprint();
+        checkProjectMemberShip(projectId, jwtUserId);
 
+        Set<ProjectMember> projectMemberSet = projectMemberQueryRepository.findAllProjectMembersByProjectId(projectId);
+        Sprint activeSprint = findActiveSprint(projectId);
 
-        return scrumBoardMapper.toResponse(sprint, project.getProjectMembers());
+        return scrumBoardMapper.toResponse(activeSprint, projectMemberSet);
     }
 
     @Override
@@ -167,5 +173,16 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     private Project findProjectById(Long projectId) {
         return projectRepository.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException(projectId));
+    }
+
+    private Sprint findActiveSprint(Long projectId) {
+        return sprintQueryRepository.findActiveSprintByProjectId(projectId)
+                .orElseThrow(() -> new NoActiveSprintFoundException(projectId));
+    }
+
+    private void checkProjectMemberShip(Long projectId, String userId) {
+        if(!projectMemberQueryRepository.existsByUserIdAndProjectId(userId, projectId)) {
+            throw new UserNotProjectMemberException(userId);
+        }
     }
 }

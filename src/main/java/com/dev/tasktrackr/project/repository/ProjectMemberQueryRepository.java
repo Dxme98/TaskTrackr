@@ -10,12 +10,17 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface ProjectMemberQueryRepository extends ReadOnlyRepository<ProjectMember, Long> {
     @EntityGraph(attributePaths = {"projectRole", "projectRole.permissions", "user"})
     @Query("SELECT pm FROM ProjectMember pm WHERE pm.project.id = :projectId")
     Page<ProjectMember> findAllProjectMembersByProjectId(@Param("projectId") Long projectId, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"user", "project", "project.basicDetails", "project.scrumDetails", "projectRole"})
+    @Query("SELECT pm FROM ProjectMember pm WHERE pm.project.id = :projectId")
+    Set<ProjectMember> findAllProjectMembersByProjectId(@Param("projectId") Long projectId);
 
     @EntityGraph(attributePaths = {"projectRole", "projectRole.permissions", "user"})
     @Query("SELECT pm FROM ProjectMember pm WHERE pm.project.id = :projectId and pm.user.id = :userId")

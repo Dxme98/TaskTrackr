@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -42,9 +43,11 @@ public class SprintBacklogItem {
             inverseJoinColumns = @JoinColumn(name = "assigned_member_id")
     )
     @OneToMany(fetch = FetchType.LAZY)
+    @BatchSize(size = 20)
     private Set<ProjectMember> assignedMembers = new HashSet<>();
 
     @OneToMany(mappedBy = "sprintBacklogItem", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @BatchSize(size = 20)
     private Set<Comment> comments;
 
     public static SprintBacklogItem create(UserStory userStory, Sprint sprint) {

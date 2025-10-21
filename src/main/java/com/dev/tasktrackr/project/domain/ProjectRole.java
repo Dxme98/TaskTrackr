@@ -7,6 +7,7 @@ import com.dev.tasktrackr.shared.exception.custom.BadRequestExceptions.InvalidRo
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.*;
 
@@ -35,6 +36,7 @@ public class ProjectRole {
     )
     @Column(name = "permission_name", nullable = false)
     @Enumerated(EnumType.STRING)
+    @BatchSize(size = 20)
     private Set<PermissionName> permissions = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
