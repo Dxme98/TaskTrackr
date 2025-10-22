@@ -108,6 +108,10 @@ public class Sprint {
         return this;
     }
 
+    public boolean isActive() {
+        return this.status.equals(SprintStatus.ACTIVE);
+    }
+
     public ActiveSprintData getData() {
         int totalStories = this.backlogItems.size();
 
@@ -172,8 +176,7 @@ public class Sprint {
     }
 
 
-    public SprintBacklogItem assignMemberToStory(Long backlogItemId, ProjectMember member) {
-        SprintBacklogItem backlogItem = findBacklogItemById(backlogItemId);
+    public SprintBacklogItem assignMemberToStory(SprintBacklogItem backlogItem, ProjectMember member) {
         return backlogItem.assignMember(member);
     }
 

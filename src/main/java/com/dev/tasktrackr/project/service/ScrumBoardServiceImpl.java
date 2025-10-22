@@ -50,8 +50,7 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     @Transactional
     public SprintBacklogItemResponse updateUserStoryStatus(Long projectId, Long backlogItemId, StoryStatus newStatus, String jwtUserId) {
         // load data
-        Project project = projectAccessService.findProjectById(projectId);
-        ScrumDetails scrumDetails = project.getScrumDetails();
+        ScrumDetails scrumDetails = projectAccessService.findProjectById(projectId).getScrumDetails();
         ProjectMember member = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
         SprintBacklogItem backlogItem = findSprintBacklogItem(backlogItemId);
         SprintSummaryItem sprintSummaryItem = findSprintSummaryItem(backlogItem, backlogItem.getUserStory());
@@ -63,9 +62,6 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
 
         // update: backlogitem, summaryItem and userStory
         SprintBacklogItem updatedBacklogItem = scrumDetails.updateBacklogItemStatus(backlogItem, newStatus, backlogItem.getSprint(), sprintSummaryItem);
-
-        // save cascade all changes
-        projectRepository.save(project);
 
         // publish event
         var event = new ProjectActivityEvents.UserStoryStatusUpdatedEvent(
@@ -79,18 +75,16 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     @Override
     @Transactional
     public SprintBacklogItemResponse assignMemberToStory(Long projectId, Long backlogItemId, Long memberId, String jwtUserId) {
-        Project project = projectAccessService.findProjectById(projectId);
-        ScrumDetails scrumDetails = project.getScrumDetails();
-        ProjectMember member = project.findProjectMember(memberId);
-        ProjectMember requestedMember = project.findProjectMember(jwtUserId);
+        ScrumDetails scrumDetails = projectAccessService.findProjectById(projectId).getScrumDetails();
+        ProjectMember assignedMember = projectAccessService.findProjectMember(memberId, projectId);
+        ProjectMember requestedMember = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
+        SprintBacklogItem backlogItem = findSprintBacklogItem(backlogItemId);
 
         requestedMember.canAssignUserToStory();
 
-        SprintBacklogItem backlogItem = scrumDetails.assignMemberToStory(backlogItemId, member);
+        SprintBacklogItem updatedBacklogItem = scrumDetails.assignMemberToStory(backlogItem, assignedMember, backlogItem.getSprint());
 
-        projectRepository.save(project);
-
-        return sprintBacklogItemMapper.toResponse(backlogItem);
+        return sprintBacklogItemMapper.toResponse(updatedBacklogItem);
     }
 
     @Override

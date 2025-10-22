@@ -26,5 +26,8 @@ public interface ProjectMemberQueryRepository extends ReadOnlyRepository<Project
     @Query("SELECT pm FROM ProjectMember pm WHERE pm.project.id = :projectId and pm.user.id = :userId")
     Optional<ProjectMember> findProjectMemberWithPermissionsRolesAndUser(@Param("projectId") Long projectId, @Param("userId") String userId);
 
+    @EntityGraph(attributePaths = {"user"})
+    Optional<ProjectMember> findProjectMemberByIdAndProjectId(Long id, Long projectId);
+
     boolean existsByUserIdAndProjectId(String userId, Long projectId);
 }

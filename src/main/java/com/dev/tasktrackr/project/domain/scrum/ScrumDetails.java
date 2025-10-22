@@ -57,18 +57,18 @@ public class ScrumDetails {
         return createdSprint;
     }
 
-    public SprintBacklogItem updateBacklogItemStatus(SprintBacklogItem backlogItem, StoryStatus newStatus, Sprint activeSprint, SprintSummaryItem sprintSummaryItem) {
+    public SprintBacklogItem updateBacklogItemStatus(SprintBacklogItem backlogItem, StoryStatus newStatus, Sprint sprint, SprintSummaryItem sprintSummaryItem) {
 
-        if(activeSprint.getStatus() != SprintStatus.ACTIVE) {
-            throw new SprintNotActiveException(activeSprint.getId());
-        }
+        if(!sprint.isActive()) throw new SprintNotActiveException(sprint.getId());
 
-        return activeSprint.updateBacklogItemStatus(backlogItem, newStatus, sprintSummaryItem);
+        return sprint.updateBacklogItemStatus(backlogItem, newStatus, sprintSummaryItem);
     }
 
-    public SprintBacklogItem assignMemberToStory(Long backlogItemId, ProjectMember member) {
-        Sprint activeSprint = findActiveSprint();
-        return activeSprint.assignMemberToStory(backlogItemId, member);
+    public SprintBacklogItem assignMemberToStory(SprintBacklogItem backlogItem, ProjectMember member, Sprint sprint) {
+
+        if(!sprint.isActive()) throw new SprintNotActiveException(sprint.getId());
+
+        return sprint.assignMemberToStory(backlogItem, member);
     }
 
     public SprintBacklogItem unassignMemberFromStory(Long backlogItemId, ProjectMember member) {
