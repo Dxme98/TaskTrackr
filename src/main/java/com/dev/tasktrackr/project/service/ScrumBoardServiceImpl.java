@@ -6,15 +6,11 @@ import com.dev.tasktrackr.project.api.dtos.mapper.SprintBacklogItemMapper;
 import com.dev.tasktrackr.project.api.dtos.request.CreateCommentRequest;
 import com.dev.tasktrackr.project.api.dtos.response.ScrumBoardResponseDto;
 import com.dev.tasktrackr.project.api.dtos.response.SprintBacklogItemResponse;
-import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.scrum.*;
 import com.dev.tasktrackr.project.repository.*;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.PermissionDeniedException;
-import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.NoActiveSprintFoundException;
-import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.SprintBacklogItemNotFoundException;
-import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.SprintSummaryItemNotFoundException;
-import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.UserStoryNotFoundException;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -25,7 +21,6 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class ScrumBoardServiceImpl implements ScrumBoardService{
-    private final ProjectRepository projectRepository;
     private final ScrumBoardMapper scrumBoardMapper;
     private final SprintBacklogItemMapper sprintBacklogItemMapper;
     private final ApplicationEventPublisher applicationEventPublisher;
@@ -125,15 +120,14 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     @Override
     @Transactional
     public void removeCommentFromStory(Long projectId, Long backlogItemId, Long commentId, String jwtUserId) {
-        Project project = projectAccessService.findProjectById(projectId);
-        ScrumDetails scrumDetails = project.getScrumDetails();
-        ProjectMember member = project.findProjectMember(jwtUserId);
+        ScrumDetails scrumDetails = projectAccessService.findProjectById(projectId).getScrumDetails();
+        ProjectMember member = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
+        SprintBacklogItem backlogItem = findSprintBacklogItem(backlogItemId);
+        Comment comment = findComment(commentId);
 
         member.canDeleteCommentsAndBlocker();
 
-        scrumDetails.removeCommentFromStory(backlogItemId, commentId);
-
-        projectRepository.save(project);
+        scrumDetails.removeCommentFromStory(backlogItem, comment, backlogItem.getSprint());
     }
 
     @Override
@@ -158,22 +152,24 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     @Override
     @Transactional
     public void removeBlockerFromStory(Long projectId, Long backlogItemId, Long blockerId, String jwtUserId) {
-        Project project = projectAccessService.findProjectById(projectId);
-        ScrumDetails scrumDetails = project.getScrumDetails();
-        ProjectMember member = project.findProjectMember(jwtUserId);
-        SprintBacklogItem backlogItem = scrumDetails.findActiveSprint().findBacklogItemById(backlogItemId);
+        ScrumDetails scrumDetails = projectAccessService.findProjectById(projectId).getScrumDetails();
+        ProjectMember member = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
+        SprintBacklogItem backlogItem = findSprintBacklogItem(backlogItemId);
+        Comment comment = findComment(blockerId);
 
         member.canDeleteCommentsAndBlocker();
 
-        Comment removedComment = scrumDetails.removeCommentFromStory(backlogItemId, blockerId);
-
-        projectRepository.save(project);
+        Comment resolvedBlocker = scrumDetails.removeCommentFromStory(backlogItem, comment, backlogItem.getSprint());
 
         var event = new ProjectActivityEvents.BlockerResolvedEvent(
                 projectId, member.getId(), member.getUser().getUsername(),
-                backlogItem.getUserStory().getId(), backlogItem.getUserStory().getTitle(), removedComment.getMessage());
+                backlogItem.getUserStory().getId(), backlogItem.getUserStory().getTitle(), resolvedBlocker.getMessage());
         applicationEventPublisher.publishEvent(event);
     }
+
+
+
+    /** --------- Helper methods -------- */
 
     private Sprint findActiveSprint(Long projectId) {
         return sprintQueryRepository.findActiveSprintByProjectId(projectId)
@@ -188,5 +184,10 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     private SprintBacklogItem findSprintBacklogItem(Long backlogItemId) {
         return sprintBacklogItemRepository.findSprintBacklogItemById(backlogItemId)
                 .orElseThrow(() -> new SprintBacklogItemNotFoundException(backlogItemId));
+    }
+
+    private Comment findComment(Long commentId) {
+        return commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException(commentId));
     }
 }

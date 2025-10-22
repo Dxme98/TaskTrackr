@@ -92,9 +92,11 @@ public class ScrumDetails {
         return sprint.addBlockerToStory(backlogItem, member, commentRequest);
     }
 
-    public Comment removeCommentFromStory(Long backlogItemId, Long commentId) {
-        Sprint activeSprint = findActiveSprint();
-        return activeSprint.removeCommentFromStory(backlogItemId, commentId);
+    public Comment removeCommentFromStory(SprintBacklogItem backlogItem, Comment comment, Sprint sprint) {
+
+        if(!sprint.isActive()) throw new SprintNotActiveException(sprint.getId());
+
+       return sprint.removeCommentFromStory(backlogItem, comment);
     }
 
     public void startSprint(Sprint sprintToStart) {

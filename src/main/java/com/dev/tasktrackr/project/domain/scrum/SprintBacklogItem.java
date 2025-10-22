@@ -90,18 +90,10 @@ public class SprintBacklogItem {
         return comment;
     }
 
-    Comment removeComment(Long commentId) {
-        Optional<Comment> commentToRemove = this.comments.stream()
-                .filter(comment -> comment.getId().equals(commentId))
-                .findFirst();
+    Comment removeComment(Comment commentToRemove) {
+        this.comments.remove(commentToRemove);
 
-        if (commentToRemove.isPresent()) {
-            Comment foundComment = commentToRemove.get();
-            this.comments.remove(foundComment);
-            return foundComment;
-        }
-
-        throw new CommentNotFoundException(commentId);
+        return commentToRemove;
     }
 
 
