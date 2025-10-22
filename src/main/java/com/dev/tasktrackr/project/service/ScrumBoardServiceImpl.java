@@ -34,6 +34,7 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     private final ProjectAccessService projectAccessService;
     private final SprintSummaryItemRepository sprintSummaryItemRepository;
     private final SprintBacklogItemRepository sprintBacklogItemRepository;
+    private final CommentRepository commentRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -90,31 +91,28 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     @Override
     @Transactional
     public SprintBacklogItemResponse unassignMemberFromStory(Long projectId, Long backlogItemId, Long memberId, String jwtUserId) {
-        Project project = projectAccessService.findProjectById(projectId);
-        ScrumDetails scrumDetails = project.getScrumDetails();
-        ProjectMember member = project.findProjectMember(memberId);
-        ProjectMember requestedMember = project.findProjectMember(jwtUserId);
+        ScrumDetails scrumDetails = projectAccessService.findProjectById(projectId).getScrumDetails();
+        ProjectMember assignedMember = projectAccessService.findProjectMember(memberId, projectId);
+        ProjectMember requestedMember = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
+        SprintBacklogItem backlogItem = findSprintBacklogItem(backlogItemId);
 
         requestedMember.canAssignUserToStory();
 
-        SprintBacklogItem backlogItem = scrumDetails.unassignMemberFromStory(backlogItemId, member);
+        SprintBacklogItem updatedBacklogItem = scrumDetails.unassignMemberFromStory(backlogItem, assignedMember, backlogItem.getSprint());
 
-        projectRepository.save(project);
-
-        return sprintBacklogItemMapper.toResponse(backlogItem);
+        return sprintBacklogItemMapper.toResponse(updatedBacklogItem);
     }
 
     @Override
     @Transactional
     public SprintBacklogItemResponse addCommentToStory(Long projectId, Long backlogItemId, CreateCommentRequest commentRequest, String jwtUserId) {
-        Project project = projectAccessService.findProjectById(projectId);
-        ScrumDetails scrumDetails = project.getScrumDetails();
-        ProjectMember member = project.findProjectMember(jwtUserId);
+        ScrumDetails scrumDetails = projectAccessService.findProjectById(projectId).getScrumDetails();
+        ProjectMember member = projectAccessService.findProjectMember(jwtUserId, projectId);
+        SprintBacklogItem backlogItem = findSprintBacklogItem(backlogItemId);
 
-        SprintBacklogItem backlogItem = scrumDetails.addCommentToStory(backlogItemId, member, commentRequest);
+        Comment createdComment = scrumDetails.addCommentToStory(backlogItem, member, commentRequest, backlogItem.getSprint());
 
-
-        projectRepository.save(project);
+        commentRepository.save(createdComment);
 
         var event = new ProjectActivityEvents.CommentCreatedEvent(
                 projectId, member.getId(), member.getUser().getUsername(),
@@ -141,13 +139,13 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     @Override
     @Transactional
     public SprintBacklogItemResponse addBlockerToStory(Long projectId, Long backlogItemId, CreateCommentRequest commentRequest, String jwtUserId) {
-        Project project = projectAccessService.findProjectById(projectId);
-        ScrumDetails scrumDetails = project.getScrumDetails();
-        ProjectMember member = project.findProjectMember(jwtUserId);
+        ScrumDetails scrumDetails = projectAccessService.findProjectById(projectId).getScrumDetails();
+        ProjectMember member = projectAccessService.findProjectMember(jwtUserId, projectId);
+        SprintBacklogItem backlogItem = findSprintBacklogItem(backlogItemId);
 
-        SprintBacklogItem backlogItem = scrumDetails.addBlockerToStory(backlogItemId, member, commentRequest);
+        Comment createdComment = scrumDetails.addBlockerToStory(backlogItem, member, commentRequest, backlogItem.getSprint());
 
-        projectRepository.save(project);
+        commentRepository.save(createdComment);
 
         var event = new ProjectActivityEvents.BlockerCreatedEvent(
                 projectId, member.getId(), member.getUser().getUsername(),

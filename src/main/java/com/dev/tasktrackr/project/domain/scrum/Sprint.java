@@ -180,18 +180,15 @@ public class Sprint {
         return backlogItem.assignMember(member);
     }
 
-    public SprintBacklogItem unassignMemberFromStory(Long backlogItemId, ProjectMember member) {
-        SprintBacklogItem backlogItem = findBacklogItemById(backlogItemId);
+    public SprintBacklogItem unassignMemberFromStory(SprintBacklogItem backlogItem, ProjectMember member) {
         return backlogItem.unassignMember(member);
     }
 
-    public SprintBacklogItem addCommentToStory(Long backlogItemId, ProjectMember member, CreateCommentRequest commentRequest) {
-        SprintBacklogItem backlogItem = findBacklogItemById(backlogItemId);
+    public Comment addCommentToStory(SprintBacklogItem backlogItem,  ProjectMember member, CreateCommentRequest commentRequest) {
         return backlogItem.addComment(member, commentRequest);
     }
 
-    public SprintBacklogItem addBlockerToStory(Long backlogItemId, ProjectMember member, CreateCommentRequest commentRequest) {
-        SprintBacklogItem backlogItem = findBacklogItemById(backlogItemId);
+    public Comment addBlockerToStory(SprintBacklogItem backlogItem, ProjectMember member, CreateCommentRequest commentRequest) {
         return backlogItem.addBlocker(member, commentRequest);
     }
 

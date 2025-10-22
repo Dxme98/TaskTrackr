@@ -35,6 +35,11 @@ public class ProjectAccessService {
                 .orElseThrow(() -> new ProjectMemberNotFoundException(memberId));
     }
 
+    public ProjectMember findProjectMember(String userId, Long projectId) {
+        return projectMemberQueryRepository.findProjectMemberByUserIdAndProjectId(userId, projectId)
+                .orElseThrow(() -> new ProjectMemberNotFoundException(projectId));
+    }
+
     public void checkProjectMemberShip(Long projectId, String userId) {
         if(!projectMemberQueryRepository.existsByUserIdAndProjectId(userId, projectId)) {
             throw new UserNotProjectMemberException(userId);

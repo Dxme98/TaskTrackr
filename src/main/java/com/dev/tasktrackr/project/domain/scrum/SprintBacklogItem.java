@@ -78,16 +78,16 @@ public class SprintBacklogItem {
         return this;
     }
 
-    SprintBacklogItem addComment(ProjectMember member, CreateCommentRequest commentRequest) {
+    Comment addComment(ProjectMember member, CreateCommentRequest commentRequest) {
         Comment comment = Comment.createComment(member, commentRequest, this);
         this.comments.add(comment);
-        return this;
+        return comment;
     }
 
-    SprintBacklogItem addBlocker(ProjectMember member, CreateCommentRequest commentRequest) {
+    Comment addBlocker(ProjectMember member, CreateCommentRequest commentRequest) {
         Comment comment = Comment.createBlocker(member, commentRequest, this);
         this.comments.add(comment);
-        return this;
+        return comment;
     }
 
     Comment removeComment(Long commentId) {

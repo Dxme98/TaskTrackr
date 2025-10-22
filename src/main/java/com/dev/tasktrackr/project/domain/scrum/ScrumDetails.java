@@ -71,19 +71,25 @@ public class ScrumDetails {
         return sprint.assignMemberToStory(backlogItem, member);
     }
 
-    public SprintBacklogItem unassignMemberFromStory(Long backlogItemId, ProjectMember member) {
-        Sprint activeSprint = findActiveSprint();
-        return activeSprint.unassignMemberFromStory(backlogItemId, member);
+    public SprintBacklogItem unassignMemberFromStory(SprintBacklogItem backlogItem, ProjectMember member, Sprint sprint) {
+
+        if(!sprint.isActive()) throw new SprintNotActiveException(sprint.getId());
+
+        return sprint.unassignMemberFromStory(backlogItem, member);
     }
 
-    public SprintBacklogItem addCommentToStory(Long backlogItemId, ProjectMember member, CreateCommentRequest commentRequest) {
-        Sprint activeSprint = findActiveSprint();
-        return activeSprint.addCommentToStory(backlogItemId, member, commentRequest);
+    public Comment addCommentToStory(SprintBacklogItem backlogItem, ProjectMember member, CreateCommentRequest commentRequest, Sprint sprint) {
+
+        if(!sprint.isActive()) throw new SprintNotActiveException(sprint.getId());
+
+        return sprint.addCommentToStory(backlogItem, member, commentRequest);
     }
 
-    public SprintBacklogItem addBlockerToStory(Long backlogItemId, ProjectMember member, CreateCommentRequest commentRequest) {
-        Sprint activeSprint = findActiveSprint();
-        return activeSprint.addBlockerToStory(backlogItemId, member, commentRequest);
+    public Comment addBlockerToStory(SprintBacklogItem backlogItem, ProjectMember member, CreateCommentRequest commentRequest, Sprint sprint) {
+
+        if(!sprint.isActive()) throw new SprintNotActiveException(sprint.getId());
+
+        return sprint.addBlockerToStory(backlogItem, member, commentRequest);
     }
 
     public Comment removeCommentFromStory(Long backlogItemId, Long commentId) {
