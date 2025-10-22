@@ -3,7 +3,6 @@ package com.dev.tasktrackr.project.domain.scrum;
 import com.dev.tasktrackr.project.api.dtos.request.CreateCommentRequest;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.shared.exception.custom.BadRequestExceptions.InvalidMemberAssignmentException;
-import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.CommentNotFoundException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +12,6 @@ import org.hibernate.annotations.BatchSize;
 
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
 

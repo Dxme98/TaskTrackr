@@ -14,7 +14,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Table(name = "user_stories", uniqueConstraints = {

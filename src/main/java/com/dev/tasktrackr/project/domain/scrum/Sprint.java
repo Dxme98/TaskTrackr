@@ -4,9 +4,6 @@ import com.dev.tasktrackr.project.api.dtos.request.CreateCommentRequest;
 import com.dev.tasktrackr.project.api.dtos.request.CreateSprintRequest;
 import com.dev.tasktrackr.project.api.dtos.response.ActiveSprintData;
 import com.dev.tasktrackr.project.domain.ProjectMember;
-import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.PermissionDeniedException;
-import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.SprintBacklogItemNotFoundException;
-import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.SprintSummaryItemNotFoundException;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcType;
@@ -194,19 +191,6 @@ public class Sprint {
 
     public Comment removeCommentFromStory(SprintBacklogItem backlogItem, Comment comment) {
          return backlogItem.removeComment(comment);
-    }
-
-
-    public SprintBacklogItem findBacklogItemById(Long backlogId) {
-        return backlogItems.stream()
-                .filter(item -> item.getId().equals(backlogId))
-                .findFirst().orElseThrow(() -> new SprintBacklogItemNotFoundException(backlogId));
-    }
-
-    public SprintSummaryItem findSprintSummaryItemByUserStoryId(Long userStoryId) {
-        return sprintSummaryItems.stream()
-                .filter(item -> item.getUserStory().getId().equals(userStoryId))
-                .findFirst().orElseThrow(() -> new SprintSummaryItemNotFoundException(userStoryId));
     }
 
     @Override
