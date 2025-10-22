@@ -9,6 +9,7 @@ import com.dev.tasktrackr.project.api.dtos.response.ScrumProjectStatisticsDto;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.ActiveSprintAlreadyExistsException;
+import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.SprintNotActiveException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.NoActiveSprintFoundException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.SprintNotFoundException;
 import jakarta.persistence.*;
@@ -56,9 +57,13 @@ public class ScrumDetails {
         return createdSprint;
     }
 
-    public SprintBacklogItem updateBacklogItemStatusInActiveSprint(Long backlogItemId, StoryStatus newStatus, ProjectMember member) {
-        Sprint activeSprint = findActiveSprint();
-        return activeSprint.updateBacklogItemStatus(backlogItemId, newStatus, member);
+    public SprintBacklogItem updateBacklogItemStatus(SprintBacklogItem backlogItem, StoryStatus newStatus, Sprint activeSprint, SprintSummaryItem sprintSummaryItem) {
+
+        if(activeSprint.getStatus() != SprintStatus.ACTIVE) {
+            throw new SprintNotActiveException(activeSprint.getId());
+        }
+
+        return activeSprint.updateBacklogItemStatus(backlogItem, newStatus, sprintSummaryItem);
     }
 
     public SprintBacklogItem assignMemberToStory(Long backlogItemId, ProjectMember member) {
@@ -108,17 +113,6 @@ public class ScrumDetails {
                 .filter(s -> s.getStatus().equals(SprintStatus.ACTIVE))
                 .findFirst()
                 .orElseThrow(() -> new NoActiveSprintFoundException(project.getId()));
-    }
-    private boolean hasActiveSprint() {
-        return sprints.stream()
-                .anyMatch(s -> s.getStatus().equals(SprintStatus.ACTIVE));
-    }
-
-    public Sprint findSprintById(Long sprintId) {
-        return sprints.stream()
-                .filter(s -> s.getId().equals(sprintId))
-                .findFirst()
-                .orElseThrow(() -> new SprintNotFoundException(sprintId));
     }
 
     public List<ScrumMemberStatisticDto> getMemberStatisticsList() {

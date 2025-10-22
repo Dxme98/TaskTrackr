@@ -113,7 +113,7 @@ public class SprintBacklogItem {
         return this.userStory.getStatus().equals(StoryStatus.DONE);
     }
 
-    boolean memberIsAssigned(ProjectMember member) {
+    public boolean memberIsAssigned(ProjectMember member) {
         return assignedMembers.contains(member);
     }
 

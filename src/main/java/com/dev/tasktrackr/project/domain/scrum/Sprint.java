@@ -159,34 +159,18 @@ public class Sprint {
         });
     }
 
-    public SprintBacklogItem updateBacklogItemStatus(Long backlogItemId, StoryStatus newStatus, ProjectMember member) {
-        SprintBacklogItem itemToUpdate = findBacklogItemById(backlogItemId);
-
-        if(!member.canUpdateStoryStatus() && !itemToUpdate.memberIsAssigned(member)) {
-            throw new PermissionDeniedException("You do not have permission to update story status.");
-        }
-
-        itemToUpdate.getUserStory().updateStatus(newStatus);
-        Long userStoryId = itemToUpdate.getUserStory().getId();
+    public SprintBacklogItem updateBacklogItemStatus(SprintBacklogItem sprintBacklogItem, StoryStatus newStatus, SprintSummaryItem sprintSummaryItem) {
+        sprintBacklogItem.getUserStory().updateStatus(newStatus);
 
         if(newStatus == StoryStatus.DONE) {
-            markSprintSummaryItemAsComplete(userStoryId);
+            sprintSummaryItem.complete();
         } else {
-            markSprintSummaryItemAsNotComplete(userStoryId);
+            sprintSummaryItem.notComplete();
         }
 
-        return itemToUpdate;
+        return sprintBacklogItem;
     }
 
-    public void markSprintSummaryItemAsComplete(Long userStoryId) {
-        SprintSummaryItem itemToUpdate = findSprintSummaryItemByUserStoryId(userStoryId);
-        itemToUpdate.complete();
-    }
-
-    public void markSprintSummaryItemAsNotComplete(Long userStoryId) {
-        SprintSummaryItem itemToUpdate = findSprintSummaryItemByUserStoryId(userStoryId);
-        itemToUpdate.notComplete();
-    }
 
     public SprintBacklogItem assignMemberToStory(Long backlogItemId, ProjectMember member) {
         SprintBacklogItem backlogItem = findBacklogItemById(backlogItemId);

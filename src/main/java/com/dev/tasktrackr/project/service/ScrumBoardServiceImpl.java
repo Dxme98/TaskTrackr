@@ -9,10 +9,12 @@ import com.dev.tasktrackr.project.api.dtos.response.SprintBacklogItemResponse;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.scrum.*;
-import com.dev.tasktrackr.project.repository.ProjectMemberQueryRepository;
-import com.dev.tasktrackr.project.repository.ProjectRepository;
-import com.dev.tasktrackr.project.repository.SprintQueryRepository;
+import com.dev.tasktrackr.project.repository.*;
+import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.PermissionDeniedException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.NoActiveSprintFoundException;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.SprintBacklogItemNotFoundException;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.SprintSummaryItemNotFoundException;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.UserStoryNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,8 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     private final SprintQueryRepository sprintQueryRepository;
     private final ProjectMemberQueryRepository projectMemberQueryRepository;
     private final ProjectAccessService projectAccessService;
+    private final SprintSummaryItemRepository sprintSummaryItemRepository;
+    private final SprintBacklogItemRepository sprintBacklogItemRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -45,21 +49,31 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     @Override
     @Transactional
     public SprintBacklogItemResponse updateUserStoryStatus(Long projectId, Long backlogItemId, StoryStatus newStatus, String jwtUserId) {
+        // load data
         Project project = projectAccessService.findProjectById(projectId);
         ScrumDetails scrumDetails = project.getScrumDetails();
-        ProjectMember member = project.findProjectMember(jwtUserId);
+        ProjectMember member = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
+        SprintBacklogItem backlogItem = findSprintBacklogItem(backlogItemId);
+        SprintSummaryItem sprintSummaryItem = findSprintSummaryItem(backlogItem, backlogItem.getUserStory());
 
-        SprintBacklogItem backlogItem = scrumDetails.updateBacklogItemStatusInActiveSprint( backlogItemId, newStatus, member);
+        // check permissions
+        if(!member.canUpdateStoryStatus() && !backlogItem.memberIsAssigned(member)) {
+            throw new PermissionDeniedException("You do not have permission to update story status.");
+        }
 
+        // update: backlogitem, summaryItem and userStory
+        SprintBacklogItem updatedBacklogItem = scrumDetails.updateBacklogItemStatus(backlogItem, newStatus, backlogItem.getSprint(), sprintSummaryItem);
+
+        // save cascade all changes
         projectRepository.save(project);
 
-
+        // publish event
         var event = new ProjectActivityEvents.UserStoryStatusUpdatedEvent(
                 projectId, member.getId(), member.getUser().getUsername(),
-                backlogItem.getUserStory().getId(), backlogItem.getUserStory().getTitle(), newStatus.name());
+                updatedBacklogItem.getUserStory().getId(), updatedBacklogItem.getUserStory().getTitle(), newStatus.name());
         applicationEventPublisher.publishEvent(event);
 
-        return sprintBacklogItemMapper.toResponse(backlogItem);
+        return sprintBacklogItemMapper.toResponse(updatedBacklogItem);
     }
 
     @Override
@@ -172,5 +186,15 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     private Sprint findActiveSprint(Long projectId) {
         return sprintQueryRepository.findActiveSprintByProjectId(projectId)
                 .orElseThrow(() -> new NoActiveSprintFoundException(projectId));
+    }
+
+    private SprintSummaryItem findSprintSummaryItem(SprintBacklogItem backlogItem, UserStory userStory) {
+        return sprintSummaryItemRepository.findSprintSummaryItemBySprintIdAndUserStoryId(backlogItem.getSprint().getId(), userStory.getId())
+                .orElseThrow(() -> new SprintSummaryItemNotFoundException(userStory.getId()));
+    }
+
+    private SprintBacklogItem findSprintBacklogItem(Long backlogItemId) {
+        return sprintBacklogItemRepository.findSprintBacklogItemById(backlogItemId)
+                .orElseThrow(() -> new SprintBacklogItemNotFoundException(backlogItemId));
     }
 }
