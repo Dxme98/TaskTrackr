@@ -3,6 +3,7 @@ package com.dev.tasktrackr.project.api.controller;
 import com.dev.tasktrackr.project.api.dtos.request.CreateUserStoryRequest;
 import com.dev.tasktrackr.project.api.dtos.response.UserStoryPageResponse;
 import com.dev.tasktrackr.project.api.dtos.response.UserStoryResponseDto;
+import com.dev.tasktrackr.project.domain.scrum.StoryStatus;
 import com.dev.tasktrackr.project.service.UserStoryService;
 import com.dev.tasktrackr.shared.api.annotation.ApiErrorResponses; // Angenommen, diese Annotation existiert
 
@@ -16,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -88,13 +91,17 @@ public class UserStoryController {
             @PathVariable(name = "projectId") Long projectId,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "20") int size,
+            @RequestParam(name = "sortBy", defaultValue = "createdAt") String sortBy,
+            @RequestParam(name = "sortDir", defaultValue = "asc") String sortDir,
+            @RequestParam(name = "filter", required = false) String filter,
             @AuthenticationPrincipal Jwt jwt) {
 
         String jwtUserId = jwt.getClaim("sub");
         log.info("Anfrage zum Abrufen der User Stories für Projekt {} von Benutzer {}", projectId, jwtUserId);
 
-        PageRequest pageable = PageRequest.of(page, size);
-        Page<UserStoryResponseDto> userStoryPage = userStoryService.getUserStoriesByProjectId(projectId, pageable, jwtUserId);
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<UserStoryResponseDto> userStoryPage = userStoryService.getUserStoriesByProjectId(projectId, pageable, jwtUserId, filter);
 
         return ResponseEntity.ok(PageResponse.from(userStoryPage));
     }

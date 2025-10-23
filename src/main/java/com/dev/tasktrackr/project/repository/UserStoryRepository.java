@@ -1,6 +1,7 @@
 package com.dev.tasktrackr.project.repository;
 
 import com.dev.tasktrackr.project.api.dtos.response.UserStoryResponseDto;
+import com.dev.tasktrackr.project.domain.scrum.StoryStatus;
 import com.dev.tasktrackr.project.domain.scrum.UserStory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,6 +38,52 @@ public interface UserStoryRepository extends JpaRepository<UserStory, Long> {
             @Param("scrumDetailsId") Long scrumDetailsId,
             Pageable pageable
     );
+
+    @Query("""
+        SELECT new com.dev.tasktrackr.project.api.dtos.response.UserStoryResponseDto(
+            u.id,
+            u.title,
+            s.name,
+            u.description,
+            u.priority,
+            u.storyPoints,
+            u.createdAt,
+            u.status
+        )
+        FROM UserStory u
+        LEFT JOIN u.sprintBacklogItem sbi
+        LEFT JOIN sbi.sprint s
+        WHERE u.scrumDetails.id = :scrumDetailsId AND u.status = :status
+""")
+    Page<UserStoryResponseDto> findUserStoriesByScrumDetailsIdAndStatus(
+            @Param("scrumDetailsId") Long scrumDetailsId,
+            @Param("status") StoryStatus status, // <-- Neuer Parameter
+            Pageable pageable
+    );
+
+    @Query("""
+        SELECT new com.dev.tasktrackr.project.api.dtos.response.UserStoryResponseDto(
+            u.id,
+            u.title,
+            s.name,
+            u.description,
+            u.priority,
+            u.storyPoints,
+            u.createdAt,
+            u.status
+        )
+        FROM UserStory u
+        LEFT JOIN u.sprintBacklogItem sbi
+        LEFT JOIN sbi.sprint s
+        WHERE u.scrumDetails.id = :scrumDetailsId AND u.status != :status
+""")
+    Page<UserStoryResponseDto> findUserStoriesByScrumDetailsIdAndStatusNot(
+            @Param("scrumDetailsId") Long scrumDetailsId,
+            @Param("status") StoryStatus status, // <-- Neuer Parameter
+            Pageable pageable
+    );
+
+
 
 
     boolean existsByTitleAndScrumDetailsId(@Param("title")String title, @Param("projectId")Long scrumDetailsId);

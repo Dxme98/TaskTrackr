@@ -6,6 +6,7 @@ import com.dev.tasktrackr.project.api.dtos.request.CreateUserStoryRequest;
 import com.dev.tasktrackr.project.api.dtos.response.UserStoryResponseDto;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.scrum.ScrumDetails;
+import com.dev.tasktrackr.project.domain.scrum.StoryStatus;
 import com.dev.tasktrackr.project.domain.scrum.UserStory;
 import com.dev.tasktrackr.project.repository.UserStoryRepository;
 import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.UserStoryTitleAlreadyExistsException;
@@ -69,10 +70,28 @@ public class UserStoryServiceImpl implements UserStoryService{
 
     @Override
     @Transactional(readOnly = true)
-    public Page<UserStoryResponseDto> getUserStoriesByProjectId(Long projectId, Pageable pageable, String jwtUserId) {
+    public Page<UserStoryResponseDto> getUserStoriesByProjectId(Long projectId, Pageable pageable, String jwtUserId, String filter) {
 
         projectAccessService.checkProjectMemberShip(projectId, jwtUserId);
 
+
+
+        if (filter == null) {
+            // Fall 1: Kein Filter -> Lade alle
+            return userStoryRepository.findUserStoriesByScrumDetailsId(projectId, pageable);
+
+        } else if (filter.equalsIgnoreCase("NOT_ASSIGNED_TO_SPRINT")) {
+            // Fall 2: Filter "NOT_ASSIGNED_TO_SPRINT" -> Lade nur Storys die keinem Sprint zugewiesen sind
+            return userStoryRepository.findUserStoriesByScrumDetailsIdAndStatus(
+                    projectId, StoryStatus.NOT_ASSIGNED_TO_SPRINT, pageable);
+
+        } else if (filter.equalsIgnoreCase("ACTIVE")) {
+            // Fall 3: Filter "ACTIVE" -> Lade alle Stories die einem Sprint zugewiesen sind
+            return userStoryRepository.findUserStoriesByScrumDetailsIdAndStatusNot(
+                    projectId, StoryStatus.NOT_ASSIGNED_TO_SPRINT, pageable);
+        }
+
+        // Fallback oder Fehler (oder weitere Filter)
         return userStoryRepository.findUserStoriesByScrumDetailsId(projectId, pageable);
     }
 
