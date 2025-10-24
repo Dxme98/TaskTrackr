@@ -1,6 +1,7 @@
 package com.dev.tasktrackr.project.repository;
 
 import com.dev.tasktrackr.project.api.dtos.response.ActiveSprintData;
+import com.dev.tasktrackr.project.api.dtos.response.ScrumProjectStatisticsDto;
 import com.dev.tasktrackr.project.domain.scrum.Sprint;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -26,6 +27,21 @@ public interface ScrumReportRepository extends JpaRepository<Sprint, Long> {
         GROUP BY s.id, s.startDate, s.endDate
     """)
     Optional<ActiveSprintData> getActiveSprintData(Long projectId);
+
+
+    @Query("""
+    SELECT new com.dev.tasktrackr.project.api.dtos.response.ScrumProjectStatisticsDto(
+        COALESCE(COUNT(DISTINCT CASE WHEN s.status = 'DONE' THEN s.id ELSE NULL END), 0L),
+        COALESCE(SUM(CASE WHEN si.userStory.status = 'DONE' THEN si.userStory.storyPoints ELSE 0L END), 0L)
+    )
+    FROM Sprint s
+    LEFT JOIN s.backlogItems si
+    LEFT JOIN si.userStory us
+    WHERE s.scrumDetails.project.id = :projectId
+    GROUP BY s.scrumDetails.project.id
+""")
+    Optional<ScrumProjectStatisticsDto> getScrumProjectStatisticsDto(Long projectId);
+
 
 
 }

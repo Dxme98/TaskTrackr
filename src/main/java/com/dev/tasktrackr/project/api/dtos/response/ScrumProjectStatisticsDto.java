@@ -1,14 +1,10 @@
 package com.dev.tasktrackr.project.api.dtos.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
 public class ScrumProjectStatisticsDto {
 
@@ -16,17 +12,23 @@ public class ScrumProjectStatisticsDto {
             description = "Anzahl der Sprints, die für dieses Projekt bereits abgeschlossen wurden.",
             example = "4"
     )
-    private int finishedSprints;
+    private Long finishedSprints;
 
     @Schema(
             description = "Gesamtzahl der Story Points, die über alle abgeschlossenen Sprints hinweg fertiggestellt wurden.",
             example = "210"
     )
-    private int totalCompletedPoints;
+    private Long totalCompletedPoints;
 
     @Schema(
             description = "Durchschnittliche Anzahl an Story Points, die pro Sprint abgeschlossen wurden (Velocity).",
             example = "52"
     )
-    private int averageVelocity;
+    private Long averageVelocity;
+
+    public ScrumProjectStatisticsDto(Long finishedSprints, Long totalCompletedPoints) {
+        this.finishedSprints = finishedSprints;
+        this.totalCompletedPoints = totalCompletedPoints;
+        this.averageVelocity = totalCompletedPoints / finishedSprints;
+    }
 }

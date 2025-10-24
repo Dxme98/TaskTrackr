@@ -3,9 +3,7 @@ package com.dev.tasktrackr.project.domain.scrum;
 import com.dev.tasktrackr.project.api.dtos.request.CreateCommentRequest;
 import com.dev.tasktrackr.project.api.dtos.request.CreateSprintRequest;
 import com.dev.tasktrackr.project.api.dtos.request.CreateUserStoryRequest;
-import com.dev.tasktrackr.project.api.dtos.response.ActiveSprintData;
 import com.dev.tasktrackr.project.api.dtos.response.ScrumMemberStatisticDto;
-import com.dev.tasktrackr.project.api.dtos.response.ScrumProjectStatisticsDto;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.SprintNotActiveException;
@@ -200,31 +198,6 @@ public class ScrumDetails {
                             .build();
                 })
                 .collect(Collectors.toList());
-    }
-
-    public ScrumProjectStatisticsDto getProjectStatistics() {
-        List<Sprint> finishedSprints = this.sprints.stream()
-                .filter(sprint -> sprint.getStatus().equals(SprintStatus.DONE))
-                .toList();
-
-        int finishedSprintsCount = finishedSprints.size();
-
-        int totalCompletedPoints = finishedSprints.stream()
-                .flatMap(sprint -> sprint.getBacklogItems().stream())
-                .mapToInt(item -> item.getUserStory().getStoryPoints())
-                .sum();
-
-
-        int averageVelocity = 0;
-        if (finishedSprintsCount > 0) {
-            averageVelocity = totalCompletedPoints / finishedSprintsCount;
-        }
-
-        return ScrumProjectStatisticsDto.builder()
-                .finishedSprints(finishedSprintsCount)
-                .totalCompletedPoints(totalCompletedPoints)
-                .averageVelocity(averageVelocity)
-                .build();
     }
 }
 
