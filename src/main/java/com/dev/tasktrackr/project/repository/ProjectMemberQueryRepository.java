@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
 import java.util.Optional;
 import java.util.Set;
 
@@ -31,7 +30,6 @@ public interface ProjectMemberQueryRepository extends ReadOnlyRepository<Project
 
     @EntityGraph(attributePaths = {"user"})
     Optional<ProjectMember> findProjectMemberByUserIdAndProjectId(String userId, Long projectId);
-
 
     boolean existsByUserIdAndProjectId(String userId, Long projectId);
 }

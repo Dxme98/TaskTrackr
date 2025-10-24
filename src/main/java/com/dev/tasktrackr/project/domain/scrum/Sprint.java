@@ -109,47 +109,6 @@ public class Sprint {
         return this.status.equals(SprintStatus.ACTIVE);
     }
 
-    public ActiveSprintData getData() {
-        int totalStories = this.backlogItems.size();
-
-        int finishedStories = (int) this.backlogItems.stream()
-                .filter(SprintBacklogItem::isCompleted)
-                .count();
-
-        int totalPoints = this.backlogItems.stream()
-                .mapToInt(item -> item.getUserStory().getStoryPoints())
-                .sum();
-
-        int finishedPoints = this.backlogItems.stream()
-                .filter(SprintBacklogItem::isCompleted)
-                .mapToInt(item -> item.getUserStory().getStoryPoints())
-                .sum();
-
-        LocalDate today = LocalDate.now();
-
-        long daysLeftLong = ChronoUnit.DAYS.between(today, this.endDate);
-        int daysLeft = (int) Math.max(0, daysLeftLong);
-
-        int averageDailyVelocity = 0;
-
-        if (today.isAfter(this.startDate) || today.isEqual(this.startDate)) {
-            long daysPassedLong = ChronoUnit.DAYS.between(this.startDate, today) + 1;
-            int daysPassed = (int) daysPassedLong;
-
-            if (daysPassed > 0 && finishedPoints > 0) {
-                averageDailyVelocity = finishedPoints / daysPassed;
-            }
-        }
-        return ActiveSprintData.builder()
-                .totalStories(totalStories)
-                .finishedStories(finishedStories)
-                .totalPoints(totalPoints)
-                .finishedPoints(finishedPoints)
-                .daysLeft(daysLeft)
-                .averageDailyVelocity(averageDailyVelocity)
-                .build();
-    }
-
     private void handleUncompletedBacklogItems() {
         this.backlogItems.removeIf(backlogItem -> {
             if(!backlogItem.isCompleted()) {

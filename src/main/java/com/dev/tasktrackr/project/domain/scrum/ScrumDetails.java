@@ -105,15 +105,6 @@ public class ScrumDetails {
         return  sprintToEnd.end();
     }
 
-    public ActiveSprintData getActiveSprintData() {
-        try {
-            Sprint activeSprint = findActiveSprint();
-            return activeSprint.getData();
-        } catch (NoActiveSprintFoundException ex) {
-            return ActiveSprintData.builder().build();
-        }
-    }
-
     public Sprint findActiveSprint() {
         return sprints.stream()
                 .filter(s -> s.getStatus().equals(SprintStatus.ACTIVE))
