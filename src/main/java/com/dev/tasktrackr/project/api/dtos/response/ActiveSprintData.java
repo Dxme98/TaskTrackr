@@ -31,13 +31,13 @@ public class ActiveSprintData {
             description = "Gesamtzahl der Story Points (Aufwand) im aktiven Sprint.",
             example = "50"
     )
-    private Long totalPoints; // <-- Von Integer zu Long geändert
+    private Long totalPoints;
 
     @Schema(
             description = "Anzahl der bereits abgeschlossenen Story Points.",
             example = "25"
     )
-    private Long finishedPoints; // <-- Von Integer zu Long geändert
+    private Long finishedPoints;
 
     @Schema(
             description = "Verbleibende Tage im aktiven Sprint.",
@@ -55,8 +55,8 @@ public class ActiveSprintData {
     public ActiveSprintData(
             Long totalStories,
             Long finishedStories,
-            Long totalPoints, // <-- Hier auch ändern
-            Long finishedPoints, // <-- Hier auch ändern
+            Long totalPoints,
+            Long finishedPoints,
             LocalDate startDate,
             LocalDate endDate
     ) {
@@ -74,10 +74,7 @@ public class ActiveSprintData {
         if (today.isAfter(startDate) || today.isEqual(startDate)) {
             long daysPassedLong = ChronoUnit.DAYS.between(startDate, today) + 1;
 
-            // Deine COALESCE(..., 0) in der Query stellt sicher, dass finishedPoints nie null ist.
-            // Der Null-Check 'finishedPoints != null' ist technisch nicht mehr nötig, schadet aber nicht.
             if (daysPassedLong > 0 && finishedPoints != null && finishedPoints > 0) {
-                // finishedPoints ist jetzt ein Long, die Division ist korrekt.
                 avgVelocity = (int) (finishedPoints / daysPassedLong);
             }
         }

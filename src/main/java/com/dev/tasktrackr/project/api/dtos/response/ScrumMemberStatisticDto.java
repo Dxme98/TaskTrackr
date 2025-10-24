@@ -1,11 +1,9 @@
 package com.dev.tasktrackr.project.api.dtos.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
 import lombok.Data;
 
 @Data
-@Builder
 public class ScrumMemberStatisticDto {
 
     @Schema(
@@ -18,59 +16,84 @@ public class ScrumMemberStatisticDto {
             description = "Gesamtzahl der Tasks, die diesem Mitglied im Sprint zugewiesen sind.",
             example = "10"
     )
-    int totalTasks;
-
-    @Schema(
-            description = "Anzahl der von diesem Mitglied abgeschlossenen Tasks (Status 'Done').",
-            example = "5"
-    )
-    int finishedTasks;
-
-    @Schema(
-            description = "Prozentsatz der abgeschlossenen Tasks (ganzzahlig, 0-100).",
-            example = "50"
-    )
-    int finishedTasksPercentage;
+    Long totalTasks;
 
     @Schema(
             description = "Gesamtzahl der Story Points, die diesem Mitglied zugewiesen sind.",
             example = "20"
     )
-    int totalPoints;
+    Long totalPoints;
 
     @Schema(
             description = "Anzahl der Story Points, die von diesem Mitglied abgeschlossen wurden.",
             example = "13"
     )
-    int finishedPoints;
+    Long finishedPoints;
 
     @Schema(
             description = "Anzahl der Tasks dieses Mitglieds, die aktuell als 'Blocker' markiert sind.",
             example = "1"
     )
-    int totalBlocker;
+    Long totalBlocker;
 
     @Schema(
             description = "Anzahl der Tasks dieses Mitglieds im Status 'Backlog'",
             example = "2"
     )
-    int tasksInBacklog;
+    Long tasksInBacklog;
 
     @Schema(
             description = "Anzahl der Tasks dieses Mitglieds im Status 'In Progress'.",
             example = "2"
     )
-    int tasksInProgress;
+    Long tasksInProgress;
 
     @Schema(
             description = "Anzahl der Tasks dieses Mitglieds im Status 'Review'.",
             example = "1"
     )
-    int tasksInReview;
+    Long tasksInReview;
 
     @Schema(
             description = "Anzahl der Tasks dieses Mitglieds im Status 'Done'.",
             example = "5"
     )
-    int tasksInDone;
+    Long tasksInDone;
+
+    @Schema(
+            description = "Prozentsatz der abgeschlossenen Tasks (ganzzahlig, 0-100).",
+            example = "50"
+    )
+    int doneTasksPercentage;
+
+
+    public ScrumMemberStatisticDto(
+            String username,
+            Long totalTasksL,
+            Long totalPointsL,
+            Long finishedPointsL,
+            Long totalBlockerL,
+            Long tasksInBacklogL,
+            Long tasksInProgressL,
+            Long tasksInReviewL,
+            Long tasksInDoneL
+    ) {
+        this.username = username;
+        this.totalTasks = totalTasksL;
+        this.totalPoints = totalPointsL;
+        this.finishedPoints = finishedPointsL;
+        this.totalBlocker = totalBlockerL;
+        this.tasksInBacklog = tasksInBacklogL;
+        this.tasksInProgress = tasksInProgressL;
+        this.tasksInReview = tasksInReviewL;
+        this.tasksInDone = tasksInDoneL;
+
+        if (this.totalTasks == 0) {
+            this.doneTasksPercentage = 0;
+        } else {
+            this.doneTasksPercentage = (int) Math.round(
+                    ((double) this.tasksInDone / this.totalTasks) * 100
+            );
+        }
+    }
 }

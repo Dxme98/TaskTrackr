@@ -14,7 +14,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 @Entity
@@ -101,103 +100,6 @@ public class ScrumDetails {
 
     public Sprint endSprint(Sprint sprintToEnd) {
         return  sprintToEnd.end();
-    }
-
-    public Sprint findActiveSprint() {
-        return sprints.stream()
-                .filter(s -> s.getStatus().equals(SprintStatus.ACTIVE))
-                .findFirst()
-                .orElseThrow(() -> new NoActiveSprintFoundException(project.getId()));
-    }
-
-    public List<ScrumMemberStatisticDto> getMemberStatisticsList() {
-
-        Sprint activeSprint;
-        try {
-            activeSprint = findActiveSprint();
-        } catch (NoActiveSprintFoundException e) {
-            return project.getProjectMembers().stream()
-                    .map(member -> ScrumMemberStatisticDto.builder()
-                            .username(member.getUser().getUsername())
-                            .build())
-                    .collect(Collectors.toList());
-        }
-
-        Set<SprintBacklogItem> sprintItems = activeSprint.getBacklogItems();
-
-        Map<ProjectMember, List<SprintBacklogItem>> itemsByMember = new HashMap<>();
-        project.getProjectMembers().forEach(member -> itemsByMember.put(member, new ArrayList<>()));
-
-        for (SprintBacklogItem item : sprintItems) {
-            for (ProjectMember assignedMember : item.getAssignedMembers()) {
-                if (itemsByMember.containsKey(assignedMember)) {
-                    itemsByMember.get(assignedMember).add(item);
-                }
-            }
-        }
-
-        // 6. Die Statistik-DTOs für jedes Mitglied erstellen
-        return itemsByMember.entrySet().stream()
-                .map(entry -> {
-                    ProjectMember member = entry.getKey();
-                    List<SprintBacklogItem> memberItems = entry.getValue();
-
-                    int totalTasks = memberItems.size();
-                    int finishedTasks = 0;
-                    int totalPoints = 0;
-                    int finishedPoints = 0;
-                    int totalBlocker = 0;
-                    int tasksInBacklog = 0;
-                    int tasksInProgress = 0;
-                    int tasksInReview = 0;
-                    int tasksInDone = 0;
-
-                    for (SprintBacklogItem item : memberItems) {
-                        UserStory story = item.getUserStory();
-                        totalPoints += story.getStoryPoints();
-
-                        totalBlocker += (int) item.getComments().stream()
-                                .filter(Comment::isBlocker)
-                                .count();
-
-                        switch (story.getStatus()) {
-                            case SPRINT_BACKLOG:
-                                tasksInBacklog++;
-                                break;
-                            case IN_PROGRESS:
-                                tasksInProgress++;
-                                break;
-                            case REVIEW:
-                                tasksInReview++;
-                                break;
-                            case DONE:
-                                tasksInDone++;
-                                finishedTasks++;
-                                finishedPoints += story.getStoryPoints();
-                                break;
-                            default:
-                                // Ignoriert andere Status wie NOT_ASSIGNED_TO_SPRINT
-                                break;
-                        }
-                    }
-
-                    int percentage = (totalTasks == 0) ? 0 : (int) Math.round(((double) finishedTasks / totalTasks) * 100);
-
-                    return ScrumMemberStatisticDto.builder()
-                            .username(member.getUser().getUsername()) // ANNNAHME 1
-                            .totalTasks(totalTasks)
-                            .finishedTasks(finishedTasks)
-                            .finishedTasksPercentage(percentage)
-                            .totalPoints(totalPoints)
-                            .finishedPoints(finishedPoints)
-                            .totalBlocker(totalBlocker)
-                            .tasksInBacklog(tasksInBacklog)
-                            .tasksInProgress(tasksInProgress)
-                            .tasksInReview(tasksInReview)
-                            .tasksInDone(tasksInDone)
-                            .build();
-                })
-                .collect(Collectors.toList());
     }
 }
 
