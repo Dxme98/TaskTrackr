@@ -41,36 +41,4 @@ public class BasicDetails {
         this.project = project;
         this.information = new Information(this);
     }
-
-
-    public Information updateInformationContent(UpdateInformationContentRequest updateInformationContentRequest) {
-        information.updateContent(updateInformationContentRequest.getContent());
-        return information;
-    }
-
-    public Link addLink(CreateLinkRequest linkRequest) {
-        Link createdLink = new Link(linkRequest.getTitle(), linkRequest.getUrl(), linkRequest.getLinkType(), this);
-        links.add(createdLink);
-
-        return createdLink;
-    }
-
-    public void deleteLink(Long linkId) {
-        Link toDelete = findLink(linkId);
-        links.remove(toDelete);
-    }
-
-    public Link findLink(Long linkId) {
-        return this.links.stream()
-                .filter(link -> link.getId().equals(linkId))
-                .findFirst()
-                .orElseThrow(() -> new LinkNotFoundException(linkId));
-    }
-
-    public Link findLink(String title) {
-        return this.links.stream()
-                .filter(link -> link.getTitle().equals(title))
-                .findFirst()
-                .orElseThrow(() -> new LinkNotFoundException(null));
-    }
 }

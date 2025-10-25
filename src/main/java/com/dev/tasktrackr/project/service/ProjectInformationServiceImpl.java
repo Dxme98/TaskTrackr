@@ -6,7 +6,11 @@ import com.dev.tasktrackr.project.domain.*;
 import com.dev.tasktrackr.project.domain.basic.BasicDetails;
 import com.dev.tasktrackr.project.domain.basic.Information;
 import com.dev.tasktrackr.project.domain.basic.Link;
+import com.dev.tasktrackr.project.repository.LinkRepository;
+import com.dev.tasktrackr.project.repository.ProjectInformationRepository;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
+import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.LinkTitleAlreadyExistsException;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.LinkNotFoundException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,74 +21,76 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class ProjectInformationServiceImpl implements ProjectInformationService {
-    private final ProjectRepository projectRepository;
+    private final ProjectInformationRepository projectInformationRepository;
+    private final ProjectAccessService projectAccessService;
+    private final LinkRepository linkRepository;
 
     @Override
     @Transactional
     public Information updateContent(Long projectId, String jwtUserId, UpdateInformationContentRequest updateInformationContentRequest) {
-        Project project =  findProjectById(projectId);
-        memberHasPermission(jwtUserId, project);
+        ProjectMember member = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
+        Information projectInformation = findContentByProjectId(projectId);
 
-        BasicDetails basicDetails = project.getBasicDetails();
+        member.canEditInformation();
+        projectInformation.updateContent(updateInformationContentRequest.getContent());
 
-        Information updatedInformation = basicDetails.updateInformationContent(updateInformationContentRequest);
-
-        projectRepository.save(project);
-
-        return updatedInformation;
+        return projectInformationRepository.save(projectInformation);
     }
 
     @Override
     @Transactional
     public Link addLink(Long projectId, String jwtUserId, CreateLinkRequest createLinkRequest) {
-        Project project = findProjectById(projectId);
-        memberHasPermission(jwtUserId, project);
+        ProjectMember member = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
+        BasicDetails basicDetails = projectAccessService.findProjectById(projectId).getBasicDetails();
 
-        BasicDetails basicDetails = project.getBasicDetails();
+        member.canEditInformation();
 
-        Link addedLink = basicDetails.addLink(createLinkRequest);
+        checkForDuplicateLinkTitle(projectId, createLinkRequest.getTitle());
 
-        projectRepository.save(project);
+        Link createdLink = Link.create(createLinkRequest.getTitle(), createLinkRequest.getUrl(), createLinkRequest.getLinkType(), basicDetails);
 
-        return basicDetails.findLink(addedLink.getTitle());
+        return linkRepository.save(createdLink);
     }
 
     @Override
     @Transactional
     public void deleteLink(Long projectId, String jwtUserId, Long linkId) {
-        Project project = findProjectById(projectId);
-        memberHasPermission(jwtUserId, project);
-        BasicDetails basicDetails = project.getBasicDetails();
+        ProjectMember member = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
+        Link linkToDelete = findLinkById(linkId);
 
-        basicDetails.deleteLink(linkId);
+        member.canEditInformation();
+
+        linkRepository.delete(linkToDelete);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Set<Link> findLinksByProjectId(Long projectId, String jwtUserId) {
-        Project project = findProjectById(projectId);
-        project.isProjectMember(jwtUserId);
-        BasicDetails basicDetails = project.getBasicDetails();
+        projectAccessService.checkProjectMemberShip(projectId, jwtUserId);
 
-        return basicDetails.getLinks();
+        return linkRepository.findAllByBasicDetailsId(projectId);
     }
+
 
     @Override
     @Transactional(readOnly = true)
     public Information findContentByProjectId(Long projectId, String jwtUserId) {
-        Project project = findProjectById(projectId);
-        project.isProjectMember(jwtUserId);
-        BasicDetails basicDetails = project.getBasicDetails();
-
-        return basicDetails.getInformation();
+        projectAccessService.checkProjectMemberShip(projectId, jwtUserId);
+        return findContentByProjectId(projectId);
     }
-    private Project findProjectById(Long projectId) {
-        return projectRepository.findById(projectId)
+
+    /** Helper Methods*/
+    private Information findContentByProjectId(Long projectId) {
+        return projectInformationRepository.findByBasicDetailsId(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException(projectId));
     }
 
-    private void memberHasPermission(String jwtUserId, Project project) {
-        ProjectMember member = project.findProjectMember(jwtUserId);
-        member.canEditInformation();
+
+    private Link findLinkById(Long linkId) {
+        return linkRepository.findById(linkId).orElseThrow(() -> new LinkNotFoundException(linkId));
+    }
+
+    void checkForDuplicateLinkTitle(Long projectId, String title) {
+        if(linkRepository.existsByBasicDetailsIdAndTitle(projectId, title)) throw new LinkTitleAlreadyExistsException(title);
     }
 }
