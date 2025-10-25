@@ -13,6 +13,9 @@ import java.util.Optional;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
+
+
+    @EntityGraph(attributePaths = { "basicDetails", "scrumDetails", "basicDetails.information" })
     @Query("SELECT DISTINCT p FROM Project p, ProjectMember pm  WHERE p.id = pm.project.id AND pm.user.id = :userId")
     Page<Project> findProjectsByUserId(@Param("userId")String userId, Pageable pageable);
 

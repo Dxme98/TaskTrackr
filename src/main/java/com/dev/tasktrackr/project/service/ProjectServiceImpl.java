@@ -23,6 +23,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final ProjectMapper projectMapper;
+    private final ProjectAccessService projectAccessService;
 
     @Override
     @Transactional
@@ -48,10 +49,9 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional(readOnly = true)
     public ProjectOverviewDto getProjectDetails(Long projectId, String userId) {
-        // Needs to be updated with more information (links,content..) -> type basic / scrum etc, currently placeholder for frontend
-
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
-        project.isProjectMember(userId);
+
+        projectAccessService.checkProjectMemberShip(projectId, userId);
 
         return projectMapper.toOverviewDto(project);
     }
