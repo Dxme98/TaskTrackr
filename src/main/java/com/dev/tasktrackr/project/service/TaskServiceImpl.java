@@ -27,6 +27,7 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
+    private final ProjectAccessService projectAccessService;
     private final ProjectRepository projectRepository;
     private final TaskMapper taskMapper;
     private final TaskQueryRepository taskQueryRepository;
