@@ -44,14 +44,6 @@ public class ScrumDetails {
         return UserStory.create(createUserStoryRequest, this);
     }
 
-
-    public Sprint createSprint(CreateSprintRequest createSprintRequest) {
-        Sprint createdSprint = Sprint.create(createSprintRequest, this);
-        sprints.add(createdSprint);
-
-        return createdSprint;
-    }
-
     public SprintBacklogItem updateBacklogItemStatus(SprintBacklogItem backlogItem, StoryStatus newStatus, Sprint sprint, SprintSummaryItem sprintSummaryItem) {
 
         if(!sprint.isActive()) throw new SprintNotActiveException(sprint.getId());
@@ -92,14 +84,6 @@ public class ScrumDetails {
         if(!sprint.isActive()) throw new SprintNotActiveException(sprint.getId());
 
        return sprint.removeCommentFromStory(backlogItem, comment);
-    }
-
-    public void startSprint(Sprint sprintToStart) {
-        sprintToStart.start();
-    }
-
-    public Sprint endSprint(Sprint sprintToEnd) {
-        return  sprintToEnd.end();
     }
 }
 

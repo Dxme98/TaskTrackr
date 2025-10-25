@@ -46,7 +46,7 @@ public class SprintServiceImpl implements SprintService{
         member.canPlanSprint();
 
         // create sprint
-        Sprint createdSprint = scrumDetails.createSprint(createSprintRequest);
+        Sprint createdSprint = Sprint.create(createSprintRequest, scrumDetails);
 
         // load stories for sprint
         List<UserStory> userStories = userStoryRepository.findAllByIdsAndProjectId(createSprintRequest.getUserStoryIds(), projectId);
@@ -94,7 +94,6 @@ public class SprintServiceImpl implements SprintService{
     @Transactional
     public SprintResponseDto startSprint(Long sprintId, Long projectId, String jwtUserId) {
         // load data
-        ScrumDetails scrumDetails = projectAccessService.findProjectById(projectId).getScrumDetails();
         ProjectMember member = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
         Sprint sprintToStart = findSprintById(sprintId);
 
@@ -103,7 +102,7 @@ public class SprintServiceImpl implements SprintService{
         checkForExistingActiveSprint(projectId);
 
         // start sprint
-        scrumDetails.startSprint(sprintToStart);
+        sprintToStart.start();
 
         Sprint perisistedSprint = sprintQueryRepository.save(sprintToStart);
 
@@ -117,13 +116,12 @@ public class SprintServiceImpl implements SprintService{
     @Override
     @Transactional
     public SprintResponseDto endSprint(Long sprintId, Long projectId, String jwtUserId) {
-        ScrumDetails scrumDetails = projectAccessService.findProjectById(projectId).getScrumDetails();
         ProjectMember member = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
         Sprint sprintToEnd = findSprintById(sprintId);
 
         member.canEndSprint();
 
-        scrumDetails.endSprint(sprintToEnd);
+        sprintToEnd.end();
 
         Sprint perisistedSprint = sprintQueryRepository.save(sprintToEnd);
 
