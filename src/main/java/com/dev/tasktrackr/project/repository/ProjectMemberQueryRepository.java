@@ -32,4 +32,7 @@ public interface ProjectMemberQueryRepository extends ReadOnlyRepository<Project
     Optional<ProjectMember> findProjectMemberByUserIdAndProjectId(String userId, Long projectId);
 
     boolean existsByUserIdAndProjectId(String userId, Long projectId);
+
+    @EntityGraph(attributePaths = {"user"})
+    Set<ProjectMember> findByIdIn(Set<Long> memberIds);
 }

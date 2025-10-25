@@ -4,6 +4,7 @@ import com.dev.tasktrackr.project.api.dtos.request.CreateTaskRequest;
 import com.dev.tasktrackr.project.domain.basic.BasicDetails;
 import com.dev.tasktrackr.project.domain.enums.Priority;
 import com.dev.tasktrackr.project.domain.enums.Status;
+import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.ProjectMemberNotAllowedToCompleteTaskException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -94,12 +95,20 @@ public class Task {
                 .build();
     }
 
-    public Task complete() {
+    public Task complete(ProjectMember member) {
+
+        memberIsAllowedToCompleteTask(member);
+
         this.status = Status.COMPLETED;
         return this;
     }
 
-    @Override
+    private void memberIsAllowedToCompleteTask(ProjectMember member) {
+        // Assigned members and creator of task are allowed to complete task
+        if (!assignedMembers.contains(member) || !createdBy.equals(member)) throw new ProjectMemberNotAllowedToCompleteTaskException(member.getId());
+    }
+
+        @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

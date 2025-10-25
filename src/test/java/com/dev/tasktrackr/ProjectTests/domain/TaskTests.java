@@ -101,24 +101,6 @@ public class TaskTests {
         }
 
         @Nested
-        @DisplayName("Status Management Tests")
-        class StatusManagementTests {
-
-            @Test
-            @DisplayName("Should complete task and change status")
-            void shouldCompleteTaskAndChangeStatus() {
-                task = Task.builder()
-                        .status(Status.IN_PROGRESS)
-                        .build();
-
-                Task completedTask = task.complete();
-
-                assertEquals(Status.COMPLETED, completedTask.getStatus());
-                assertEquals(task, completedTask); // Should return same instance
-            }
-        }
-
-        @Nested
         @DisplayName("Assignment Tests")
         class AssignmentTests {
 

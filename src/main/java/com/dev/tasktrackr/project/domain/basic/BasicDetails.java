@@ -42,53 +42,6 @@ public class BasicDetails {
         this.information = new Information(this);
     }
 
-    public Task addTask(CreateTaskRequest createTaskRequest, ProjectMember taskCreator, Set<ProjectMember> assignedMembers) {
-        Task createdTask = Task.create(createTaskRequest, this, taskCreator, assignedMembers);
-        tasks.add(createdTask);
-
-        return createdTask;
-    }
-
-    public Task completeTask(Long taskId, Long memberId) {
-        Task task = findTask(taskId);
-
-        memberIsAllowedToCompleteTask(task, memberId);
-
-        return task.complete();
-    }
-
-    public Task deleteTask(Long taskId) {
-        Task task = findTask(taskId);
-        tasks.remove(task);
-
-        return task;
-    }
-
-    private void memberIsAllowedToCompleteTask(Task task, Long memberId) {
-
-        // Creator is allowed to complete task
-        if(task.getCreatedBy().getId().equals(memberId)) {
-            return;
-        }
-
-        // Assigned members are allowed to complete task
-        task.getAssignedMembers().stream()
-                .filter(assignedMember -> assignedMember.getId().equals(memberId))
-                .findFirst()
-                .orElseThrow(() -> new ProjectMemberNotAllowedToCompleteTaskException(memberId));
-    }
-
-    public Task findTask(Long taskId) {
-        return this.tasks.stream()
-                .filter(task -> task.getId().equals(taskId)).findFirst()
-                .orElseThrow(() -> new TaskNotFoundException(taskId));
-    }
-
-    public Task findTask(Task task) {
-        return this.tasks.stream()
-                .filter(t -> t.equals(task)).findFirst()
-                .orElseThrow(() -> new TaskNotFoundException(task.getId()));
-    }
 
     public Information updateInformationContent(UpdateInformationContentRequest updateInformationContentRequest) {
         information.updateContent(updateInformationContentRequest.getContent());
