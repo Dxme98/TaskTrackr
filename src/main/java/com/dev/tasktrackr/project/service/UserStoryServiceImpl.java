@@ -41,7 +41,7 @@ public class UserStoryServiceImpl implements UserStoryService{
         checkForUniqueUserStoryTitle(createUserStoryRequest.getTitle(), projectId);
 
         // create and save
-        UserStory createdUserStory = scrumDetails.createUserStory(createUserStoryRequest);
+        UserStory createdUserStory = UserStory.create(createUserStoryRequest, scrumDetails);
         UserStory perisistedUserStory = userStoryRepository.save(createdUserStory);
 
         // send event
@@ -73,8 +73,6 @@ public class UserStoryServiceImpl implements UserStoryService{
     public Page<UserStoryResponseDto> getUserStoriesByProjectId(Long projectId, Pageable pageable, String jwtUserId, String filter) {
 
         projectAccessService.checkProjectMemberShip(projectId, jwtUserId);
-
-
 
         if (filter == null) {
             // Fall 1: Kein Filter -> Lade alle

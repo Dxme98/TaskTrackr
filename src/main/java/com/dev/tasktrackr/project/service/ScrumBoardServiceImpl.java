@@ -46,10 +46,10 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     @Transactional
     public SprintBacklogItemResponse updateUserStoryStatus(Long projectId, Long backlogItemId, StoryStatus newStatus, String jwtUserId) {
         // load data
-        ScrumDetails scrumDetails = projectAccessService.findProjectById(projectId).getScrumDetails();
         ProjectMember member = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
         SprintBacklogItem backlogItem = findSprintBacklogItem(backlogItemId);
         SprintSummaryItem sprintSummaryItem = findSprintSummaryItem(backlogItem, backlogItem.getUserStory());
+        Sprint sprint = backlogItem.getSprint();
 
         // check permissions
         if(!member.canUpdateStoryStatus() && !backlogItem.memberIsAssigned(member)) {
@@ -57,7 +57,7 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
         }
 
         // update: backlogitem, summaryItem and userStory
-        SprintBacklogItem updatedBacklogItem = scrumDetails.updateBacklogItemStatus(backlogItem, newStatus, backlogItem.getSprint(), sprintSummaryItem);
+        SprintBacklogItem updatedBacklogItem = sprint.updateBacklogItemStatus(backlogItem, newStatus, sprintSummaryItem);
 
         // publish event
         var event = new ProjectActivityEvents.UserStoryStatusUpdatedEvent(
@@ -71,14 +71,14 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     @Override
     @Transactional
     public SprintBacklogItemResponse assignMemberToStory(Long projectId, Long backlogItemId, Long memberId, String jwtUserId) {
-        ScrumDetails scrumDetails = projectAccessService.findProjectById(projectId).getScrumDetails();
         ProjectMember assignedMember = projectAccessService.findProjectMember(memberId, projectId);
         ProjectMember requestedMember = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
         SprintBacklogItem backlogItem = findSprintBacklogItem(backlogItemId);
+        Sprint sprint = backlogItem.getSprint();
 
         requestedMember.canAssignUserToStory();
 
-        SprintBacklogItem updatedBacklogItem = scrumDetails.assignMemberToStory(backlogItem, assignedMember, backlogItem.getSprint());
+        SprintBacklogItem updatedBacklogItem = sprint.assignMemberToStory(backlogItem, assignedMember);
 
         return sprintBacklogItemMapper.toResponse(updatedBacklogItem);
     }
@@ -86,14 +86,14 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     @Override
     @Transactional
     public SprintBacklogItemResponse unassignMemberFromStory(Long projectId, Long backlogItemId, Long memberId, String jwtUserId) {
-        ScrumDetails scrumDetails = projectAccessService.findProjectById(projectId).getScrumDetails();
         ProjectMember assignedMember = projectAccessService.findProjectMember(memberId, projectId);
         ProjectMember requestedMember = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
         SprintBacklogItem backlogItem = findSprintBacklogItem(backlogItemId);
+        Sprint sprint = backlogItem.getSprint();
 
         requestedMember.canAssignUserToStory();
 
-        SprintBacklogItem updatedBacklogItem = scrumDetails.unassignMemberFromStory(backlogItem, assignedMember, backlogItem.getSprint());
+        SprintBacklogItem updatedBacklogItem = sprint.unassignMemberFromStory(backlogItem, assignedMember);
 
         return sprintBacklogItemMapper.toResponse(updatedBacklogItem);
     }
@@ -101,11 +101,11 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     @Override
     @Transactional
     public SprintBacklogItemResponse addCommentToStory(Long projectId, Long backlogItemId, CreateCommentRequest commentRequest, String jwtUserId) {
-        ScrumDetails scrumDetails = projectAccessService.findProjectById(projectId).getScrumDetails();
         ProjectMember member = projectAccessService.findProjectMember(jwtUserId, projectId);
         SprintBacklogItem backlogItem = findSprintBacklogItem(backlogItemId);
+        Sprint sprint = backlogItem.getSprint();
 
-        Comment createdComment = scrumDetails.addCommentToStory(backlogItem, member, commentRequest, backlogItem.getSprint());
+        Comment createdComment = sprint.addCommentToStory(backlogItem, member, commentRequest);
 
         commentRepository.save(createdComment);
 
@@ -120,24 +120,24 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     @Override
     @Transactional
     public void removeCommentFromStory(Long projectId, Long backlogItemId, Long commentId, String jwtUserId) {
-        ScrumDetails scrumDetails = projectAccessService.findProjectById(projectId).getScrumDetails();
         ProjectMember member = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
         SprintBacklogItem backlogItem = findSprintBacklogItem(backlogItemId);
         Comment comment = findComment(commentId);
+        Sprint sprint = backlogItem.getSprint();
 
         member.canDeleteCommentsAndBlocker();
 
-        scrumDetails.removeCommentFromStory(backlogItem, comment, backlogItem.getSprint());
+        sprint.removeCommentFromStory(backlogItem, comment);
     }
 
     @Override
     @Transactional
     public SprintBacklogItemResponse addBlockerToStory(Long projectId, Long backlogItemId, CreateCommentRequest commentRequest, String jwtUserId) {
-        ScrumDetails scrumDetails = projectAccessService.findProjectById(projectId).getScrumDetails();
         ProjectMember member = projectAccessService.findProjectMember(jwtUserId, projectId);
         SprintBacklogItem backlogItem = findSprintBacklogItem(backlogItemId);
+        Sprint sprint = backlogItem.getSprint();
 
-        Comment createdComment = scrumDetails.addBlockerToStory(backlogItem, member, commentRequest, backlogItem.getSprint());
+        Comment createdComment = sprint.addBlockerToStory(backlogItem, member, commentRequest);
 
         commentRepository.save(createdComment);
 
@@ -152,14 +152,14 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     @Override
     @Transactional
     public void removeBlockerFromStory(Long projectId, Long backlogItemId, Long blockerId, String jwtUserId) {
-        ScrumDetails scrumDetails = projectAccessService.findProjectById(projectId).getScrumDetails();
         ProjectMember member = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
         SprintBacklogItem backlogItem = findSprintBacklogItem(backlogItemId);
         Comment comment = findComment(blockerId);
+        Sprint sprint = backlogItem.getSprint();
 
         member.canDeleteCommentsAndBlocker();
 
-        Comment resolvedBlocker = scrumDetails.removeCommentFromStory(backlogItem, comment, backlogItem.getSprint());
+        Comment resolvedBlocker = sprint.removeCommentFromStory(backlogItem, comment);
 
         var event = new ProjectActivityEvents.BlockerResolvedEvent(
                 projectId, member.getId(), member.getUser().getUsername(),

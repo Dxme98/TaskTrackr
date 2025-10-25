@@ -38,52 +38,5 @@ public class ScrumDetails {
     public ScrumDetails(Project project) {
         this.project = project;
     }
-
-
-    public UserStory createUserStory(CreateUserStoryRequest createUserStoryRequest) {
-        return UserStory.create(createUserStoryRequest, this);
-    }
-
-    public SprintBacklogItem updateBacklogItemStatus(SprintBacklogItem backlogItem, StoryStatus newStatus, Sprint sprint, SprintSummaryItem sprintSummaryItem) {
-
-        if(!sprint.isActive()) throw new SprintNotActiveException(sprint.getId());
-
-        return sprint.updateBacklogItemStatus(backlogItem, newStatus, sprintSummaryItem);
-    }
-
-    public SprintBacklogItem assignMemberToStory(SprintBacklogItem backlogItem, ProjectMember member, Sprint sprint) {
-
-        if(!sprint.isActive()) throw new SprintNotActiveException(sprint.getId());
-
-        return sprint.assignMemberToStory(backlogItem, member);
-    }
-
-    public SprintBacklogItem unassignMemberFromStory(SprintBacklogItem backlogItem, ProjectMember member, Sprint sprint) {
-
-        if(!sprint.isActive()) throw new SprintNotActiveException(sprint.getId());
-
-        return sprint.unassignMemberFromStory(backlogItem, member);
-    }
-
-    public Comment addCommentToStory(SprintBacklogItem backlogItem, ProjectMember member, CreateCommentRequest commentRequest, Sprint sprint) {
-
-        if(!sprint.isActive()) throw new SprintNotActiveException(sprint.getId());
-
-        return sprint.addCommentToStory(backlogItem, member, commentRequest);
-    }
-
-    public Comment addBlockerToStory(SprintBacklogItem backlogItem, ProjectMember member, CreateCommentRequest commentRequest, Sprint sprint) {
-
-        if(!sprint.isActive()) throw new SprintNotActiveException(sprint.getId());
-
-        return sprint.addBlockerToStory(backlogItem, member, commentRequest);
-    }
-
-    public Comment removeCommentFromStory(SprintBacklogItem backlogItem, Comment comment, Sprint sprint) {
-
-        if(!sprint.isActive()) throw new SprintNotActiveException(sprint.getId());
-
-       return sprint.removeCommentFromStory(backlogItem, comment);
-    }
 }
 

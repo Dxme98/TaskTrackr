@@ -4,6 +4,7 @@ import com.dev.tasktrackr.project.api.dtos.request.CreateCommentRequest;
 import com.dev.tasktrackr.project.api.dtos.request.CreateSprintRequest;
 import com.dev.tasktrackr.project.api.dtos.response.ActiveSprintData;
 import com.dev.tasktrackr.project.domain.ProjectMember;
+import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.SprintNotActiveException;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcType;
@@ -120,6 +121,7 @@ public class Sprint {
     }
 
     public SprintBacklogItem updateBacklogItemStatus(SprintBacklogItem sprintBacklogItem, StoryStatus newStatus, SprintSummaryItem sprintSummaryItem) {
+        sprintIsActive();
         sprintBacklogItem.getUserStory().updateStatus(newStatus);
 
         if(newStatus == StoryStatus.DONE) {
@@ -133,23 +135,28 @@ public class Sprint {
 
 
     public SprintBacklogItem assignMemberToStory(SprintBacklogItem backlogItem, ProjectMember member) {
+        sprintIsActive();
         return backlogItem.assignMember(member);
     }
 
     public SprintBacklogItem unassignMemberFromStory(SprintBacklogItem backlogItem, ProjectMember member) {
+        sprintIsActive();
         return backlogItem.unassignMember(member);
     }
 
     public Comment addCommentToStory(SprintBacklogItem backlogItem,  ProjectMember member, CreateCommentRequest commentRequest) {
+        sprintIsActive();
         return backlogItem.addComment(member, commentRequest);
     }
 
     public Comment addBlockerToStory(SprintBacklogItem backlogItem, ProjectMember member, CreateCommentRequest commentRequest) {
+        sprintIsActive();
         return backlogItem.addBlocker(member, commentRequest);
     }
 
     public Comment removeCommentFromStory(SprintBacklogItem backlogItem, Comment comment) {
-         return backlogItem.removeComment(comment);
+        sprintIsActive();
+        return backlogItem.removeComment(comment);
     }
 
     @Override
@@ -169,5 +176,9 @@ public class Sprint {
     @Override
     public int hashCode() {
         return Objects.hash(scrumDetails, name, description, goal, status, startDate, endDate);
+    }
+
+    void sprintIsActive() {
+        if(!isActive()) throw new SprintNotActiveException(this.id);
     }
 }
