@@ -26,9 +26,19 @@ public class ProjectAccessService {
                 .orElseThrow(() -> new ProjectNotFoundException(projectId));
     }
 
+    public Project findProjectByIdWithRoles(Long projectId) {
+        return projectRepository.findProjectWithRoles(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+    }
+
     public ProjectMember findProjectMemberWithPermissionsRolesAndUser(String userId, Long projectId) {
         return projectMemberQueryRepository.findProjectMemberWithPermissionsRolesAndUser(projectId, userId)
                 .orElseThrow(() -> new UserNotProjectMemberException(userId));
+    }
+
+    public ProjectMember findProjectMemberWithPermissionsRolesAndUser(Long memberId, Long projectId) {
+        return projectMemberQueryRepository.findProjectMemberWithPermissionsRolesAndUser(projectId, memberId)
+                .orElseThrow(() -> new ProjectMemberNotFoundException(memberId));
     }
 
     // loads plain user without extra fetches

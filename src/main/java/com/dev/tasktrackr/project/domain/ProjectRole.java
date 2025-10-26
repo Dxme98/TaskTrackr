@@ -4,6 +4,7 @@ import com.dev.tasktrackr.project.domain.enums.PermissionName;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
 import com.dev.tasktrackr.project.domain.enums.RoleType;
 import com.dev.tasktrackr.shared.exception.custom.BadRequestExceptions.InvalidRoleAssignmentException;
+import com.dev.tasktrackr.shared.exception.custom.BadRequestExceptions.InvalidRoleDeletion;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -130,6 +131,12 @@ public class ProjectRole {
 
         if (invalidPermission.isPresent()) {
             throw new InvalidRoleAssignmentException(invalidPermission.get(), projectType);
+        }
+    }
+
+    public void canBeDeleted() {
+        if (roleType == RoleType.OWNER || roleType == RoleType.BASE) {
+            throw new InvalidRoleDeletion("Base Roles: 'OWNER' and 'BASE' cannot be deleted");
         }
     }
 
