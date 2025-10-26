@@ -4,11 +4,11 @@ import static com.dev.tasktrackr.activity.ProjectActivityEvents.UserRemovedFromP
 
 import com.dev.tasktrackr.project.api.dtos.response.ProjectMemberDto;
 import com.dev.tasktrackr.project.api.dtos.mapper.ProjectMemberMapper;
-import com.dev.tasktrackr.project.domain.Project;
+import com.dev.tasktrackr.project.domain.ProjectInvite;
 import com.dev.tasktrackr.project.domain.ProjectMember;
+import com.dev.tasktrackr.project.repository.ProjectInviteQueryRepository;
 import com.dev.tasktrackr.project.repository.ProjectMemberQueryRepository;
-import com.dev.tasktrackr.project.repository.ProjectRepository;
-import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
+import com.dev.tasktrackr.shared.exception.custom.BadRequestExceptions.InvalidProjectMemberDeletion;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -20,38 +20,46 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ProjectMemberServiceImpl implements ProjectMemberService{
     private final ProjectMemberQueryRepository projectMemberQueryRepository;
-    private final ProjectRepository projectRepository;
     private final ProjectMemberMapper projectMemberMapper;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final ProjectAccessService projectAccessService;  // project with invites
+    private final ProjectInviteQueryRepository projectInviteQueryRepository;
+
 
     @Override
     @Transactional
     public void removeMemberFromProject(String jwtUserId, Long projectId, Long memberId) {
-        Project project = projectRepository.findProjectWithInvitesAndMember(projectId)
-                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+        ProjectMember member = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
+        ProjectMember memberToRemove =  projectAccessService.findProjectMember(memberId, projectId); // needs to load with role
+        ProjectInvite invite = findProjectInviteByProjectIdAndReceiverId(projectId, memberToRemove.getUser().getId());
 
-        ProjectMember member = project.findProjectMember(jwtUserId);
         member.canRemoveUser();
+        memberToRemove.canBeRemovedFromProject(); // Members with OWNER-Role can't be removed
+        if(memberToRemove.getUser().getId().equals(jwtUserId)) throw new InvalidProjectMemberDeletion(); // self remove should not be possible
 
-        ProjectMember removedMember = project.removeMember(memberId);
-        projectRepository.save(project);
+        // Only delete if invite exists (ProjectCreator does not have invite)
+        if(invite != null) projectInviteQueryRepository.delete(invite); // Delete invite to enable reinvite
 
-        var event = new UserRemovedFromProjectEvent(projectId, member.getId(), member.getUser().getUsername(), memberId, removedMember.getUser().getUsername());
+
+        projectMemberQueryRepository.delete(memberToRemove);
+
+
+        var event = new UserRemovedFromProjectEvent(projectId, member.getId(), member.getUser().getUsername(), memberId, memberToRemove.getUser().getUsername());
         applicationEventPublisher.publishEvent(event);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<ProjectMemberDto> getAllProjectMembers(String jwtUserId, Long projectId, Pageable pageable) {
-
-        Project project = projectRepository.findProjectWithInvitesAndMember(projectId)
-                .orElseThrow(() -> new ProjectNotFoundException(projectId));
-        project.findProjectMember(jwtUserId); // checks if user is part of projects
+        projectAccessService.checkProjectMemberShip(projectId, jwtUserId);
 
         Page<ProjectMember> projectMembers = projectMemberQueryRepository.findAllProjectMembersByProjectId(projectId, pageable);
 
-
-
         return projectMembers.map(projectMemberMapper::toResponse);
+    }
+
+    /** Helper Methods */
+    ProjectInvite findProjectInviteByProjectIdAndReceiverId(Long projectId, String receiverId) {
+        return projectInviteQueryRepository.findProjectInviteByProjectIdAndReceiverId(projectId, receiverId);
     }
 }
