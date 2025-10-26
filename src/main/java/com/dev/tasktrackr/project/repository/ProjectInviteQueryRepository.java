@@ -40,4 +40,6 @@ public interface ProjectInviteQueryRepository extends JpaRepository<ProjectInvit
                                                                                  Pageable pageable);
 
     ProjectInvite findProjectInviteByProjectIdAndReceiverId(Long projectId, String receiverId);
+
+    boolean existsByProjectIdAndReceiverIdAndInviteStatus(Long projectId, String receiverId, ProjectInviteStatus inviteStatus);
 }

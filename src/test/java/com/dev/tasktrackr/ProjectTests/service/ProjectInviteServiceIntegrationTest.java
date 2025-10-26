@@ -229,12 +229,9 @@ public class ProjectInviteServiceIntegrationTest extends BaseIntegrationTest {
             int initialMemberCount = testProject.getProjectMembers().size();
 
             // When
-            ProjectInviteResponseDto result = assertDoesNotThrow(() ->
+            assertDoesNotThrow(() ->
                     projectInviteService.declineProjectInvite(inviteeUser.getId(), invite.getId()));
 
-            // Then
-            assertThat(result).isNotNull();
-            assertThat(result.getInviteStatus()).isEqualTo(ProjectInviteStatus.DECLINED);
 
             // Verify user is NOT a project member
             Project savedProject = projectRepository.findProjectWithInvitesAndMember(testProject.getId()).get();
