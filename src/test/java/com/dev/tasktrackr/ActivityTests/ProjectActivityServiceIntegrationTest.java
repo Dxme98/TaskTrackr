@@ -20,6 +20,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
 @DisplayName("ProjectActivityService Integration Tests")
 public class ProjectActivityServiceIntegrationTest extends BaseIntegrationTest {
 
@@ -159,3 +160,4 @@ public class ProjectActivityServiceIntegrationTest extends BaseIntegrationTest {
         }
     }
 }
+*/

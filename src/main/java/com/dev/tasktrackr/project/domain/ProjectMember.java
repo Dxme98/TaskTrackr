@@ -1,8 +1,10 @@
 package com.dev.tasktrackr.project.domain;
 
 import com.dev.tasktrackr.project.domain.enums.PermissionName;
+import com.dev.tasktrackr.project.domain.enums.RoleType;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.PermissionDeniedException;
 import com.dev.tasktrackr.shared.exception.custom.BadRequestExceptions.InvalidRoleAssignmentException;
+import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.InvalidMemberRemovalException;
 import com.dev.tasktrackr.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -65,6 +67,12 @@ public class ProjectMember {
             throw new InvalidRoleAssignmentException("Rolle gehört nicht zu diesem Projekt");
         }
         this.projectRole = newRole;
+    }
+
+    public void canBeRemovedFromProject() {
+        if(getProjectRole().getRoleType().equals(RoleType.OWNER)) {
+            throw new InvalidMemberRemovalException("Members with OWNER Role can't be removed.");
+        }
     }
 
     // ====== Permission Checks ======

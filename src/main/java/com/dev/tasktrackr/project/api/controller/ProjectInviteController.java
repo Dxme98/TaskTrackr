@@ -66,13 +66,13 @@ public class ProjectInviteController {
     @ApiResponse(responseCode = "200", description = "Invite declined successfully",
             content = @Content(schema = @Schema(implementation = ProjectInviteResponseDto.class)))
     @ApiErrorResponses.Conflict
-    public ResponseEntity<ProjectInviteResponseDto> declineInvite(@AuthenticationPrincipal Jwt jwt, @PathVariable(name = "inviteId") Long inviteId) {
+    public ResponseEntity<Void> declineInvite(@AuthenticationPrincipal Jwt jwt, @PathVariable(name = "inviteId") Long inviteId) {
         log.info("Declined Invite from user: {}", jwt.getClaimAsString("preferred_username"));
 
         String userId = jwt.getClaim("sub");
-        ProjectInviteResponseDto response = projectInviteService.declineProjectInvite(userId, inviteId);
+        projectInviteService.declineProjectInvite(userId, inviteId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.noContent().build();
     }
 
 

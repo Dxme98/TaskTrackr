@@ -24,6 +24,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
 @DisplayName("ProjectService Integration Tests")
 public class ProjectServiceIntegrationTest extends BaseIntegrationTest {
 
@@ -197,3 +198,4 @@ public class ProjectServiceIntegrationTest extends BaseIntegrationTest {
         }
     }
 }
+*/

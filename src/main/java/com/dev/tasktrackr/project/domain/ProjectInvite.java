@@ -91,10 +91,5 @@ public class ProjectInvite {
         // Prüfen ob Status noch PENDING ist
         if (this.inviteStatus != ProjectInviteStatus.PENDING) throw new InviteIsNotPendingException(this.id);
 
-        // Prüfen ob Empfänger nicht schon Mitglied des Projekts ist
-        boolean receiverIsMember = this.project.getProjectMembers().stream()
-                .anyMatch(member -> member.getUser().getId().equals(receiverId));
-        if (receiverIsMember) throw new UserAlreadyPartOfProjectException(receiverId, this.project.getId());
-
     }
 }

@@ -194,8 +194,8 @@ public class ProjectInformationControllerWebMvcTest {
         @DisplayName("Should return 200 OK and list of links")
         void findLinksByProjectId_whenValidRequest_shouldReturn200AndLinks() throws Exception {
             // Given
-            Link link1 = new Link("Documentation", "https://docs.example.com", LinkType.DOCS, null);
-            Link link2 = new Link("Repository", "https://github.com/user/repo", LinkType.GITHUB, null);
+            Link link1 = Link.create("Documentation", "https://docs.example.com", LinkType.DOCS, null);
+            Link link2 = Link.create("Repository", "https://github.com/user/repo", LinkType.GITHUB, null);
             Set<Link> expectedLinks = Set.of(link1, link2);
 
             when(projectInformationService.findLinksByProjectId(eq(testProjectId), eq(testUserId)))
@@ -227,7 +227,7 @@ public class ProjectInformationControllerWebMvcTest {
             // Given
             CreateLinkRequest request = new CreateLinkRequest("Documentation", "https://docs.example.com", LinkType.DOCS);
 
-            Link expectedLink = new Link("Documentation", "https://docs.example.com", LinkType.DOCS, null);
+            Link expectedLink = Link.create("Documentation", "https://docs.example.com", LinkType.DOCS, null);
 
             when(projectInformationService.addLink(eq(testProjectId), eq(testUserId), any(CreateLinkRequest.class)))
                     .thenReturn(expectedLink);
@@ -260,7 +260,7 @@ public class ProjectInformationControllerWebMvcTest {
                         linkType
                 );
 
-                Link expectedLink = new Link(request.getTitle(), request.getUrl(), request.getLinkType(), null);
+                Link expectedLink = Link.create(request.getTitle(), request.getUrl(), request.getLinkType(), null);
 
                 when(projectInformationService.addLink(eq(testProjectId), eq(testUserId), any(CreateLinkRequest.class)))
                         .thenReturn(expectedLink);

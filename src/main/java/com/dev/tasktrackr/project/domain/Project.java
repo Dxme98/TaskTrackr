@@ -6,7 +6,6 @@ import com.dev.tasktrackr.project.domain.enums.PermissionName;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
 import com.dev.tasktrackr.project.domain.enums.RoleType;
 import com.dev.tasktrackr.project.domain.scrum.ScrumDetails;
-import com.dev.tasktrackr.project.domain.validator.ProjectValidator;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.InvalidProjectTypeException;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.UserNotProjectMemberException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectMemberNotFoundException;
@@ -79,80 +78,12 @@ public class Project {
         return project;
     }
 
-    public ProjectMember addMember(UserEntity userEntity) {
-        ProjectValidator.validateAddMember(this, userEntity.getId());
-
-        ProjectMember createdMember = ProjectMember.createMember(userEntity, this, getBaseRole());
-        projectMembers.add(createdMember);
-
-        return createdMember;
-    }
-
     public ProjectMember addMemberWithRole(UserEntity userEntity, ProjectRole role) {
-        ProjectValidator.validateAddMember(this, userEntity.getId());
 
         ProjectMember createdMember = ProjectMember.createMember(userEntity, this, role);
         projectMembers.add(createdMember);
 
         return createdMember;
-    }
-
-    public ProjectMember removeMember(Long memberToRemove) {
-        ProjectValidator.validateRemoveMember(this, memberToRemove);
-        ProjectMember toRemove = projectMembers.stream()
-                .filter(member -> member.getId().equals(memberToRemove))
-                .findFirst().orElseThrow(() -> new ProjectMemberNotFoundException(memberToRemove));
-
-        projectMembers.remove(toRemove); // remove from project
-        projectInvites.removeIf(invite -> invite.getReceiver().getId().equals(toRemove.getUser().getId())); // remove invite, to enable reinvite
-
-        return toRemove;
-    }
-
-    public void createInvite(UserEntity sender, UserEntity receiver) {
-        ProjectValidator.validateInviteCreation(this, receiver.getId(), sender.getId());
-
-        ProjectInvite createdInvite = ProjectInvite.createInvite(sender, receiver, this);
-        projectInvites.add(createdInvite);
-    }
-
-    public void createRole(String name, Set<PermissionName> permissions) {
-        ProjectValidator.validateRoleCreation(this, name);
-
-        ProjectRole role  = ProjectRole.createCustomRole(this, name, permissions);
-        projectRoles.add(role);
-    }
-
-    public ProjectRole deleteRole(int roleId) {
-        ProjectValidator.validateRoleDeletion(this, roleId);
-
-        Optional<ProjectRole> roleToDeleteOpt = this.projectRoles.stream()
-                .filter(role -> role.getId() == roleId)
-                .findFirst();
-
-        if (roleToDeleteOpt.isPresent()) {
-            ProjectRole roleToDelete = roleToDeleteOpt.get();
-            this.projectRoles.remove(roleToDelete);
-            return roleToDelete;
-        }
-
-        throw new RoleNotFoundException(roleId);
-    }
-
-    public ProjectMember assignRole(int roleId, Long projectMemberId, String actingUserId) {
-        ProjectValidator.validateRoleAssignment(this, roleId, projectMemberId, actingUserId);
-
-        ProjectRole role = this.projectRoles.stream()
-                .filter(r -> r.getId() == roleId).findFirst()
-                .orElseThrow(() -> new RoleNotFoundException(roleId));
-
-        ProjectMember member = this.projectMembers.stream()
-                .filter(m -> m.getId().equals(projectMemberId)).findFirst()
-                .orElseThrow(() -> new ProjectMemberNotFoundException(projectMemberId));
-
-        member.assignRole(role);
-
-        return member;
     }
 
     private void assignScrumDetails() {
@@ -167,15 +98,6 @@ public class Project {
             throw new InvalidProjectTypeException("Project is not a BASIC type");
         }
       this.basicDetails = new BasicDetails(this);
-    }
-
-    public ProjectRole renameRole(int roleId, String newName) {
-        ProjectValidator.validateRoleCreation(this, newName);
-        ProjectRole role = this.projectRoles.stream()
-                .filter(r -> r.getId() == roleId)
-                .findFirst().orElseThrow(() -> new RoleNotFoundException(roleId));
-
-        return role.renameRole(newName);
     }
 
     public void initBaseRoles(ProjectType projectType) {
@@ -198,43 +120,6 @@ public class Project {
                 .filter(r -> r.getRoleType().equals(RoleType.BASE))
                 .findFirst()
                 .orElseThrow(() -> new RoleNotFoundException("Default role not initialized"));
-    }
-
-
-    public ProjectMember findProjectMember(String userId) {
-        return this.getProjectMembers().stream()
-                .filter(member -> member.getUser().getId().equals(userId))
-                .findFirst()
-                .orElseThrow(() -> new UserNotProjectMemberException(userId));
-    }
-
-    public ProjectMember findProjectMember(Long memberId) {
-        return this.getProjectMembers().stream()
-                .filter(member -> member.getId().equals(memberId))
-                .findFirst()
-                .orElseThrow(() -> new ProjectMemberNotFoundException(memberId));
-    }
-
-    public void isProjectMember(String userId) {
-        this.getProjectMembers().stream()
-                .filter(member -> member.getUser().getId().equals(userId))
-                .findFirst()
-                .orElseThrow(() -> new UserNotProjectMemberException(userId));
-    }
-
-    public Set<ProjectMember> findProjectMembers(Set<Long> projectMemberIds) {
-        Map<Long, ProjectMember> memberMap = this.projectMembers.stream()
-                .collect(Collectors.toMap(ProjectMember::getId, Function.identity()));
-
-        Set<Long> notFound = projectMemberIds.stream()
-                .filter(id -> !memberMap.containsKey(id))
-                .collect(Collectors.toSet());
-
-        if (!notFound.isEmpty()) throw new ProjectMemberNotFoundException(notFound);
-
-        return projectMemberIds.stream()
-                .map(memberMap::get)
-                .collect(Collectors.toSet());
     }
 
     public ScrumDetails getScrumDetails() {

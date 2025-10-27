@@ -12,9 +12,15 @@ import com.dev.tasktrackr.project.api.dtos.response.ProjectRoleResponse;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.ProjectRole;
+import com.dev.tasktrackr.project.domain.enums.RoleType;
+import com.dev.tasktrackr.project.repository.ProjectMemberQueryRepository;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
 import com.dev.tasktrackr.project.repository.ProjectRoleQueryRepository;
+import com.dev.tasktrackr.shared.exception.custom.BadRequestExceptions.InvalidRoleAssignmentException;
+import com.dev.tasktrackr.shared.exception.custom.BadRequestExceptions.InvalidRoleDeletion;
+import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.RoleNameAlreadyExistsException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.RoleNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -32,92 +38,131 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
     private final ProjectMemberMapper projectMemberMapper;
     private final ProjectRoleQueryRepository projectRoleQueryRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final ProjectAccessService projectAccessService;
+    private final ProjectMemberQueryRepository projectMemberQueryRepository;
 
     @Override
     @Transactional
     public ProjectRoleResponse createProjectRole(String jwtUserId, CreateProjectRoleRequest createProjectRoleRequest, Long projectId) {
-        Project project = findProjectWithAttributes(projectId);
-        memberCanManageRoles(project, jwtUserId);
-        ProjectMember actingMember = project.findProjectMember(jwtUserId);
+        Project project = projectAccessService.findProjectByIdWithRoles(projectId);
+        ProjectMember member = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
 
-        project.createRole(createProjectRoleRequest.getName(), createProjectRoleRequest.getPermissions());
+        member.canManageRoles();
 
-        projectRepository.save(project);
+        checkForUniqueRoleName(createProjectRoleRequest.getName(), projectId);
 
-        ProjectRole persistedRole = project.getProjectRoles().get(project.getProjectRoles().size()-1);
+        ProjectRole role  = ProjectRole.createCustomRole(project, createProjectRoleRequest.getName(), createProjectRoleRequest.getPermissions());
+        projectRoleQueryRepository.save(role);
 
-        log.info("ROLLEN ID GENIERTE {}", persistedRole.getId());
-
-        var event = new RoleCreatedEvent(projectId, actingMember.getId(), actingMember.getUser().getUsername(), (long) persistedRole.getId(), persistedRole.getName() );
+        var event = new RoleCreatedEvent(projectId, member.getId(), member.getUser().getUsername(), (long) role.getId(), role.getName() );
         applicationEventPublisher.publishEvent(event);
 
-        return roleMapper.toResponse(persistedRole);
+        return roleMapper.toResponse(role);
     }
 
     @Override
     @Transactional
     public void deleteProjectRole(String jwtUserId, Long projectId, int roleId) {
-        Project project = findProjectWithAttributes(projectId);
-        memberCanManageRoles(project, jwtUserId);
-        ProjectMember actingMember = project.findProjectMember(jwtUserId);
+        ProjectMember member = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
+        ProjectRole roleToDelete = findRoleById(roleId);
 
-        ProjectRole deletedRole = project.deleteRole(roleId);
+        member.canManageRoles();
 
-        var event = new RoleDeletedEvent(projectId, actingMember.getId(), actingMember.getUser().getUsername(), (long) deletedRole.getId(), deletedRole.getName() );
+        // checks
+        validateRoleDeletion(roleToDelete);
+
+        projectRoleQueryRepository.delete(roleToDelete);
+
+        var event = new RoleDeletedEvent(projectId, member.getId(), member.getUser().getUsername(), (long) roleToDelete.getId(), roleToDelete.getName());
         applicationEventPublisher.publishEvent(event);
-
-        projectRepository.save(project);
     }
 
     @Override
     @Transactional
     public ProjectMemberDto assignRole(String jwtUserId, int roleId, Long memberId, Long projectId) {
-        Project project = findProjectWithAttributes(projectId);
-        memberCanManageRoles(project, jwtUserId);
-        ProjectMember actingMember = project.findProjectMember(jwtUserId);
+        ProjectMember member = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
+        ProjectMember memberToAssignRole =  projectAccessService.findProjectMemberWithPermissionsRolesAndUser(memberId, projectId);
+        ProjectRole roleToAssign = findRoleById(roleId);
 
-        ProjectMember updatedMember = project.assignRole(roleId, memberId, jwtUserId);
+        member.canManageRoles();
 
-        projectRepository.save(project);
+        validateRoleAssignment(roleToAssign,  memberToAssignRole, member,jwtUserId, projectId);
 
-        var event = new RoleAssignedEvent(projectId, actingMember.getId(), actingMember.getUser().getUsername(), (long) roleId, updatedMember.getUser().getUsername(), updatedMember.getProjectRole().getName() );
+        memberToAssignRole.assignRole(roleToAssign);
+
+
+        var event = new RoleAssignedEvent(projectId, member.getId(), member.getUser().getUsername(), (long) roleId, memberToAssignRole.getUser().getUsername(), memberToAssignRole.getProjectRole().getName() );
         applicationEventPublisher.publishEvent(event);
 
-        return projectMemberMapper.toResponse(updatedMember);
+        return projectMemberMapper.toResponse(memberToAssignRole);
     }
 
     @Override
     @Transactional
     public ProjectRoleResponse renameRole(String jwtUserId,  String newName,  Long projectId, int roleId) {
-        Project project = findProjectWithAttributes(projectId);
-        memberCanManageRoles(project, jwtUserId);
+        ProjectMember member = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
 
-        ProjectRole updatedRole = project.renameRole(roleId, newName);
+        member.canManageRoles();
 
-        projectRepository.save(project);
 
-        return roleMapper.toResponse(updatedRole);
+        ProjectRole role = projectRoleQueryRepository.findById(roleId).orElseThrow(() -> new RoleNotFoundException(roleId));
+        checkForUniqueRoleName(newName, projectId);
+
+        role.renameRole(newName);
+
+        return roleMapper.toResponse(role);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<ProjectRoleResponse> getAllRoles(String jwtUserId, Pageable pageable, Long projectId) {
-        Project project = projectRepository.findProjectWithInvitesAndMember(projectId)
-                .orElseThrow(() -> new ProjectNotFoundException(projectId));
-        project.findProjectMember(jwtUserId); // checks if user is part of projects
-
+        projectAccessService.checkProjectMemberShip(projectId, jwtUserId);
 
         Page<ProjectRole> roles = projectRoleQueryRepository.findAllByProjectId(projectId, pageable);
 
         return roles.map(roleMapper::toResponse);
     }
 
-    private Project findProjectWithAttributes(Long projectId) {
-        return projectRepository.findProjectWithRoles(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+    /** Validation */
+    void validateRoleDeletion(ProjectRole roleToDelete) {
+        roleToDelete.canBeDeleted();
+        if(projectMemberQueryRepository.existsByProjectRoleId(roleToDelete.getId())) throw new InvalidRoleDeletion("Remove Role from ProjectMember before deleting the Role");; // Role can only be deleted if no user is assigned to it
     }
 
-    private void memberCanManageRoles(Project project, String jwtUserId) {
-        ProjectMember member = project.findProjectMember(jwtUserId);
-        member.canManageRoles();
+    void validateRoleAssignment(ProjectRole roleToAssign, ProjectMember memberToAssignRole, ProjectMember member, String jwtUserId, Long projectId) {
+        ProjectRole currentRole = memberToAssignRole.getProjectRole();
+
+        // 3.
+        if (roleToAssign.getRoleType() == RoleType.OWNER &&
+                memberToAssignRole.getUser().getId().equals(jwtUserId) && // Ziel ist gleich Akteur
+                member.getProjectRole().getRoleType() != RoleType.OWNER) { // Akteur ist kein Owner
+
+            throw new InvalidRoleAssignmentException("You cannot assign yourself to OWNER role");
+        }
+
+        if (!currentRole.equals(roleToAssign)) {
+
+            if (currentRole.getRoleType() == RoleType.OWNER && roleToAssign.getRoleType() != RoleType.OWNER) {
+
+                long ownerCount = projectMemberQueryRepository.countByProjectIdAndProjectRole_RoleType(projectId, RoleType.OWNER);
+
+                if (ownerCount <= 1) {
+                    throw new InvalidRoleAssignmentException("At least one OWNER must exist in project");
+                }
+            }
+        }
+    }
+
+    /** Helper */
+
+    void checkForUniqueRoleName(String name, Long projectId) {
+        if(projectRoleQueryRepository.existsByNameAndProjectId(name, projectId)) {
+            throw new RoleNameAlreadyExistsException(name);
+        }
+    }
+
+    ProjectRole findRoleById(int roleId) {
+       return projectRoleQueryRepository.findById(roleId).orElseThrow(() -> new RoleNotFoundException(roleId));
     }
 }

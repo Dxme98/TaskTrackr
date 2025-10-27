@@ -15,6 +15,7 @@ import com.dev.tasktrackr.project.domain.enums.Status;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
 import com.dev.tasktrackr.project.repository.TaskQueryRepository;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.TaskNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -27,7 +28,7 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
-    private final ProjectRepository projectRepository;
+    private final ProjectAccessService projectAccessService;
     private final TaskMapper taskMapper;
     private final TaskQueryRepository taskQueryRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
@@ -35,19 +36,15 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     public TaskResponseDto createTask(Long projectId, CreateTaskRequest createTaskRequest, String jwtUserId) {
-        Project project = findProjectById(projectId);
-        BasicDetails basicDetails = project.getBasicDetails();
-        ProjectMember taskCreator = project.findProjectMember(jwtUserId);
+        BasicDetails basicDetails = projectAccessService.findProjectById(projectId).getBasicDetails();
+        ProjectMember taskCreator = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
 
         taskCreator.canCreateTask();
 
-        Set<ProjectMember> assignedMembers = project.findProjectMembers(createTaskRequest.getAssignedToMemberIds());
+        Set<ProjectMember> assignedMembers = projectAccessService.findProjectMembers(createTaskRequest.getAssignedToMemberIds());
+        Task createdTask = Task.create(createTaskRequest, basicDetails, taskCreator, assignedMembers);
 
-        Task createdTask = basicDetails.addTask(createTaskRequest, taskCreator, assignedMembers);
-
-        projectRepository.save(project);
-
-        Task perisistedTask = basicDetails.findTask(createdTask);
+        Task perisistedTask = taskQueryRepository.save(createdTask);
 
         var event = new TaskCreatedEvent(projectId, taskCreator.getId(), taskCreator.getUser().getUsername(), perisistedTask.getId(), perisistedTask.getTitle());
         applicationEventPublisher.publishEvent(event);
@@ -58,14 +55,12 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     public TaskResponseDto completeTask(Long projectId, Long taskId, String jwtUserId) {
-        Project project = findProjectById(projectId);
-        BasicDetails basicDetails = project.getBasicDetails();
-        ProjectMember member = project.findProjectMember(jwtUserId);
+        ProjectMember member = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
+        Task completedTask = findTaskById(taskId);
 
+        completedTask.complete(member);
 
-        Task completedTask = basicDetails.completeTask(taskId, member.getId());
-
-        projectRepository.save(project);
+        taskQueryRepository.save(completedTask);
 
         var event = new TaskCompletedEvent(projectId, member.getId(), member.getUser().getUsername(), completedTask.getId(), completedTask.getTitle());
         applicationEventPublisher.publishEvent(event);
@@ -76,25 +71,21 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     public void deleteTask(Long projectId, Long taskId, String jwtUserId) {
-        Project project = findProjectById(projectId);
-        BasicDetails basicDetails = project.getBasicDetails();
-        ProjectMember requestMember = project.findProjectMember(jwtUserId);
+        ProjectMember requestMember = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
+        Task taskToDelete = findTaskById(taskId);
 
         requestMember.canDeleteTask();
-        Task deletedTask = basicDetails.deleteTask(taskId);
 
-        var event = new TaskDeletedEvent(projectId, requestMember.getId(), requestMember.getUser().getUsername(), deletedTask.getId(), deletedTask.getTitle());
+        taskQueryRepository.deleteById(taskId);
+
+        var event = new TaskDeletedEvent(projectId, requestMember.getId(), requestMember.getUser().getUsername(), taskToDelete.getId(), taskToDelete.getTitle());
         applicationEventPublisher.publishEvent(event);
-
-        projectRepository.save(project);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<TaskResponseDto> findAllTasks(Long projectId, Pageable pageable, String jwtUserId,
-                                              boolean assigned, Status status) {
-        Project project = findProjectById(projectId); // need to optimize
-        project.findProjectMember(jwtUserId); // throws if not member
+    public Page<TaskResponseDto> findAllTasks(Long projectId, Pageable pageable, String jwtUserId, boolean assigned, Status status) {
+        projectAccessService.checkProjectMemberShip(projectId, jwtUserId);
 
         if(status != null) {
             Page<Task> tasks =  taskQueryRepository.findAllByStatus(projectId, status, pageable);
@@ -110,8 +101,10 @@ public class TaskServiceImpl implements TaskService {
         return tasks.map(taskMapper::toResponse);
     }
 
-    private Project findProjectById(Long projectId) {
-        return projectRepository.findById(projectId)
-                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+    /** Helper Methods */
+
+    private Task findTaskById(Long taskId) {
+        return taskQueryRepository.findById(taskId)
+                .orElseThrow(() -> new TaskNotFoundException(taskId));
     }
 }

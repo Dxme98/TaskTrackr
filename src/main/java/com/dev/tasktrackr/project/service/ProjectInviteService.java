@@ -9,6 +9,6 @@ import org.springframework.data.domain.PageRequest;
 public interface ProjectInviteService {
     ProjectInviteResponseDto createProjectInvite(ProjectInviteRequest request, String senderUserId, Long projectId);
     ProjectInviteResponseDto acceptProjectInvite(String receiverId, Long inviteId);
-    ProjectInviteResponseDto declineProjectInvite(String receiverId, Long inviteId);
+    void declineProjectInvite(String receiverId, Long inviteId);
     Page<ProjectInviteResponseDto> findAllPendingInvitesByUserId(String userId, PageRequest pageRequest);
 }

@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Set;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -24,9 +26,19 @@ public class ProjectAccessService {
                 .orElseThrow(() -> new ProjectNotFoundException(projectId));
     }
 
+    public Project findProjectByIdWithRoles(Long projectId) {
+        return projectRepository.findProjectWithRoles(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+    }
+
     public ProjectMember findProjectMemberWithPermissionsRolesAndUser(String userId, Long projectId) {
         return projectMemberQueryRepository.findProjectMemberWithPermissionsRolesAndUser(projectId, userId)
                 .orElseThrow(() -> new UserNotProjectMemberException(userId));
+    }
+
+    public ProjectMember findProjectMemberWithPermissionsRolesAndUser(Long memberId, Long projectId) {
+        return projectMemberQueryRepository.findProjectMemberWithPermissionsRolesAndUser(projectId, memberId)
+                .orElseThrow(() -> new ProjectMemberNotFoundException(memberId));
     }
 
     // loads plain user without extra fetches
@@ -38,6 +50,10 @@ public class ProjectAccessService {
     public ProjectMember findProjectMember(String userId, Long projectId) {
         return projectMemberQueryRepository.findProjectMemberByUserIdAndProjectId(userId, projectId)
                 .orElseThrow(() -> new ProjectMemberNotFoundException(projectId));
+    }
+
+    public Set<ProjectMember> findProjectMembers(Set<Long> memberIds) {
+        return projectMemberQueryRepository.findByIdIn(memberIds);
     }
 
     public void checkProjectMemberShip(Long projectId, String userId) {

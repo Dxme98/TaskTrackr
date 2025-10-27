@@ -2,9 +2,11 @@ package com.dev.tasktrackr.project.repository;
 
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.ProjectRole;
+import com.dev.tasktrackr.project.domain.enums.RoleType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -12,7 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Repository
-public interface ProjectMemberQueryRepository extends ReadOnlyRepository<ProjectMember, Long> {
+public interface ProjectMemberQueryRepository extends JpaRepository<ProjectMember, Long> {
     @EntityGraph(attributePaths = {"projectRole", "projectRole.permissions", "user"})
     @Query("SELECT pm FROM ProjectMember pm WHERE pm.project.id = :projectId")
     Page<ProjectMember> findAllProjectMembersByProjectId(@Param("projectId") Long projectId, Pageable pageable);
@@ -25,6 +27,10 @@ public interface ProjectMemberQueryRepository extends ReadOnlyRepository<Project
     @Query("SELECT pm FROM ProjectMember pm WHERE pm.project.id = :projectId and pm.user.id = :userId")
     Optional<ProjectMember> findProjectMemberWithPermissionsRolesAndUser(@Param("projectId") Long projectId, @Param("userId") String userId);
 
+    @EntityGraph(attributePaths = {"projectRole", "projectRole.permissions", "user"})
+    @Query("SELECT pm FROM ProjectMember pm WHERE pm.project.id = :projectId and pm.id = :memberId")
+    Optional<ProjectMember> findProjectMemberWithPermissionsRolesAndUser(@Param("projectId") Long projectId, @Param("memberId") Long memberId);
+
     @EntityGraph(attributePaths = {"user"})
     Optional<ProjectMember> findProjectMemberByIdAndProjectId(Long id, Long projectId);
 
@@ -32,4 +38,14 @@ public interface ProjectMemberQueryRepository extends ReadOnlyRepository<Project
     Optional<ProjectMember> findProjectMemberByUserIdAndProjectId(String userId, Long projectId);
 
     boolean existsByUserIdAndProjectId(String userId, Long projectId);
+
+    @EntityGraph(attributePaths = {"user"})
+    Set<ProjectMember> findByIdIn(Set<Long> memberIds);
+
+    boolean existsByProjectRoleId(int projectRoleId);
+
+    @Query("SELECT COUNT(pm) FROM ProjectMember pm " +
+            "WHERE pm.project.id = :projectId AND pm.projectRole.roleType = :roleType")
+    long countByProjectIdAndProjectRole_RoleType(@Param("projectId") Long projectId, @Param("roleType") RoleType roleType);
+
 }

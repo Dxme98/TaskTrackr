@@ -32,10 +32,14 @@ public class Link {
     @JsonIgnore
     private BasicDetails basicDetails;
 
-    public Link(String title, String url, LinkType type, BasicDetails basicDetails) {
-        this.title = title;
-        this.url = url;
-        this.type = type;
-        this.basicDetails = basicDetails;
+    public static Link create(String title, String url, LinkType type, BasicDetails basicDetails) {
+        Link link = new Link();
+        link.title = title;
+        link.url = url;
+        link.type = type;
+        link.basicDetails = basicDetails;
+
+
+        return link;
     }
 }
