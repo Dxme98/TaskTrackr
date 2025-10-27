@@ -140,7 +140,7 @@ public class ProjectInviteControllerWebMvcTest {
     }
 
     @Test
-    @DisplayName("PUT /invites/{inviteId}/decline - Sollte 200 OK zurückgeben und Einladung ablehnen")
+    @DisplayName("PUT /invites/{inviteId}/decline - Sollte 204 No Conent zurückgeben und Einladung ablehnen")
     void declineInvite_whenValidRequest_shouldReturn200AndDeclinedInvite() throws Exception {
         // Given
         ProjectInviteResponseDto expectedResponse = new ProjectInviteResponseDto(
@@ -162,7 +162,7 @@ public class ProjectInviteControllerWebMvcTest {
                                 .claim("sub", testUserId)
                                 .claim("preferred_username", testUsername)
                         )))
-                .andExpect(status().isOk())
+                .andExpect(status().isNoContent())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(expectedResponse.getId()))
                 .andExpect(jsonPath("$.receiverId").value(expectedResponse.getReceiverId()))
