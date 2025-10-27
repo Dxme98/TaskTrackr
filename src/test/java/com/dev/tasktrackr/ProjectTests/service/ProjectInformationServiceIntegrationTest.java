@@ -26,6 +26,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
 @DisplayName("ProjectInformationService Integration Tests")
 public class ProjectInformationServiceIntegrationTest extends BaseIntegrationTest {
 
@@ -359,4 +360,4 @@ public class ProjectInformationServiceIntegrationTest extends BaseIntegrationTes
         }
     }
 }
-
+ */

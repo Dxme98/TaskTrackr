@@ -156,9 +156,6 @@ public class ProjectInviteControllerWebMvcTest {
                 Instant.now()
         );
 
-        when(projectInviteService.declineProjectInvite(eq(testUserId), eq(testInviteId)))
-                .thenReturn(expectedResponse);
-
         // When & Then
         mockMvc.perform(put(API_BASE_URL + "/invites/{inviteId}/decline", testInviteId)
                         .with(jwt().jwt(jwt -> jwt

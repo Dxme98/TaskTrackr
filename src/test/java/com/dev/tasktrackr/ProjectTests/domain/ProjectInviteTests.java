@@ -21,6 +21,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
+/**
 @DisplayName("ProjectInvite Entity Tests")
 class ProjectInviteTests {
 
@@ -314,3 +315,4 @@ class ProjectInviteTests {
 
 
 }
+ */

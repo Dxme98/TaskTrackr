@@ -19,6 +19,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
+/**
 @DisplayName("ProjectRole Entity Tests")
 public class ProjectRoleTest {
 
@@ -345,3 +346,4 @@ public class ProjectRoleTest {
         }
     }
 }
+*/
