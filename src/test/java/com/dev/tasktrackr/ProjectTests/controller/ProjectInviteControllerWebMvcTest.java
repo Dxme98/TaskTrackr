@@ -162,11 +162,7 @@ public class ProjectInviteControllerWebMvcTest {
                                 .claim("sub", testUserId)
                                 .claim("preferred_username", testUsername)
                         )))
-                .andExpect(status().isNoContent())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(expectedResponse.getId()))
-                .andExpect(jsonPath("$.receiverId").value(expectedResponse.getReceiverId()))
-                .andExpect(jsonPath("$.inviteStatus").value("DECLINED"));
+                .andExpect(status().isNoContent());
 
         verify(projectInviteService).declineProjectInvite(eq(testUserId), eq(testInviteId));
     }
