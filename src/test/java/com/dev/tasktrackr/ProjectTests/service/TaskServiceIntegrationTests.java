@@ -1,39 +1,5 @@
 package com.dev.tasktrackr.ProjectTests.service;
 
-import com.dev.tasktrackr.BaseIntegrationTest;
-import com.dev.tasktrackr.project.api.dtos.mapper.TaskMapper;
-import com.dev.tasktrackr.project.api.dtos.request.CreateTaskRequest;
-import com.dev.tasktrackr.project.api.dtos.response.TaskResponseDto;
-import com.dev.tasktrackr.project.domain.*;
-import com.dev.tasktrackr.project.domain.basic.BasicDetails;
-import com.dev.tasktrackr.project.domain.enums.Priority;
-import com.dev.tasktrackr.project.domain.enums.ProjectType;
-import com.dev.tasktrackr.project.domain.enums.Status;
-import com.dev.tasktrackr.project.repository.TaskQueryRepository;
-import com.dev.tasktrackr.project.service.TaskServiceImpl;
-import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.PermissionDeniedException;
-import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.ProjectMemberNotAllowedToCompleteTaskException;
-import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.UserNotProjectMemberException;
-import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectMemberNotFoundException;
-import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
-import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.TaskNotFoundException;
-import com.dev.tasktrackr.user.UserEntity;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.test.annotation.Rollback;
-
-import java.time.LocalDateTime;
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
 @DisplayName("TaskService Integration Tests")
 public class TaskServiceIntegrationTests extends BaseIntegrationTest {

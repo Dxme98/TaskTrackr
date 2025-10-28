@@ -13,13 +13,11 @@ import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.ProjectRole;
 import com.dev.tasktrackr.project.domain.enums.RoleType;
-import com.dev.tasktrackr.project.repository.ProjectMemberQueryRepository;
-import com.dev.tasktrackr.project.repository.ProjectRepository;
-import com.dev.tasktrackr.project.repository.ProjectRoleQueryRepository;
+import com.dev.tasktrackr.project.repository.ProjectMemberRepository;
+import com.dev.tasktrackr.project.repository.ProjectRoleRepository;
 import com.dev.tasktrackr.shared.exception.custom.BadRequestExceptions.InvalidRoleAssignmentException;
 import com.dev.tasktrackr.shared.exception.custom.BadRequestExceptions.InvalidRoleDeletion;
 import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.RoleNameAlreadyExistsException;
-import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.RoleNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,13 +31,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Slf4j
 public class ProjectRoleServiceImpl implements ProjectRoleService {
-    private final ProjectRepository  projectRepository;
     private final RoleMapper roleMapper;
     private final ProjectMemberMapper projectMemberMapper;
-    private final ProjectRoleQueryRepository projectRoleQueryRepository;
+    private final ProjectRoleRepository projectRoleRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final ProjectAccessService projectAccessService;
-    private final ProjectMemberQueryRepository projectMemberQueryRepository;
+    private final ProjectMemberRepository projectMemberRepository;
 
     @Override
     @Transactional
@@ -52,7 +49,7 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
         checkForUniqueRoleName(createProjectRoleRequest.getName(), projectId);
 
         ProjectRole role  = ProjectRole.createCustomRole(project, createProjectRoleRequest.getName(), createProjectRoleRequest.getPermissions());
-        projectRoleQueryRepository.save(role);
+        projectRoleRepository.save(role);
 
         var event = new RoleCreatedEvent(projectId, member.getId(), member.getUser().getUsername(), (long) role.getId(), role.getName() );
         applicationEventPublisher.publishEvent(event);
@@ -71,7 +68,7 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
         // checks
         validateRoleDeletion(roleToDelete);
 
-        projectRoleQueryRepository.delete(roleToDelete);
+        projectRoleRepository.delete(roleToDelete);
 
         var event = new RoleDeletedEvent(projectId, member.getId(), member.getUser().getUsername(), (long) roleToDelete.getId(), roleToDelete.getName());
         applicationEventPublisher.publishEvent(event);
@@ -105,7 +102,7 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
         member.canManageRoles();
 
 
-        ProjectRole role = projectRoleQueryRepository.findById(roleId).orElseThrow(() -> new RoleNotFoundException(roleId));
+        ProjectRole role = projectRoleRepository.findById(roleId).orElseThrow(() -> new RoleNotFoundException(roleId));
         checkForUniqueRoleName(newName, projectId);
 
         role.renameRole(newName);
@@ -118,7 +115,7 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
     public Page<ProjectRoleResponse> getAllRoles(String jwtUserId, Pageable pageable, Long projectId) {
         projectAccessService.checkProjectMemberShip(projectId, jwtUserId);
 
-        Page<ProjectRole> roles = projectRoleQueryRepository.findAllByProjectId(projectId, pageable);
+        Page<ProjectRole> roles = projectRoleRepository.findAllByProjectId(projectId, pageable);
 
         return roles.map(roleMapper::toResponse);
     }
@@ -127,7 +124,7 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
     /** Validation */
     void validateRoleDeletion(ProjectRole roleToDelete) {
         roleToDelete.canBeDeleted();
-        if(projectMemberQueryRepository.existsByProjectRoleId(roleToDelete.getId())) throw new InvalidRoleDeletion("Remove Role from ProjectMember before deleting the Role");; // Role can only be deleted if no user is assigned to it
+        if(projectMemberRepository.existsByProjectRoleId(roleToDelete.getId())) throw new InvalidRoleDeletion("Remove Role from ProjectMember before deleting the Role");; // Role can only be deleted if no user is assigned to it
     }
 
     void validateRoleAssignment(ProjectRole roleToAssign, ProjectMember memberToAssignRole, ProjectMember member, String jwtUserId, Long projectId) {
@@ -145,7 +142,7 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
 
             if (currentRole.getRoleType() == RoleType.OWNER && roleToAssign.getRoleType() != RoleType.OWNER) {
 
-                long ownerCount = projectMemberQueryRepository.countByProjectIdAndProjectRole_RoleType(projectId, RoleType.OWNER);
+                long ownerCount = projectMemberRepository.countByProjectIdAndProjectRole_RoleType(projectId, RoleType.OWNER);
 
                 if (ownerCount <= 1) {
                     throw new InvalidRoleAssignmentException("At least one OWNER must exist in project");
@@ -157,12 +154,12 @@ public class ProjectRoleServiceImpl implements ProjectRoleService {
     /** Helper */
 
     void checkForUniqueRoleName(String name, Long projectId) {
-        if(projectRoleQueryRepository.existsByNameAndProjectId(name, projectId)) {
+        if(projectRoleRepository.existsByNameAndProjectId(name, projectId)) {
             throw new RoleNameAlreadyExistsException(name);
         }
     }
 
     ProjectRole findRoleById(int roleId) {
-       return projectRoleQueryRepository.findById(roleId).orElseThrow(() -> new RoleNotFoundException(roleId));
+       return projectRoleRepository.findById(roleId).orElseThrow(() -> new RoleNotFoundException(roleId));
     }
 }

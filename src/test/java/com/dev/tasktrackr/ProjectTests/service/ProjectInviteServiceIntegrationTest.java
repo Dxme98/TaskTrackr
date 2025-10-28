@@ -1,32 +1,7 @@
 package com.dev.tasktrackr.ProjectTests.service;
 
-import com.dev.tasktrackr.BaseIntegrationTest;
-import com.dev.tasktrackr.project.api.dtos.request.ProjectInviteRequest;
-import com.dev.tasktrackr.project.api.dtos.response.ProjectInviteResponseDto;
-import com.dev.tasktrackr.project.domain.Project;
-import com.dev.tasktrackr.project.domain.ProjectInvite;
-import com.dev.tasktrackr.project.domain.enums.ProjectInviteStatus;
-import com.dev.tasktrackr.project.domain.enums.ProjectType;
-import com.dev.tasktrackr.project.repository.ProjectInviteQueryRepository;
-import com.dev.tasktrackr.project.service.ProjectInviteServiceImpl;
-import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.PermissionDeniedException;
-import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectInviteNotFound;
-import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
-import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.UnauthorizedInviteHandleAcception;
-import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.UserNotFoundException;
-import com.dev.tasktrackr.user.UserEntity;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.test.annotation.Rollback;
-
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
 @DisplayName("ProjectInviteService Integration Tests")

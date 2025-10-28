@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface ProjectInviteQueryRepository extends JpaRepository<ProjectInvite, Long> {
+public interface ProjectInviteRepository extends JpaRepository<ProjectInvite, Long> {
     @EntityGraph(attributePaths = {"receiver", "sender", "project", "project.projectMembers"})
     @Query("SELECT pm FROM ProjectInvite pm WHERE pm.id = :inviteId")
     Optional<ProjectInvite> findByIdWithRelations(@Param("inviteId") Long inviteId);

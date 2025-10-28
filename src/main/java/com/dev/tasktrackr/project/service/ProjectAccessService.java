@@ -2,7 +2,7 @@ package com.dev.tasktrackr.project.service;
 
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
-import com.dev.tasktrackr.project.repository.ProjectMemberQueryRepository;
+import com.dev.tasktrackr.project.repository.ProjectMemberRepository;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.UserNotProjectMemberException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectMemberNotFoundException;
@@ -19,7 +19,7 @@ import java.util.Set;
 public class ProjectAccessService {
 
     private final ProjectRepository projectRepository;
-    private final ProjectMemberQueryRepository projectMemberQueryRepository;
+    private final ProjectMemberRepository projectMemberRepository;
 
     public Project findProjectById(Long projectId) {
         return projectRepository.findById(projectId)
@@ -32,32 +32,32 @@ public class ProjectAccessService {
     }
 
     public ProjectMember findProjectMemberWithPermissionsRolesAndUser(String userId, Long projectId) {
-        return projectMemberQueryRepository.findProjectMemberWithPermissionsRolesAndUser(projectId, userId)
+        return projectMemberRepository.findProjectMemberWithPermissionsRolesAndUser(projectId, userId)
                 .orElseThrow(() -> new UserNotProjectMemberException(userId));
     }
 
     public ProjectMember findProjectMemberWithPermissionsRolesAndUser(Long memberId, Long projectId) {
-        return projectMemberQueryRepository.findProjectMemberWithPermissionsRolesAndUser(projectId, memberId)
+        return projectMemberRepository.findProjectMemberWithPermissionsRolesAndUser(projectId, memberId)
                 .orElseThrow(() -> new ProjectMemberNotFoundException(memberId));
     }
 
     // loads plain user without extra fetches
     public ProjectMember findProjectMember(Long memberId, Long projectId) {
-        return projectMemberQueryRepository.findProjectMemberByIdAndProjectId(memberId, projectId)
+        return projectMemberRepository.findProjectMemberByIdAndProjectId(memberId, projectId)
                 .orElseThrow(() -> new ProjectMemberNotFoundException(memberId));
     }
 
     public ProjectMember findProjectMember(String userId, Long projectId) {
-        return projectMemberQueryRepository.findProjectMemberByUserIdAndProjectId(userId, projectId)
+        return projectMemberRepository.findProjectMemberByUserIdAndProjectId(userId, projectId)
                 .orElseThrow(() -> new ProjectMemberNotFoundException(projectId));
     }
 
     public Set<ProjectMember> findProjectMembers(Set<Long> memberIds) {
-        return projectMemberQueryRepository.findByIdIn(memberIds);
+        return projectMemberRepository.findByIdIn(memberIds);
     }
 
     public void checkProjectMemberShip(Long projectId, String userId) {
-        if(!projectMemberQueryRepository.existsByUserIdAndProjectId(userId, projectId)) {
+        if(!projectMemberRepository.existsByUserIdAndProjectId(userId, projectId)) {
             throw new UserNotProjectMemberException(userId);
         }
     }

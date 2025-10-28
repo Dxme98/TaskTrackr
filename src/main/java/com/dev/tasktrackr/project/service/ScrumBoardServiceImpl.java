@@ -25,7 +25,7 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     private final SprintBacklogItemMapper sprintBacklogItemMapper;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final SprintQueryRepository sprintQueryRepository;
-    private final ProjectMemberQueryRepository projectMemberQueryRepository;
+    private final ProjectMemberRepository projectMemberRepository;
     private final ProjectAccessService projectAccessService;
     private final SprintSummaryItemRepository sprintSummaryItemRepository;
     private final SprintBacklogItemRepository sprintBacklogItemRepository;
@@ -36,7 +36,7 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     public ScrumBoardResponseDto getScrumBoard(Long projectId,  String jwtUserId) {
         projectAccessService.checkProjectMemberShip(projectId, jwtUserId);
 
-        Set<ProjectMember> projectMemberSet = projectMemberQueryRepository.findAllProjectMembersByProjectId(projectId);
+        Set<ProjectMember> projectMemberSet = projectMemberRepository.findAllProjectMembersByProjectId(projectId);
         Sprint activeSprint = findActiveSprint(projectId);
 
         return scrumBoardMapper.toResponse(activeSprint, projectMemberSet);

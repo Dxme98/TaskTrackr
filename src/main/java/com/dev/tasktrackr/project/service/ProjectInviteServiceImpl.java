@@ -11,10 +11,9 @@ import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.ProjectRole;
 import com.dev.tasktrackr.project.domain.enums.ProjectInviteStatus;
 import com.dev.tasktrackr.project.domain.enums.RoleType;
-import com.dev.tasktrackr.project.repository.ProjectInviteQueryRepository;
-import com.dev.tasktrackr.project.repository.ProjectMemberQueryRepository;
-import com.dev.tasktrackr.project.repository.ProjectRepository;
-import com.dev.tasktrackr.project.repository.ProjectRoleQueryRepository;
+import com.dev.tasktrackr.project.repository.ProjectInviteRepository;
+import com.dev.tasktrackr.project.repository.ProjectMemberRepository;
+import com.dev.tasktrackr.project.repository.ProjectRoleRepository;
 import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.ProjectInviteAlreadyExistsException;
 import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.UserAlreadyPartOfProjectException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.*;
@@ -34,11 +33,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProjectInviteServiceImpl implements ProjectInviteService {
     private final UserRepository userRepository;
     private final ProjectInviteMapper projectInviteMapper;
-    private final ProjectInviteQueryRepository projectInviteQueryRepository;
+    private final ProjectInviteRepository projectInviteRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final ProjectAccessService projectAccessService;
-    private final ProjectRoleQueryRepository projectRoleQueryRepository;
-    private final ProjectMemberQueryRepository projectMemberQueryRepository;
+    private final ProjectRoleRepository projectRoleRepository;
+    private final ProjectMemberRepository projectMemberRepository;
 
 
     @Override
@@ -53,7 +52,7 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
         validateInviteCreation(projectId, receiverUser);
 
         ProjectInvite invite = ProjectInvite.createInvite(senderMember.getUser(), receiverUser, project);
-        projectInviteQueryRepository.save(invite);
+        projectInviteRepository.save(invite);
 
         return projectInviteMapper.toResponse(invite);
     }
@@ -70,7 +69,7 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
         ProjectRole baseRoleOfProject = findBaseRoleOfProject(project.getId());
         ProjectMember newProjectMember = ProjectMember.createMember(receiver, project, baseRoleOfProject);
 
-        projectMemberQueryRepository.save(newProjectMember);
+        projectMemberRepository.save(newProjectMember);
 
         var event = new UserJoinedProjectEvent(project.getId(), newProjectMember.getId(), newProjectMember.getUser().getUsername());
         applicationEventPublisher.publishEvent(event);
@@ -85,20 +84,20 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
 
         invite.decline(receiverId);
 
-        projectInviteQueryRepository.delete(invite); // delete to enable reinvite
+        projectInviteRepository.delete(invite); // delete to enable reinvite
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<ProjectInviteResponseDto> findAllPendingInvitesByUserId(String userId, PageRequest pageRequest) {
-        return projectInviteQueryRepository
+        return projectInviteRepository
                 .findProjectInvitesByReceiverIdAndInviteStatus(userId, ProjectInviteStatus.PENDING, pageRequest);
     }
 
 
     /** Helper Methods */
     private ProjectInvite findProjectInviteWithRelations(Long inviteId) {
-        return projectInviteQueryRepository.findByIdWithRelations(inviteId)
+        return projectInviteRepository.findByIdWithRelations(inviteId)
                 .orElseThrow(() -> new ProjectInviteNotFound(inviteId));
     }
 
@@ -109,12 +108,12 @@ public class ProjectInviteServiceImpl implements ProjectInviteService {
     }
 
     private void validateInviteCreation(Long projectId, UserEntity receiverUser) {
-        if(projectInviteQueryRepository.existsByProjectIdAndReceiverIdAndInviteStatus(projectId, receiverUser.getId(), ProjectInviteStatus.PENDING)) throw new ProjectInviteAlreadyExistsException(receiverUser.getId(), projectId);
-        if(projectMemberQueryRepository.existsByUserIdAndProjectId(receiverUser.getId(), projectId)) throw new UserAlreadyPartOfProjectException(receiverUser.getId(), projectId);
+        if(projectInviteRepository.existsByProjectIdAndReceiverIdAndInviteStatus(projectId, receiverUser.getId(), ProjectInviteStatus.PENDING)) throw new ProjectInviteAlreadyExistsException(receiverUser.getId(), projectId);
+        if(projectMemberRepository.existsByUserIdAndProjectId(receiverUser.getId(), projectId)) throw new UserAlreadyPartOfProjectException(receiverUser.getId(), projectId);
     }
 
     private ProjectRole findBaseRoleOfProject(Long projectId) {
-        return projectRoleQueryRepository.findProjectRoleByProjectIdAndRoleType(projectId, RoleType.BASE)
+        return projectRoleRepository.findProjectRoleByProjectIdAndRoleType(projectId, RoleType.BASE)
                 .orElseThrow(() -> new RoleNotFoundException("Keine Base Role für Project gefunden"));
     }
  }

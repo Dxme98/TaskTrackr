@@ -1,7 +1,6 @@
 package com.dev.tasktrackr.project.repository;
 
 import com.dev.tasktrackr.project.domain.ProjectMember;
-import com.dev.tasktrackr.project.domain.ProjectRole;
 import com.dev.tasktrackr.project.domain.enums.RoleType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Repository
-public interface ProjectMemberQueryRepository extends JpaRepository<ProjectMember, Long> {
+public interface ProjectMemberRepository extends JpaRepository<ProjectMember, Long> {
     @EntityGraph(attributePaths = {"projectRole", "projectRole.permissions", "user"})
     @Query("SELECT pm FROM ProjectMember pm WHERE pm.project.id = :projectId")
     Page<ProjectMember> findAllProjectMembersByProjectId(@Param("projectId") Long projectId, Pageable pageable);

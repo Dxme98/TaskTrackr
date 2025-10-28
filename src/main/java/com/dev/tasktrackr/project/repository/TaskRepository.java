@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TaskQueryRepository extends JpaRepository<Task, Long> {
+public interface TaskRepository extends JpaRepository<Task, Long> {
 
     @Query("SELECT t FROM Task t WHERE t.basicDetails.project.id = :projectId AND t.status = :status")
     @EntityGraph(attributePaths = {"assignedMembers", "createdBy"})
