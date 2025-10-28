@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface SprintQueryRepository extends JpaRepository<Sprint, Long> {
+public interface SprintRepository extends JpaRepository<Sprint, Long> {
 
 
     @EntityGraph(attributePaths = {"sprintSummaryItems"})

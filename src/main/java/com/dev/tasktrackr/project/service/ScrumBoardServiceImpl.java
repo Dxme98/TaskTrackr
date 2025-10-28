@@ -24,7 +24,7 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     private final ScrumBoardMapper scrumBoardMapper;
     private final SprintBacklogItemMapper sprintBacklogItemMapper;
     private final ApplicationEventPublisher applicationEventPublisher;
-    private final SprintQueryRepository sprintQueryRepository;
+    private final SprintRepository sprintRepository;
     private final ProjectMemberRepository projectMemberRepository;
     private final ProjectAccessService projectAccessService;
     private final SprintSummaryItemRepository sprintSummaryItemRepository;
@@ -172,7 +172,7 @@ public class ScrumBoardServiceImpl implements ScrumBoardService{
     /** --------- Helper methods -------- */
 
     private Sprint findActiveSprint(Long projectId) {
-        return sprintQueryRepository.findActiveSprintByProjectId(projectId)
+        return sprintRepository.findActiveSprintByProjectId(projectId)
                 .orElseThrow(() -> new NoActiveSprintFoundException(projectId));
     }
 

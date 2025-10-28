@@ -7,7 +7,7 @@ import com.dev.tasktrackr.project.api.dtos.response.SprintResponseDto;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.scrum.*;
-import com.dev.tasktrackr.project.repository.SprintQueryRepository;
+import com.dev.tasktrackr.project.repository.SprintRepository;
 import com.dev.tasktrackr.project.repository.UserStoryRepository;
 import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.ActiveSprintAlreadyExistsException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.NoActiveSprintFoundException;
@@ -21,14 +21,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class SprintServiceImpl implements SprintService{
     private final SprintMapper sprintMapper;
-    private final SprintQueryRepository sprintQueryRepository;
+    private final SprintRepository sprintRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final UserStoryRepository userStoryRepository;
     private final ProjectAccessService projectAccessService;
@@ -56,7 +55,7 @@ public class SprintServiceImpl implements SprintService{
         createdSprint.addSprintSummaryItems(userStories);
 
         // save
-        Sprint perisistedSprint = sprintQueryRepository.save(createdSprint);
+        Sprint perisistedSprint = sprintRepository.save(createdSprint);
 
         // send event
         var event = new ProjectActivityEvents.SprintCreatedEvent(
@@ -74,7 +73,7 @@ public class SprintServiceImpl implements SprintService{
         projectAccessService.checkProjectMemberShip(projectId, jwtUserId);
 
         // find active sprint with relevant data
-        Sprint activeSprint = sprintQueryRepository.findActiveSprintByProjectId(projectId)
+        Sprint activeSprint = sprintRepository.findActiveSprintByProjectId(projectId)
                 .orElseThrow(() -> new NoActiveSprintFoundException(projectId));
 
         return sprintMapper.toDto(activeSprint);
@@ -86,7 +85,7 @@ public class SprintServiceImpl implements SprintService{
 
         projectAccessService.checkProjectMemberShip(projectId, jwtUserId);
 
-        Page<Sprint> sprintPage = sprintQueryRepository.findSprintsByProjectIdAndStatus(projectId, status, pageable);
+        Page<Sprint> sprintPage = sprintRepository.findSprintsByProjectIdAndStatus(projectId, status, pageable);
         return sprintPage.map(sprintMapper::toDto);
     }
 
@@ -104,7 +103,7 @@ public class SprintServiceImpl implements SprintService{
         // start sprint
         sprintToStart.start();
 
-        Sprint perisistedSprint = sprintQueryRepository.save(sprintToStart);
+        Sprint perisistedSprint = sprintRepository.save(sprintToStart);
 
         var event = new ProjectActivityEvents.SprintStartedEvent(
                 projectId, member.getId(), member.getUser().getUsername(), perisistedSprint.getId(), perisistedSprint.getName());
@@ -123,7 +122,7 @@ public class SprintServiceImpl implements SprintService{
 
         sprintToEnd.end();
 
-        Sprint perisistedSprint = sprintQueryRepository.save(sprintToEnd);
+        Sprint perisistedSprint = sprintRepository.save(sprintToEnd);
 
         var event = new ProjectActivityEvents.SprintEndedEvent(
                 projectId, member.getId(), member.getUser().getUsername(), perisistedSprint.getId(), perisistedSprint.getName());
@@ -136,12 +135,12 @@ public class SprintServiceImpl implements SprintService{
     /** --- Helper Methods ---  */
 
     private Sprint findSprintById(Long sprintId) {
-        return sprintQueryRepository.findSprintById(sprintId)
+        return sprintRepository.findSprintById(sprintId)
                 .orElseThrow(() -> new SprintNotFoundException(sprintId));
     }
 
     private void checkForExistingActiveSprint(Long projectId) {
-        if(sprintQueryRepository.existsActiveSprintForProject(projectId)) {
+        if(sprintRepository.existsActiveSprintForProject(projectId)) {
             throw new ActiveSprintAlreadyExistsException();
         }
     }
