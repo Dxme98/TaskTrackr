@@ -35,4 +35,11 @@ public interface TaskQueryRepository extends JpaRepository<Task, Long> {
     @Query("SELECT t FROM Task t WHERE t.basicDetails.project.id = :projectId")
     @EntityGraph(attributePaths = {"assignedMembers", "createdBy"})
     Page<Task> findAllByProjectId(@Param("projectId") Long projectId, Pageable pageable);
+
+
+    @Query("SELECT CASE WHEN COUNT(t) > 0 THEN TRUE ELSE FALSE END " +
+            "FROM Task t " +
+            "LEFT JOIN t.assignedMembers am " +
+            "WHERE t.id = :taskId AND (t.createdBy.id = :memberId OR am.id = :memberId)")
+    boolean isMemberAllowedToCompleteTask(@Param("taskId") Long taskId, @Param("memberId") Long memberId);
 }

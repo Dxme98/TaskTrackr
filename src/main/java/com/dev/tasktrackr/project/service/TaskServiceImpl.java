@@ -8,13 +8,11 @@ import com.dev.tasktrackr.project.api.dtos.mapper.TaskMapper;
 import com.dev.tasktrackr.project.api.dtos.request.CreateTaskRequest;
 import com.dev.tasktrackr.project.api.dtos.response.TaskResponseDto;
 import com.dev.tasktrackr.project.domain.basic.BasicDetails;
-import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.Task;
 import com.dev.tasktrackr.project.domain.enums.Status;
-import com.dev.tasktrackr.project.repository.ProjectRepository;
 import com.dev.tasktrackr.project.repository.TaskQueryRepository;
-import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
+import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.ProjectMemberNotAllowedToCompleteTaskException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.TaskNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -56,16 +54,16 @@ public class TaskServiceImpl implements TaskService {
     @Transactional
     public TaskResponseDto completeTask(Long projectId, Long taskId, String jwtUserId) {
         ProjectMember member = projectAccessService.findProjectMemberWithPermissionsRolesAndUser(jwtUserId, projectId);
-        Task completedTask = findTaskById(taskId);
+        Task taskToComplete = findTaskById(taskId);
 
-        completedTask.complete(member);
+        memberIsAllowedToCompleteTask(taskId, member.getId());
 
-        taskQueryRepository.save(completedTask);
+        taskToComplete.complete();
 
-        var event = new TaskCompletedEvent(projectId, member.getId(), member.getUser().getUsername(), completedTask.getId(), completedTask.getTitle());
+        var event = new TaskCompletedEvent(projectId, member.getId(), member.getUser().getUsername(), taskToComplete.getId(), taskToComplete.getTitle());
         applicationEventPublisher.publishEvent(event);
 
-        return taskMapper.toResponse(completedTask);
+        return taskMapper.toResponse(taskToComplete);
     }
 
     @Override
@@ -102,6 +100,10 @@ public class TaskServiceImpl implements TaskService {
     }
 
     /** Helper Methods */
+
+    private void memberIsAllowedToCompleteTask(Long taskId, Long memberId) {
+        if(!taskQueryRepository.isMemberAllowedToCompleteTask(taskId, memberId)) throw new ProjectMemberNotAllowedToCompleteTaskException(memberId);
+    }
 
     private Task findTaskById(Long taskId) {
         return taskQueryRepository.findById(taskId)

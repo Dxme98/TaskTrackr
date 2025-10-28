@@ -95,18 +95,10 @@ public class Task {
                 .build();
     }
 
-    public Task complete(ProjectMember member) {
-
-        memberIsAllowedToCompleteTask(member);
-
+    public void complete() {
         this.status = Status.COMPLETED;
-        return this;
     }
 
-    private void memberIsAllowedToCompleteTask(ProjectMember member) {
-        // Assigned members and creator of task are allowed to complete task
-        if (!assignedMembers.contains(member) || !createdBy.equals(member)) throw new ProjectMemberNotAllowedToCompleteTaskException(member.getId());
-    }
 
         @Override
     public boolean equals(Object o) {

@@ -6,6 +6,8 @@ import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.Task;
 import com.dev.tasktrackr.project.domain.enums.Priority;
 import com.dev.tasktrackr.project.domain.enums.Status;
+// Import ist nicht mehr nötig, da die Entität keine Exceptions mehr wirft
+// import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.ProjectMemberNotAllowedToCompleteTaskException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -20,15 +22,12 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-/**
 @DisplayName("Task Entity Tests")
 public class TaskTests {
     @Mock
     private BasicDetails mockBasicDetails;
     @Mock
     private ProjectMember mockTaskCreator;
-    @Mock
-    private ProjectMember mockUpdatedBy;
     @Mock
     private ProjectMember mockAssignedMember1;
     @Mock
@@ -54,6 +53,7 @@ public class TaskTests {
         when(mockCreateTaskRequest.getPriority()).thenReturn(Priority.HIGH);
         when(mockCreateTaskRequest.getDueDate()).thenReturn(testDueDate);
 
+        // Task-Builder-Aufruf bereinigt (updatedBy wird nicht vom create() gesetzt)
         task = Task.builder()
                 .id(1L)
                 .basicDetails(mockBasicDetails)
@@ -63,7 +63,6 @@ public class TaskTests {
                 .status(Status.IN_PROGRESS)
                 .dueDate(testDueDate)
                 .createdBy(mockTaskCreator)
-                .updatedBy(mockUpdatedBy)
                 .assignedMembers(assignedMembers)
                 .build();
     }
@@ -83,7 +82,7 @@ public class TaskTests {
             assertEquals(Status.IN_PROGRESS, task.getStatus());
             assertEquals(testDueDate, task.getDueDate());
             assertEquals(mockTaskCreator, task.getCreatedBy());
-            assertEquals(mockUpdatedBy, task.getUpdatedBy());
+            assertNull(task.getUpdatedBy()); // Korrekt, da nicht im Builder gesetzt
             assertEquals(assignedMembers, task.getAssignedMembers());
         }
 
@@ -99,6 +98,7 @@ public class TaskTests {
             assertEquals(testDueDate, createdTask.getDueDate());
             assertEquals(mockTaskCreator, createdTask.getCreatedBy());
             assertEquals(assignedMembers, createdTask.getAssignedMembers());
+            assertEquals(Status.IN_PROGRESS, createdTask.getStatus());
         }
 
         @Nested
@@ -118,18 +118,7 @@ public class TaskTests {
             @DisplayName("Should handle null assigned members")
             void shouldHandleNullAssignedMembers() {
                 Task taskWithNullMembers = Task.create(mockCreateTaskRequest, mockBasicDetails, mockTaskCreator, null);
-
                 assertNull(taskWithNullMembers.getAssignedMembers());
-            }
-
-            @Test
-            @DisplayName("Should preserve assigned members")
-            void shouldPreserveAssignedMembers() {
-                Task createdTask = Task.create(mockCreateTaskRequest, mockBasicDetails, mockTaskCreator, assignedMembers);
-
-                assertEquals(2, createdTask.getAssignedMembers().size());
-                assertTrue(createdTask.getAssignedMembers().contains(mockAssignedMember1));
-                assertTrue(createdTask.getAssignedMembers().contains(mockAssignedMember2));
             }
         }
 
@@ -141,23 +130,74 @@ public class TaskTests {
             @DisplayName("Should handle null due date")
             void shouldHandleNullDueDate() {
                 when(mockCreateTaskRequest.getDueDate()).thenReturn(null);
-
                 Task taskWithoutDueDate = Task.create(mockCreateTaskRequest, mockBasicDetails, mockTaskCreator, assignedMembers);
-
                 assertNull(taskWithoutDueDate.getDueDate());
             }
-
-            @Test
-            @DisplayName("Should preserve all priority types")
-            void shouldPreserveAllPriorityTypes() {
-                for (Priority priority : Priority.values()) {
-                    when(mockCreateTaskRequest.getPriority()).thenReturn(priority);
-
-                    Task taskWithPriority = Task.create(mockCreateTaskRequest, mockBasicDetails, mockTaskCreator, assignedMembers);
-
-                    assertEquals(priority, taskWithPriority.getPriority());
-                }
-            }
         }
-    }}
-*/
+    }
+
+    @Nested
+    @DisplayName("Completion Tests")
+    class CompletionTests {
+
+        @Test
+        @DisplayName("Should set status to COMPLETED when complete() is called")
+        void shouldSetStatusToCompleted() {
+            // Stelle sicher, dass der Status vorher IN_PROGRESS ist
+            assertEquals(Status.IN_PROGRESS, task.getStatus());
+
+            // Rufe die "dumme" Methode auf
+            task.complete();
+
+            // Prüfe, ob der Status korrekt geändert wurde
+            assertEquals(Status.COMPLETED, task.getStatus());
+        }
+
+        /*
+         * GELÖSCHT: Alle Tests zur Berechtigungsprüfung (z.B. 'shouldThrowExceptionIfUserIsNotCreatorOrAssigned')
+         * GRUND: Diese Logik wurde korrekterweise aus der Entität in den Service-Layer verschoben.
+         * Die Tests gehören jetzt in 'TaskServiceImplTest'.
+         */
+    }
+
+    @Nested
+    @DisplayName("Equals and HashCode Tests")
+    class EqualsAndHashCodeTests {
+
+        @Test
+        @DisplayName("Should be equal if core properties match")
+        void shouldBeEqual() {
+            Task task1 = Task.builder()
+                    .basicDetails(mockBasicDetails)
+                    .title("Test Task")
+                    .description("Test Description")
+                    .priority(Priority.HIGH)
+                    .status(Status.IN_PROGRESS)
+                    .dueDate(testDueDate)
+                    .createdBy(mockTaskCreator)
+                    .assignedMembers(assignedMembers)
+                    .build();
+
+            assertEquals(task, task1);
+            assertEquals(task.hashCode(), task1.hashCode());
+        }
+
+        @Test
+        @DisplayName("Should not be equal if properties differ")
+        void shouldNotBeEqual() {
+            Task task2 = Task.builder()
+                    .basicDetails(mockBasicDetails)
+                    .title("Different Title") // Geänderter Titel
+                    .description("Test Description")
+                    .priority(Priority.HIGH)
+                    .status(Status.IN_PROGRESS)
+                    .dueDate(testDueDate)
+                    .createdBy(mockTaskCreator)
+                    .assignedMembers(assignedMembers)
+                    .build();
+
+            assertNotEquals(task, task2);
+            assertNotEquals(task.hashCode(), task2.hashCode());
+        }
+    }
+}
