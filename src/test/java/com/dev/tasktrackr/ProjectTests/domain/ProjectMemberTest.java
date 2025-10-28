@@ -4,21 +4,26 @@ import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.ProjectRole;
 import com.dev.tasktrackr.project.domain.enums.PermissionName;
+import com.dev.tasktrackr.project.domain.enums.RoleType;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.PermissionDeniedException;
 import com.dev.tasktrackr.shared.exception.custom.BadRequestExceptions.InvalidRoleAssignmentException;
+import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.InvalidMemberRemovalException;
 import com.dev.tasktrackr.user.UserEntity;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-
 import java.util.HashSet;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
 @DisplayName("ProjectMember Entity Tests")
 public class ProjectMemberTest {
     @Mock
@@ -76,7 +81,6 @@ public class ProjectMemberTest {
         @DisplayName("Should assign role successfully")
         void shouldAssignRoleSuccessfully() {
             projectMember.assignRole(mockNewRole);
-
             assertEquals(mockNewRole, projectMember.getProjectRole());
         }
 
@@ -95,7 +99,6 @@ public class ProjectMemberTest {
         void shouldNotChangeRoleWhenExceptionIsThrown() {
             Project differentProject = mock(Project.class);
             when(mockNewRole.getProject()).thenReturn(differentProject);
-
             ProjectRole originalRole = projectMember.getProjectRole();
 
             assertThrows(InvalidRoleAssignmentException.class,
@@ -106,94 +109,82 @@ public class ProjectMemberTest {
     }
 
     @Nested
+    @DisplayName("State Validation Tests")
+    class StateValidationTests {
+
+        @Test
+        @DisplayName("Should throw if member has OWNER roleType and is removed")
+        void shouldThrowWhenOwnerIsRemoved() {
+            when(mockRole.getRoleType()).thenReturn(RoleType.OWNER);
+
+            assertThrows(InvalidMemberRemovalException.class, () -> projectMember.canBeRemovedFromProject());
+        }
+
+        @Test
+        @DisplayName("Should not throw if member is not OWNER and is removed")
+        void shouldNotThrowWhenNonOwnerIsRemoved() {
+            when(mockRole.getRoleType()).thenReturn(RoleType.BASE);
+
+            assertDoesNotThrow(() -> projectMember.canBeRemovedFromProject());
+        }
+    }
+
+    @Nested
     @DisplayName("Permission Tests")
     class PermissionTests {
 
-        @Test
-        void shouldNotThrowIfRoleHaveCreateTaskPermission() {
-            when(mockNewRole.hasPermission(PermissionName.BASIC_CREATE_TASK)).thenReturn(true);
-            projectMember.assignRole(mockNewRole);
+        // Liefert alle (Permission, zugehörige Methode) Paare
+        private static Stream<Arguments> permissionChecksProvider() {
+            return Stream.of(
+                    Arguments.of(PermissionName.BASIC_CREATE_TASK, (Consumer<ProjectMember>) ProjectMember::canCreateTask),
+                    Arguments.of(PermissionName.BASIC_DELETE_TASK, (Consumer<ProjectMember>) ProjectMember::canDeleteTask),
+                    Arguments.of(PermissionName.BASIC_EDIT_INFORMATION, (Consumer<ProjectMember>) ProjectMember::canEditInformation),
+                    Arguments.of(PermissionName.COMMON_INVITE_USER, (Consumer<ProjectMember>) ProjectMember::canInviteUser),
+                    Arguments.of(PermissionName.COMMON_REMOVE_USER, (Consumer<ProjectMember>) ProjectMember::canRemoveUser),
+                    Arguments.of(PermissionName.COMMON_MANAGE_ROLES, (Consumer<ProjectMember>) ProjectMember::canManageRoles),
+                    Arguments.of(PermissionName.SCRUM_CREATE_USER_STORY, (Consumer<ProjectMember>) ProjectMember::canCreateUserStory),
+                    Arguments.of(PermissionName.SCRUM_DELETE_USER_STORY, (Consumer<ProjectMember>) ProjectMember::canDeleteUserStory),
+                    Arguments.of(PermissionName.SCRUM_PLAN_SPRINT, (Consumer<ProjectMember>) ProjectMember::canPlanSprint),
+                    Arguments.of(PermissionName.SCRUM_START_SPRINT, (Consumer<ProjectMember>) ProjectMember::canStartSprint),
+                    Arguments.of(PermissionName.SCRUM_END_SPRINT, (Consumer<ProjectMember>) ProjectMember::canEndSprint),
+                    Arguments.of(PermissionName.SCRUM_ASSIGN_USER_TO_STORY, (Consumer<ProjectMember>) ProjectMember::canAssignUserToStory),
+                    Arguments.of(PermissionName.SCRUM_CAN_DELETE_COMMENTS_AND_BLOCKER, (Consumer<ProjectMember>) ProjectMember::canDeleteCommentsAndBlocker)
+            );
+        }
 
-            assertDoesNotThrow(() -> projectMember.canCreateTask());
+        @ParameterizedTest
+        @MethodSource("permissionChecksProvider")
+        @DisplayName("Should not throw if role has required permission")
+        void shouldNotThrowIfRoleHasPermission(PermissionName permission, Consumer<ProjectMember> methodToCall) {
+            when(mockRole.hasPermission(permission)).thenReturn(true);
+
+            assertDoesNotThrow(() -> methodToCall.accept(projectMember));
+        }
+
+        @ParameterizedTest
+        @MethodSource("permissionChecksProvider")
+        @DisplayName("Should throw if role does not have required permission")
+        void shouldThrowIfRoleDoesNotHavePermission(PermissionName permission, Consumer<ProjectMember> methodToCall) {
+            when(mockRole.hasPermission(permission)).thenReturn(false);
+
+            assertThrows(PermissionDeniedException.class, () -> methodToCall.accept(projectMember));
+        }
+
+        // Separater Test für die boolean-Methode
+        @Test
+        @DisplayName("Should return true for canUpdateStoryStatus if permission exists")
+        void shouldReturnTrueForUpdateStoryStatusWhenPermissionExists() {
+            when(mockRole.hasPermission(PermissionName.SCRUM_UPDATE_STORY_STATUS)).thenReturn(true);
+
+            assertTrue(projectMember.canUpdateStoryStatus());
         }
 
         @Test
-        void shouldNotThrowIfRoleHasDeleteTaskPermission() {
-            when(mockNewRole.hasPermission(PermissionName.BASIC_DELETE_TASK)).thenReturn(true);
-            projectMember.assignRole(mockNewRole);
+        @DisplayName("Should return false for canUpdateStoryStatus if permission is missing")
+        void shouldReturnFalseForUpdateStoryStatusWhenPermissionIsMissing() {
+            when(mockRole.hasPermission(PermissionName.SCRUM_UPDATE_STORY_STATUS)).thenReturn(false);
 
-            assertDoesNotThrow(() -> projectMember.canDeleteTask());
-        }
-
-        @Test
-        void shouldNotThrowIfRoleHasEditInformationPermission() {
-            when(mockNewRole.hasPermission(PermissionName.BASIC_EDIT_INFORMATION)).thenReturn(true);
-            projectMember.assignRole(mockNewRole);
-
-            assertDoesNotThrow(() -> projectMember.canEditInformation());
-        }
-
-        @Test
-        void shouldNotThrowIfRoleHasInviteUserPermission() {
-            when(mockNewRole.hasPermission(PermissionName.COMMON_INVITE_USER)).thenReturn(true);
-            projectMember.assignRole(mockNewRole);
-
-            assertDoesNotThrow(() -> projectMember.canInviteUser());
-        }
-
-        @Test
-        void shouldNotThrowIfRoleHasRemoveUserPermission() {
-            when(mockNewRole.hasPermission(PermissionName.COMMON_REMOVE_USER)).thenReturn(true);
-            projectMember.assignRole(mockNewRole);
-
-            assertDoesNotThrow(() -> projectMember.canRemoveUser());
-        }
-
-        @Test
-        void shouldNotThrowIfRoleHasManageRolesPermission() {
-            when(mockNewRole.hasPermission(PermissionName.COMMON_MANAGE_ROLES)).thenReturn(true);
-            projectMember.assignRole(mockNewRole);
-
-            assertDoesNotThrow(() -> projectMember.canManageRoles());
-        }
-
-
-
-        @Test
-        @DisplayName("Should throw if Role does not have permission")
-        void shouldThrowIfRoleDoesNotHaveCreateTaskPermission() {
-            assertThrows(PermissionDeniedException.class, () -> projectMember.canCreateTask());
-        }
-
-        @Test
-        @DisplayName("Should throw if Role does not have permission")
-        void shouldThrowIfRoleDoesNotHaveDeleteTaskPermission() {
-            assertThrows(PermissionDeniedException.class, () -> projectMember.canDeleteTask());
-        }
-
-        @Test
-        @DisplayName("Should throw if Role does not have permission")
-        void shouldThrowIfRoleDoesNotHaveEditInformationPermission() {
-            assertThrows(PermissionDeniedException.class, () -> projectMember.canEditInformation());
-        }
-
-        @Test
-        @DisplayName("Should throw if Role does not have permission")
-        void shouldThrowIfRoleDoesNotHaveInviteUserPermission() {
-            assertThrows(PermissionDeniedException.class, () -> projectMember.canInviteUser());
-        }
-
-        @Test
-        @DisplayName("Should throw if Role does not have permission")
-        void shouldThrowIfRoleDoesNotHaveRemoveUserPermission() {
-            assertThrows(PermissionDeniedException.class, () -> projectMember.canRemoveUser());
-        }
-
-        @Test
-        @DisplayName("Should throw if Role does not have permission")
-        void shouldThrowIfRoleDoesNotHaveManageRolesPermission() {
-            assertThrows(PermissionDeniedException.class, () -> projectMember.canManageRoles());
+            assertFalse(projectMember.canUpdateStoryStatus());
         }
     }
 }
-*/
