@@ -17,4 +17,7 @@ public interface ProjectRoleRepository extends JpaRepository<ProjectRole, Intege
     boolean existsByNameAndProjectId(@Param("name") String name, @Param("projectId") Long projectId);
 
     Optional<ProjectRole> findProjectRoleByProjectIdAndRoleType(Long projectId, RoleType roleType);
+
+    Long countByProjectId(Long projectId);
+
 }
