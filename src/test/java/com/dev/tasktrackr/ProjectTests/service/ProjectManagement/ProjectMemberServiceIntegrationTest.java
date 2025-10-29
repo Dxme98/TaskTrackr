@@ -5,6 +5,8 @@ import com.dev.tasktrackr.project.api.dtos.response.ProjectMemberDto;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
+import com.dev.tasktrackr.project.repository.ProjectInviteRepository;
+import com.dev.tasktrackr.project.repository.ProjectMemberRepository;
 import com.dev.tasktrackr.project.service.ProjectMemberService;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.PermissionDeniedException;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.UserNotProjectMemberException;
@@ -31,6 +33,12 @@ public class ProjectMemberServiceIntegrationTest extends ProjectManagementBaseTe
     @Autowired
     private ProjectMemberService projectMemberService;
 
+    @Autowired
+    private ProjectMemberRepository projectMemberRepository;
+
+    @Autowired
+    private ProjectInviteRepository projectInviteRepository;
+
     // Testdaten-Instanzen
     private UserEntity ownerUser;
     private UserEntity regularUser1;
@@ -43,23 +51,21 @@ public class ProjectMemberServiceIntegrationTest extends ProjectManagementBaseTe
 
     @BeforeEach
     void setUp() {
-        ownerUser = createTestUser("owner123", "owner");
-        regularUser1 = createTestUser("regular456", "regular1");
-        regularUser2 = createTestUser("regular789", "regular2");
-        nonMemberUser = createTestUser("nonmember999", "nonmember");
+        ownerUser = testDataFactory.createTestUser("owner123", "owner");
+        regularUser1 = testDataFactory.createTestUser("regular456", "regular1");
+        regularUser2 = testDataFactory.createTestUser("regular789", "regular2");
+        nonMemberUser = testDataFactory.createTestUser("nonmember999", "nonmember");
 
-        testProject = createTestProject("Test Project", ProjectType.BASIC, ownerUser);
-
+        testProject = testDataFactory.createTestProject("Test Project", ProjectType.BASIC, ownerUser);
 
         ownerMember = projectMemberRepository.findProjectMemberByUserIdAndProjectId(ownerUser.getId(), testProject.getId())
                 .orElseThrow(() -> new IllegalStateException("Owner-Mitglied wurde nicht korrekt erstellt."));
 
+        testDataFactory.createTestInvite(testProject, ownerUser, regularUser1);
+        regularMember1 = testDataFactory.createTestMember(testProject, regularUser1);
 
-        createTestInvite(testProject, ownerUser, regularUser1);
-        regularMember1 = createTestMember(testProject, regularUser1);
-
-        createTestInvite(testProject, ownerUser, regularUser2);
-        regularMember2 = createTestMember(testProject, regularUser2);
+        testDataFactory.createTestInvite(testProject, ownerUser, regularUser2);
+        regularMember2 = testDataFactory.createTestMember(testProject, regularUser2);
     }
 
     @Nested
@@ -126,6 +132,7 @@ public class ProjectMemberServiceIntegrationTest extends ProjectManagementBaseTe
                     regularMember1.getId()
             ));
 
+
             // Then
             // Überprüfen, ob das Mitglied gelöscht wurde
             assertThat(projectMemberRepository.count()).isEqualTo(initialMemberCount - 1);
@@ -139,8 +146,6 @@ public class ProjectMemberServiceIntegrationTest extends ProjectManagementBaseTe
         @DisplayName("Should throw exception when regular user tries to remove another member")
         void shouldThrowExceptionWhenRegularUserTriesToRemoveMember() {
             // When & Then
-            // regularUser1 (BASE role) versucht, regularUser2 zu entfernen
-            // Die Permission-Prüfung `member.canRemoveUser()` sollte fehlschlagen
             assertThatThrownBy(() -> projectMemberService.removeMemberFromProject(
                     regularUser1.getId(),
                     testProject.getId(),
@@ -152,7 +157,6 @@ public class ProjectMemberServiceIntegrationTest extends ProjectManagementBaseTe
         @DisplayName("Should throw exception when user tries to remove self")
         void shouldThrowExceptionWhenUserTriesToRemoveSelf() {
             // When & Then
-            // Service-Logik `if(memberToRemove.getUser().getId().equals(jwtUserId))`
             assertThatThrownBy(() -> projectMemberService.removeMemberFromProject(
                     ownerUser.getId(),
                     testProject.getId(),
@@ -164,15 +168,15 @@ public class ProjectMemberServiceIntegrationTest extends ProjectManagementBaseTe
         @DisplayName("Should throw exception when trying to remove the owner (by another user)")
         void shouldThrowExceptionWhenTryingToRemoveOwner() {
 
-            // Setup: Erstelle einen "AdminUser", der auch Owner-Rechte hat
-            UserEntity adminUser = createTestUser("admin999", "admin");
-            // Wir nutzen createTestMember, müssen aber die Rolle manuell auf Owner setzen
-            ProjectMember adminMember = createTestMember(testProject, adminUser); // Erstellt mit BASE
+            UserEntity adminUser = testDataFactory.createTestUser("admin999", "admin");
+            ProjectMember adminMember = testDataFactory.createTestMember(testProject, adminUser); // Erstellt mit BASE
+
             adminMember.assignRole(testProject.getOwnerRole()); // Weist Owner-Rolle zu
+
+
             projectMemberRepository.save(adminMember);
 
             // When & Then
-            // Admin (mit Rechten) versucht, den ursprünglichen Owner (ownerMember) zu entfernen
             assertThatThrownBy(() -> projectMemberService.removeMemberFromProject(
                     adminUser.getId(),    // Der Ausführende (hat Rechte)
                     testProject.getId(),

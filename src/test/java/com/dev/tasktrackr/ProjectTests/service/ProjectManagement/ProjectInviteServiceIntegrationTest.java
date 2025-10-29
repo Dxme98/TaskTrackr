@@ -8,6 +8,8 @@ import com.dev.tasktrackr.project.domain.ProjectInvite;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.enums.ProjectInviteStatus;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
+import com.dev.tasktrackr.project.repository.ProjectInviteRepository;
+import com.dev.tasktrackr.project.repository.ProjectMemberRepository;
 import com.dev.tasktrackr.project.service.ProjectInviteService;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.InviteIsNotPendingException;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.PermissionDeniedException;
@@ -36,6 +38,12 @@ public class ProjectInviteServiceIntegrationTest extends ProjectManagementBaseTe
     @Autowired
     private ProjectInviteService projectInviteService;
 
+    @Autowired
+    private ProjectInviteRepository projectInviteRepository;
+
+    @Autowired
+    private ProjectMemberRepository projectMemberRepository;
+
 
     private UserEntity ownerUser;
     private UserEntity memberUser;
@@ -46,14 +54,14 @@ public class ProjectInviteServiceIntegrationTest extends ProjectManagementBaseTe
 
     @BeforeEach
     void setUp() {
-        ownerUser = createTestUser("owner123", "owner");
-        memberUser = createTestUser("member456", "member");
-        inviteeUser = createTestUser("invitee789", "invitee");
-        nonMemberUser = createTestUser("nonmember999", "nonmember");
+        ownerUser = testDataFactory.createTestUser("owner123", "owner");
+        memberUser = testDataFactory.createTestUser("member456", "member");
+        inviteeUser = testDataFactory.createTestUser("invitee789", "invitee");
+        nonMemberUser = testDataFactory.createTestUser("nonmember999", "nonmember");
 
-        testProject = createTestProject("Test Project", ProjectType.BASIC, ownerUser);
+        testProject = testDataFactory.createTestProject("Test Project", ProjectType.BASIC, ownerUser);
 
-        baseMember = createTestMember(testProject, memberUser);
+        baseMember = testDataFactory.createTestMember(testProject, memberUser);
     }
 
     @Nested
@@ -77,6 +85,7 @@ public class ProjectInviteServiceIntegrationTest extends ProjectManagementBaseTe
             ProjectInviteResponseDto result = assertDoesNotThrow(() ->
                     projectInviteService.createProjectInvite(request, ownerUser.getId(), testProject.getId()));
 
+
             // Then
             assertThat(result).isNotNull();
             assertThat(result.getSenderId()).isEqualTo(ownerUser.getId());
@@ -96,7 +105,6 @@ public class ProjectInviteServiceIntegrationTest extends ProjectManagementBaseTe
             ProjectInviteRequest request = createRequest(inviteeUser.getUsername());
 
             // When & Then
-            // baseMember hat die BASE-Rolle, die keine COMMON_INVITE_USER-Rechte hat
             assertThatThrownBy(() ->
                     projectInviteService.createProjectInvite(request, baseMember.getUser().getId(), testProject.getId()))
                     .isInstanceOf(PermissionDeniedException.class);
@@ -119,7 +127,7 @@ public class ProjectInviteServiceIntegrationTest extends ProjectManagementBaseTe
         void shouldThrowExceptionIfInviteIsAlreadyPending() {
             // Given
             ProjectInviteRequest request = createRequest(inviteeUser.getUsername());
-            createTestInvite(testProject, ownerUser, inviteeUser); // Ersten Invite erstellen
+            testDataFactory.createTestInvite(testProject, ownerUser, inviteeUser); // Ersten Invite erstellen
 
             // When & Then
             assertThatThrownBy(() ->
@@ -160,7 +168,7 @@ public class ProjectInviteServiceIntegrationTest extends ProjectManagementBaseTe
 
         @BeforeEach
         void setUpInvite() {
-            pendingInvite = createTestInvite(testProject, ownerUser, inviteeUser);
+            pendingInvite = testDataFactory.createTestInvite(testProject, ownerUser, inviteeUser);
         }
 
         @Test
@@ -188,7 +196,6 @@ public class ProjectInviteServiceIntegrationTest extends ProjectManagementBaseTe
         @DisplayName("Should throw exception when wrong user tries to accept invite")
         void shouldThrowExceptionWhenWrongUserTriesToAcceptInvite() {
             // When & Then
-            // nonMemberUser versucht, die Einladung von inviteeUser anzunehmen
             assertThatThrownBy(() ->
                     projectInviteService.acceptProjectInvite(nonMemberUser.getId(), pendingInvite.getId()))
                     .isInstanceOf(UnauthorizedInviteHandleAcception.class);
@@ -198,14 +205,12 @@ public class ProjectInviteServiceIntegrationTest extends ProjectManagementBaseTe
         @DisplayName("Should throw exception when accepting non-pending invite")
         void shouldThrowExceptionWhenAcceptingNonPendingInvite() {
             // Given
-            // Einladung annehmen
             projectInviteService.acceptProjectInvite(inviteeUser.getId(), pendingInvite.getId());
 
             // When & Then
-            // Erneut versuchen, anzunehmen
             assertThatThrownBy(() ->
                     projectInviteService.acceptProjectInvite(inviteeUser.getId(), pendingInvite.getId()))
-                    .isInstanceOf(InviteIsNotPendingException.class); // Aus invite.accept(receiverId)
+                    .isInstanceOf(InviteIsNotPendingException.class);
         }
 
         @Test
@@ -226,7 +231,7 @@ public class ProjectInviteServiceIntegrationTest extends ProjectManagementBaseTe
 
         @BeforeEach
         void setUpInvite() {
-            pendingInvite = createTestInvite(testProject, ownerUser, inviteeUser);
+            pendingInvite = testDataFactory.createTestInvite(testProject, ownerUser, inviteeUser);
         }
 
         @Test
@@ -239,12 +244,8 @@ public class ProjectInviteServiceIntegrationTest extends ProjectManagementBaseTe
             // When
             assertDoesNotThrow(() ->
                     projectInviteService.declineProjectInvite(inviteeUser.getId(), pendingInvite.getId()));
-
             // Then
-            // Verify invite is deleted
             assertThat(projectInviteRepository.count()).isEqualTo(initialInviteCount - 1);
-
-            // Verify user is NOT a project member
             assertThat(projectMemberRepository.count()).isEqualTo(initialMemberCount);
             boolean userIsMember = projectMemberRepository.existsByUserIdAndProjectId(inviteeUser.getId(), testProject.getId());
             assertThat(userIsMember).isFalse();
@@ -268,9 +269,9 @@ public class ProjectInviteServiceIntegrationTest extends ProjectManagementBaseTe
         @DisplayName("Should find all pending invites for user with pagination")
         void shouldFindAllPendingInvitesForUserWithPagination() {
             // Given
-            Project anotherProject = createTestProject("Another Project", ProjectType.BASIC, ownerUser);
-            createTestInvite(testProject, ownerUser, inviteeUser);
-            createTestInvite(anotherProject, ownerUser, inviteeUser);
+            Project anotherProject = testDataFactory.createTestProject("Another Project", ProjectType.BASIC, ownerUser);
+            testDataFactory.createTestInvite(testProject, ownerUser, inviteeUser);
+            testDataFactory.createTestInvite(anotherProject, ownerUser, inviteeUser);
 
             PageRequest pr = PageRequest.of(0, 10);
 

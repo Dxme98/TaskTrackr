@@ -10,6 +10,7 @@ import com.dev.tasktrackr.project.domain.ProjectRole;
 import com.dev.tasktrackr.project.domain.enums.PermissionName;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
 import com.dev.tasktrackr.project.domain.enums.RoleType;
+import com.dev.tasktrackr.project.repository.ProjectMemberRepository;
 import com.dev.tasktrackr.project.repository.ProjectRoleRepository;
 import com.dev.tasktrackr.project.service.ProjectRoleService;
 import com.dev.tasktrackr.shared.exception.custom.BadRequestExceptions.InvalidRoleAssignmentException;
@@ -42,6 +43,9 @@ public class ProjectRoleServiceIntegrationTests extends ProjectManagementBaseTes
     @Autowired
     private ProjectRoleRepository projectRoleRepository;
 
+    @Autowired
+    private ProjectMemberRepository projectMemberRepository;
+
     private UserEntity ownerUser;
     private UserEntity baseUser;
     private Project testProject;
@@ -50,12 +54,12 @@ public class ProjectRoleServiceIntegrationTests extends ProjectManagementBaseTes
 
     @BeforeEach
     void setUp() {
-        ownerUser = createTestUser("owner123", "owner");
-        baseUser = createTestUser("base456", "base");
+        ownerUser = testDataFactory.createTestUser("owner123", "owner");
+        baseUser = testDataFactory.createTestUser("base456", "base");
 
-        testProject = createTestProject("Test Project", ProjectType.BASIC, ownerUser);
+        testProject = testDataFactory.createTestProject("Test Project", ProjectType.BASIC, ownerUser);
 
-        baseMember = createTestMember(testProject, baseUser);
+        baseMember = testDataFactory.createTestMember(testProject, baseUser);
 
         ownerMember = projectMemberRepository.findProjectMemberByUserIdAndProjectId(ownerUser.getId(), testProject.getId())
                 .orElseThrow(() -> new IllegalStateException("Owner-Mitglied wurde nicht korrekt erstellt."));
@@ -235,7 +239,6 @@ public class ProjectRoleServiceIntegrationTests extends ProjectManagementBaseTes
                     baseMember.getId(), // Weist dem 'baseUser' die neue Rolle zu
                     testProject.getId()
             );
-
             // Then
             assertThat(result).isNotNull();
             assertThat(result.getRole()).isEqualTo("Assignable Role");

@@ -7,6 +7,7 @@ import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
 import com.dev.tasktrackr.project.domain.enums.RoleType;
+import com.dev.tasktrackr.project.repository.ProjectRepository;
 import com.dev.tasktrackr.project.service.*;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.UserNotProjectMemberException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
@@ -29,13 +30,16 @@ public class ProjectServiceIntegrationTest extends ProjectManagementBaseTest {
     @Autowired
     private ProjectService projectService;
 
+    @Autowired
+    private ProjectRepository projectRepository;
+
     private UserEntity testUser;
     private UserEntity anotherUser;
 
     @BeforeEach
     void setUp() {
-        testUser = createTestUser("user123", "testuser");
-        anotherUser = createTestUser("user456", "anotheruser");
+        testUser = testDataFactory.createTestUser("user123", "testuser");
+        anotherUser = testDataFactory.createTestUser("user456", "anotheruser");
     }
 
     @Nested
@@ -95,9 +99,9 @@ public class ProjectServiceIntegrationTest extends ProjectManagementBaseTest {
 
         @BeforeEach
         void setUpProjects() {
-            createTestProject("Project 1", ProjectType.BASIC, testUser);
-            createTestProject("Project 2", ProjectType.SCRUM, testUser);
-            createTestProject("Other Project", ProjectType.BASIC, anotherUser);
+            testDataFactory.createTestProject("Project 1", ProjectType.BASIC, testUser);
+            testDataFactory.createTestProject("Project 2", ProjectType.SCRUM, testUser);
+            testDataFactory.createTestProject("Other Project", ProjectType.BASIC, anotherUser);
         }
 
         @Test
@@ -122,7 +126,7 @@ public class ProjectServiceIntegrationTest extends ProjectManagementBaseTest {
         @DisplayName("Should return empty page for user with no projects")
         void shouldReturnEmptyPageForUserWithNoProjects() {
             // Given
-            UserEntity userWithoutProjects = createTestUser("noproject123", "noprojects");
+            UserEntity userWithoutProjects = testDataFactory.createTestUser("noproject123", "noprojects");
             PageRequest pageRequest = PageRequest.of(0, 10);
 
             // When
@@ -143,7 +147,7 @@ public class ProjectServiceIntegrationTest extends ProjectManagementBaseTest {
 
         @BeforeEach
         void setUpProject() {
-            project = createTestProject("Detail Project", ProjectType.BASIC, testUser);
+            project = testDataFactory.createTestProject("Detail Project", ProjectType.BASIC, testUser);
         }
 
         @Test
