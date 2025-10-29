@@ -1,4 +1,4 @@
-package com.dev.tasktrackr.ProjectTests.service;
+package com.dev.tasktrackr.ProjectTests.service.ProjectManagement;
 
 import com.dev.tasktrackr.ProjectManagementBaseTest;
 import com.dev.tasktrackr.project.api.dtos.request.ProjectInviteRequest;

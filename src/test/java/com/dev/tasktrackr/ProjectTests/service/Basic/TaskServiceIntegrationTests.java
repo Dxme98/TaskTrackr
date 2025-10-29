@@ -1,4 +1,4 @@
-package com.dev.tasktrackr.ProjectTests.service;
+package com.dev.tasktrackr.ProjectTests.service.Basic;
 
 /**
 @DisplayName("TaskService Integration Tests")
