@@ -1,4 +1,4 @@
-package com.dev.tasktrackr;
+package com.dev.tasktrackr.ProjectTests.service.shared;
 
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;

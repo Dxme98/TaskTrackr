@@ -1,4 +1,4 @@
-package com.dev;
+package com.dev.tasktrackr.ProjectTests.service.shared;
 
 import com.dev.tasktrackr.config.JpaAuditingConfig;
 import org.springframework.boot.autoconfigure.domain.EntityScan;

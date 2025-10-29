@@ -1,5 +1,6 @@
 package com.dev.tasktrackr;
 
+import com.dev.tasktrackr.ProjectTests.service.shared.TestContainersConfiguration;
 import org.springframework.boot.SpringApplication;
 
 public class TestTaskTrackrApplication {

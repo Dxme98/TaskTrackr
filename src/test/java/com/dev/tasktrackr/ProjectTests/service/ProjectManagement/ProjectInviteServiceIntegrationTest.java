@@ -1,6 +1,6 @@
 package com.dev.tasktrackr.ProjectTests.service.ProjectManagement;
 
-import com.dev.tasktrackr.ProjectManagementBaseTest;
+import com.dev.tasktrackr.ProjectTests.service.shared.ProjectManagementBaseTest;
 import com.dev.tasktrackr.project.api.dtos.request.ProjectInviteRequest;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectInviteResponseDto;
 import com.dev.tasktrackr.project.domain.Project;

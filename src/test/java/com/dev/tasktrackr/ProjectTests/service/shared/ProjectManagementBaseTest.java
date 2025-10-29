@@ -1,6 +1,5 @@
-package com.dev.tasktrackr;
+package com.dev.tasktrackr.ProjectTests.service.shared;
 
-import com.dev.EnableDatabaseTest;
 import com.dev.tasktrackr.project.api.dtos.mapper.*;
 import com.dev.tasktrackr.project.api.dtos.request.ProjectRequest;
 import com.dev.tasktrackr.project.domain.Project;
