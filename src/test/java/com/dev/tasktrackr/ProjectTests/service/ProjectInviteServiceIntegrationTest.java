@@ -1,23 +1,48 @@
 package com.dev.tasktrackr.ProjectTests.service;
 
+import com.dev.tasktrackr.ProjectManagementBaseTest;
+import com.dev.tasktrackr.project.api.dtos.request.ProjectInviteRequest;
+import com.dev.tasktrackr.project.api.dtos.response.ProjectInviteResponseDto;
+import com.dev.tasktrackr.project.domain.Project;
+import com.dev.tasktrackr.project.domain.ProjectInvite;
+import com.dev.tasktrackr.project.domain.ProjectMember;
+import com.dev.tasktrackr.project.domain.enums.ProjectInviteStatus;
+import com.dev.tasktrackr.project.domain.enums.ProjectType;
+import com.dev.tasktrackr.project.service.ProjectInviteService;
+import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.InviteIsNotPendingException;
+import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.PermissionDeniedException;
+import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.UnauthorizedInviteHandleAcception;
+import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.ProjectInviteAlreadyExistsException;
+import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.UserAlreadyPartOfProjectException;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectInviteNotFound;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.UserNotFoundException;
+import com.dev.tasktrackr.user.domain.UserEntity;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
-/**
 @DisplayName("ProjectInviteService Integration Tests")
-public class ProjectInviteServiceIntegrationTest extends BaseIntegrationTest {
+public class ProjectInviteServiceIntegrationTest extends ProjectManagementBaseTest {
 
     @Autowired
-    private ProjectInviteServiceImpl projectInviteService;
+    private ProjectInviteService projectInviteService;
 
-    @Autowired
-    private ProjectInviteQueryRepository projectInviteQueryRepository;
 
     private UserEntity ownerUser;
     private UserEntity memberUser;
     private UserEntity inviteeUser;
     private UserEntity nonMemberUser;
     private Project testProject;
+    private ProjectMember baseMember; // Mitglied mit BASE-Rolle für Permission-Tests
 
     @BeforeEach
     void setUp() {
@@ -27,21 +52,26 @@ public class ProjectInviteServiceIntegrationTest extends BaseIntegrationTest {
         nonMemberUser = createTestUser("nonmember999", "nonmember");
 
         testProject = createTestProject("Test Project", ProjectType.BASIC, ownerUser);
-        testProject.addMember(memberUser);
-        projectRepository.save(testProject);
+
+        baseMember = createTestMember(testProject, memberUser);
     }
 
     @Nested
     @DisplayName("Create Project Invite Tests")
     class CreateProjectInviteTests {
 
+        private ProjectInviteRequest createRequest(String username) {
+            ProjectInviteRequest request = new ProjectInviteRequest();
+            request.setReceiverUsername(username);
+            return request;
+        }
+
         @Test
         @DisplayName("Should create project invite successfully as owner")
-        @Rollback
         void shouldCreateProjectInviteSuccessfully() {
             // Given
-            ProjectInviteRequest request = new ProjectInviteRequest();
-            request.setReceiverUsername(inviteeUser.getUsername());
+            ProjectInviteRequest request = createRequest(inviteeUser.getUsername());
+            long initialInviteCount = projectInviteRepository.count();
 
             // When
             ProjectInviteResponseDto result = assertDoesNotThrow(() ->
@@ -50,41 +80,58 @@ public class ProjectInviteServiceIntegrationTest extends BaseIntegrationTest {
             // Then
             assertThat(result).isNotNull();
             assertThat(result.getSenderId()).isEqualTo(ownerUser.getId());
-            assertThat(result.getSenderUsername()).isEqualTo(ownerUser.getUsername());
             assertThat(result.getReceiverId()).isEqualTo(inviteeUser.getId());
-            assertThat(result.getReceiverUsername()).isEqualTo(inviteeUser.getUsername());
             assertThat(result.getProjectId()).isEqualTo(testProject.getId());
-            assertThat(result.getProjectName()).isEqualTo(testProject.getName());
             assertThat(result.getInviteStatus()).isEqualTo(ProjectInviteStatus.PENDING);
             assertThat(result.getCreatedAt()).isNotNull();
-            assertThat(result.getUpdatedAt()).isNotNull();
 
             // Verify invite is persisted
-            Project savedProject = projectRepository.findProjectWithInvitesAndMember(testProject.getId()).get();
-            assertThat(savedProject.getProjectInvites().size()).isEqualTo(1);
+            assertThat(projectInviteRepository.count()).isEqualTo(initialInviteCount + 1);
         }
 
         @Test
         @DisplayName("Should throw exception when member without permission tries to create invite")
-        @Rollback
         void shouldThrowExceptionWhenMemberWithoutPermissionTriesToCreateInvite() {
             // Given
-            ProjectInviteRequest request = new ProjectInviteRequest();
-            request.setReceiverUsername(inviteeUser.getUsername());
+            ProjectInviteRequest request = createRequest(inviteeUser.getUsername());
 
             // When & Then
+            // baseMember hat die BASE-Rolle, die keine COMMON_INVITE_USER-Rechte hat
             assertThatThrownBy(() ->
-                    projectInviteService.createProjectInvite(request, memberUser.getId(), testProject.getId()))
+                    projectInviteService.createProjectInvite(request, baseMember.getUser().getId(), testProject.getId()))
                     .isInstanceOf(PermissionDeniedException.class);
         }
 
         @Test
+        @DisplayName("Should throw exception if user is already a member")
+        void shouldThrowExceptionIfUserIsAlreadyAMember() {
+            // Given
+            ProjectInviteRequest request = createRequest(memberUser.getUsername()); // memberUser ist bereits Mitglied
+
+            // When & Then
+            assertThatThrownBy(() ->
+                    projectInviteService.createProjectInvite(request, ownerUser.getId(), testProject.getId()))
+                    .isInstanceOf(UserAlreadyPartOfProjectException.class);
+        }
+
+        @Test
+        @DisplayName("Should throw exception if invite for user is already pending")
+        void shouldThrowExceptionIfInviteIsAlreadyPending() {
+            // Given
+            ProjectInviteRequest request = createRequest(inviteeUser.getUsername());
+            createTestInvite(testProject, ownerUser, inviteeUser); // Ersten Invite erstellen
+
+            // When & Then
+            assertThatThrownBy(() ->
+                    projectInviteService.createProjectInvite(request, ownerUser.getId(), testProject.getId()))
+                    .isInstanceOf(ProjectInviteAlreadyExistsException.class);
+        }
+
+        @Test
         @DisplayName("Should throw exception for non-existent project")
-        @Rollback
         void shouldThrowExceptionForNonExistentProject() {
             // Given
-            ProjectInviteRequest request = new ProjectInviteRequest();
-            request.setReceiverUsername(inviteeUser.getUsername());
+            ProjectInviteRequest request = createRequest(inviteeUser.getUsername());
 
             // When & Then
             assertThatThrownBy(() ->
@@ -93,26 +140,10 @@ public class ProjectInviteServiceIntegrationTest extends BaseIntegrationTest {
         }
 
         @Test
-        @DisplayName("Should throw exception for non-existent sender")
-        @Rollback
-        void shouldThrowExceptionForNonExistentSender() {
-            // Given
-            ProjectInviteRequest request = new ProjectInviteRequest();
-            request.setReceiverUsername(inviteeUser.getUsername());
-
-            // When & Then
-            assertThatThrownBy(() ->
-                    projectInviteService.createProjectInvite(request, "nonexistent", testProject.getId()))
-                    .isInstanceOf(UserNotFoundException.class);
-        }
-
-        @Test
         @DisplayName("Should throw exception for non-existent receiver")
-        @Rollback
         void shouldThrowExceptionForNonExistentReceiver() {
             // Given
-            ProjectInviteRequest request = new ProjectInviteRequest();
-            request.setReceiverUsername("nonexistent");
+            ProjectInviteRequest request = createRequest("nonexistent.user");
 
             // When & Then
             assertThatThrownBy(() ->
@@ -125,56 +156,60 @@ public class ProjectInviteServiceIntegrationTest extends BaseIntegrationTest {
     @DisplayName("Accept Project Invite Tests")
     class AcceptProjectInviteTests {
 
-        private ProjectInvite createTestInvite() {
-            ProjectInviteRequest request = new ProjectInviteRequest();
-            request.setReceiverUsername(inviteeUser.getUsername());
-            projectInviteService.createProjectInvite(request, ownerUser.getId(), testProject.getId());
+        private ProjectInvite pendingInvite;
 
-            Project project = projectRepository.findProjectWithInvitesAndMember(testProject.getId()).get();
-            return project.getProjectInvites().get(0);
+        @BeforeEach
+        void setUpInvite() {
+            pendingInvite = createTestInvite(testProject, ownerUser, inviteeUser);
         }
 
         @Test
         @DisplayName("Should accept project invite successfully")
-        @Rollback
         void shouldAcceptProjectInviteSuccessfully() {
             // Given
-            ProjectInvite invite = createTestInvite();
-            int initialMemberCount = testProject.getProjectMembers().size();
+            long initialMemberCount = projectMemberRepository.count(); // Sollte 2 sein (owner + memberUser)
 
             // When
             ProjectInviteResponseDto result = assertDoesNotThrow(() ->
-                    projectInviteService.acceptProjectInvite(inviteeUser.getId(), invite.getId()));
+                    projectInviteService.acceptProjectInvite(inviteeUser.getId(), pendingInvite.getId()));
 
             // Then
             assertThat(result).isNotNull();
             assertThat(result.getInviteStatus()).isEqualTo(ProjectInviteStatus.ACCEPTED);
 
             // Verify user is now a project member
-            Project savedProject = projectRepository.findProjectWithInvitesAndMember(testProject.getId()).get();
-            assertThat(savedProject.getProjectMembers().size()).isEqualTo(initialMemberCount + 1);
+            assertThat(projectMemberRepository.count()).isEqualTo(initialMemberCount + 1);
 
-            boolean userIsMember = savedProject.getProjectMembers().stream()
-                    .anyMatch(member -> member.getUser().getId().equals(inviteeUser.getId()));
+            boolean userIsMember = projectMemberRepository.existsByUserIdAndProjectId(inviteeUser.getId(), testProject.getId());
             assertThat(userIsMember).isTrue();
         }
 
         @Test
         @DisplayName("Should throw exception when wrong user tries to accept invite")
-        @Rollback
         void shouldThrowExceptionWhenWrongUserTriesToAcceptInvite() {
-            // Given
-            ProjectInvite invite = createTestInvite();
-
             // When & Then
+            // nonMemberUser versucht, die Einladung von inviteeUser anzunehmen
             assertThatThrownBy(() ->
-                    projectInviteService.acceptProjectInvite(nonMemberUser.getId(), invite.getId()))
+                    projectInviteService.acceptProjectInvite(nonMemberUser.getId(), pendingInvite.getId()))
                     .isInstanceOf(UnauthorizedInviteHandleAcception.class);
         }
 
         @Test
+        @DisplayName("Should throw exception when accepting non-pending invite")
+        void shouldThrowExceptionWhenAcceptingNonPendingInvite() {
+            // Given
+            // Einladung annehmen
+            projectInviteService.acceptProjectInvite(inviteeUser.getId(), pendingInvite.getId());
+
+            // When & Then
+            // Erneut versuchen, anzunehmen
+            assertThatThrownBy(() ->
+                    projectInviteService.acceptProjectInvite(inviteeUser.getId(), pendingInvite.getId()))
+                    .isInstanceOf(InviteIsNotPendingException.class); // Aus invite.accept(receiverId)
+        }
+
+        @Test
         @DisplayName("Should throw exception for non-existent invite")
-        @Rollback
         void shouldThrowExceptionForNonExistentInvite() {
             // When & Then
             assertThatThrownBy(() ->
@@ -187,58 +222,41 @@ public class ProjectInviteServiceIntegrationTest extends BaseIntegrationTest {
     @DisplayName("Decline Project Invite Tests")
     class DeclineProjectInviteTests {
 
-        private ProjectInvite createTestInvite() {
-            ProjectInviteRequest request = new ProjectInviteRequest();
-            request.setReceiverUsername(inviteeUser.getUsername());
-            projectInviteService.createProjectInvite(request, ownerUser.getId(), testProject.getId());
+        private ProjectInvite pendingInvite;
 
-            Project project = projectRepository.findProjectWithInvitesAndMember(testProject.getId()).get();
-            return project.getProjectInvites().get(0);
+        @BeforeEach
+        void setUpInvite() {
+            pendingInvite = createTestInvite(testProject, ownerUser, inviteeUser);
         }
 
         @Test
-        @DisplayName("Should decline project invite successfully")
-        @Rollback
-        void shouldDeclineProjectInviteSuccessfully() {
+        @DisplayName("Should decline and delete project invite successfully")
+        void shouldDeclineAndRemoveProjectInviteSuccessfully() {
             // Given
-            ProjectInvite invite = createTestInvite();
-            int initialMemberCount = testProject.getProjectMembers().size();
+            long initialInviteCount = projectInviteRepository.count();
+            long initialMemberCount = projectMemberRepository.count();
 
             // When
             assertDoesNotThrow(() ->
-                    projectInviteService.declineProjectInvite(inviteeUser.getId(), invite.getId()));
+                    projectInviteService.declineProjectInvite(inviteeUser.getId(), pendingInvite.getId()));
 
+            // Then
+            // Verify invite is deleted
+            assertThat(projectInviteRepository.count()).isEqualTo(initialInviteCount - 1);
 
             // Verify user is NOT a project member
-            Project savedProject = projectRepository.findProjectWithInvitesAndMember(testProject.getId()).get();
-            assertThat(savedProject.getProjectMembers().size()).isEqualTo(initialMemberCount);
-
-            boolean userIsMember = savedProject.getProjectMembers().stream()
-                    .anyMatch(member -> member.getUser().getId().equals(inviteeUser.getId()));
+            assertThat(projectMemberRepository.count()).isEqualTo(initialMemberCount);
+            boolean userIsMember = projectMemberRepository.existsByUserIdAndProjectId(inviteeUser.getId(), testProject.getId());
             assertThat(userIsMember).isFalse();
         }
 
         @Test
         @DisplayName("Should throw exception when wrong user tries to decline invite")
-        @Rollback
         void shouldThrowExceptionWhenWrongUserTriesToDeclineInvite() {
-            // Given
-            ProjectInvite invite = createTestInvite();
-
             // When & Then
             assertThatThrownBy(() ->
-                    projectInviteService.declineProjectInvite(nonMemberUser.getId(), invite.getId()))
+                    projectInviteService.declineProjectInvite(nonMemberUser.getId(), pendingInvite.getId()))
                     .isInstanceOf(UnauthorizedInviteHandleAcception.class);
-        }
-
-        @Test
-        @DisplayName("Should throw exception for non-existent invite")
-        @Rollback
-        void shouldThrowExceptionForNonExistentInvite() {
-            // When & Then
-            assertThatThrownBy(() ->
-                    projectInviteService.declineProjectInvite(inviteeUser.getId(), 9999L))
-                    .isInstanceOf(ProjectInviteNotFound.class);
         }
     }
 
@@ -246,88 +264,43 @@ public class ProjectInviteServiceIntegrationTest extends BaseIntegrationTest {
     @DisplayName("Find Pending Invites Tests")
     class FindPendingInvitesTests {
 
-        private void createMultipleInvites() {
-            // Create pending invite
-            ProjectInviteRequest request1 = new ProjectInviteRequest();
-            request1.setReceiverUsername(inviteeUser.getUsername());
-            projectInviteService.createProjectInvite(request1, ownerUser.getId(), testProject.getId());
-
-            // Create another project and invite
-            Project anotherProject = createTestProject("Another Project", ProjectType.BASIC, memberUser);
-            ProjectInviteRequest request2 = new ProjectInviteRequest();
-            request2.setReceiverUsername(inviteeUser.getUsername());
-            projectInviteService.createProjectInvite(request2, memberUser.getId(), anotherProject.getId());
-        }
-
         @Test
         @DisplayName("Should find all pending invites for user with pagination")
-        @Rollback
         void shouldFindAllPendingInvitesForUserWithPagination() {
             // Given
-            createMultipleInvites();
-            PageRequest pageRequest = PageRequest.of(0, 10);
+            Project anotherProject = createTestProject("Another Project", ProjectType.BASIC, ownerUser);
+            createTestInvite(testProject, ownerUser, inviteeUser);
+            createTestInvite(anotherProject, ownerUser, inviteeUser);
+
+            PageRequest pr = PageRequest.of(0, 10);
 
             // When
             Page<ProjectInviteResponseDto> result = projectInviteService.findAllPendingInvitesByUserId(
-                    inviteeUser.getId(), pageRequest);
+                    inviteeUser.getId(), pr);
 
             // Then
             assertThat(result).isNotNull();
-            assertThat(result.getContent().size()).isEqualTo(2);
+            assertThat(result.getContent()).hasSize(2);
             assertThat(result.getTotalElements()).isEqualTo(2);
-
-            // Verify all invites are pending
-            assertThat(result.getContent().get(0).getInviteStatus()).isEqualTo(ProjectInviteStatus.PENDING);
-            assertThat(result.getContent().get(1).getInviteStatus()).isEqualTo(ProjectInviteStatus.PENDING);
-
-            // Verify receiver is correct
-            assertEquals(result.getContent().get(0).getReceiverId(), inviteeUser.getId());
-            assertEquals(result.getContent().get(1).getReceiverId(), inviteeUser.getId());
+            assertThat(result.getContent())
+                    .extracting(ProjectInviteResponseDto::getInviteStatus)
+                    .allMatch(status -> status == ProjectInviteStatus.PENDING);
         }
 
         @Test
         @DisplayName("Should return empty page when user has no pending invites")
-        @Rollback
         void shouldReturnEmptyPageWhenUserHasNoPendingInvites() {
             // Given
-            PageRequest pageRequest = PageRequest.of(0, 10);
+            PageRequest pr = PageRequest.of(0, 10);
 
             // When
             Page<ProjectInviteResponseDto> result = projectInviteService.findAllPendingInvitesByUserId(
-                    nonMemberUser.getId(), pageRequest);
+                    nonMemberUser.getId(), pr);
 
             // Then
             assertThat(result).isNotNull();
-            assertTrue(result.getContent().isEmpty());
+            assertThat(result.getContent()).isEmpty();
             assertThat(result.getTotalElements()).isEqualTo(0);
-        }
-
-        @Test
-        @DisplayName("Should not return accepted or declined invites")
-        @Rollback
-        void shouldNotReturnAcceptedOrDeclinedInvites() {
-            // Given
-            createMultipleInvites();
-
-            // Accept one invite
-            Project project = projectRepository.findProjectWithInvitesAndMember(testProject.getId()).get();
-            ProjectInvite firstInvite = project.getProjectInvites().get(0);
-            projectInviteService.acceptProjectInvite(inviteeUser.getId(), firstInvite.getId());
-
-            PageRequest pageRequest = PageRequest.of(0, 10);
-
-            // When
-            Page<ProjectInviteResponseDto> result = projectInviteService.findAllPendingInvitesByUserId(
-                    inviteeUser.getId(), pageRequest);
-
-            // Then
-            assertThat(result).isNotNull();
-            assertThat(result.getContent().size()).isEqualTo(1); // Only the pending one
-            assertThat(result.getTotalElements()).isEqualTo(1);
-
-            assertThat(result.getContent().get(0).getInviteStatus())
-                    .isEqualTo(ProjectInviteStatus.PENDING);
         }
     }
 }
-*/
