@@ -38,7 +38,7 @@ public class ScrumReportsService {
     /** HELPER */
     ScrumProjectStatisticsDto getScrumProjectStatisticsDto(Long projectId ) {
         return scrumReportRepository.getScrumProjectStatisticsDto(projectId)
-                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+                .orElse(new ScrumProjectStatisticsDto());
     }
 
 }

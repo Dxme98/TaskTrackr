@@ -9,6 +9,7 @@ import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.repository.ProjectInviteRepository;
 import com.dev.tasktrackr.project.repository.ProjectMemberRepository;
 import com.dev.tasktrackr.shared.exception.custom.BadRequestExceptions.InvalidProjectMemberDeletion;
+import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.InvalidMemberRemovalException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -35,7 +36,7 @@ public class ProjectMemberServiceImpl implements ProjectMemberService{
 
         member.canRemoveUser();
         memberToRemove.canBeRemovedFromProject(); // Members with OWNER-Role can't be removed
-        if(memberToRemove.getUser().getId().equals(jwtUserId)) throw new InvalidProjectMemberDeletion(); // self remove should not be possible
+        if(memberToRemove.getUser().getId().equals(jwtUserId)) throw new InvalidMemberRemovalException("Member can not remove himself"); // self remove should not be possible
 
         // Only delete if invite exists (ProjectCreator does not have invite)
         if(invite != null) projectInviteRepository.delete(invite); // Delete invite to enable reinvite

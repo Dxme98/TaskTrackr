@@ -1,6 +1,6 @@
 package com.dev.tasktrackr.ProjectTests.service;
 
-import com.dev.tasktrackr.ProjectFeatureBaseTest;
+import com.dev.tasktrackr.ProjectManagementBaseTest;
 import com.dev.tasktrackr.project.api.dtos.request.ProjectRequest;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectOverviewDto;
 import com.dev.tasktrackr.project.domain.Project;
@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("ProjectService Integration Tests")
-public class ProjectServiceIntegrationTest extends ProjectFeatureBaseTest {
+public class ProjectServiceIntegrationTest extends ProjectManagementBaseTest {
 
     @Autowired
     private ProjectService projectService;

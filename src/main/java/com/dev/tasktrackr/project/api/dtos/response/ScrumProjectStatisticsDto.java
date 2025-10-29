@@ -12,19 +12,19 @@ public class ScrumProjectStatisticsDto {
             description = "Anzahl der Sprints, die für dieses Projekt bereits abgeschlossen wurden.",
             example = "4"
     )
-    private Long finishedSprints;
+    private Long finishedSprints = 0L;
 
     @Schema(
             description = "Gesamtzahl der Story Points, die über alle abgeschlossenen Sprints hinweg fertiggestellt wurden.",
             example = "210"
     )
-    private Long totalCompletedPoints;
+    private Long totalCompletedPoints = 0L;
 
     @Schema(
             description = "Durchschnittliche Anzahl an Story Points, die pro Sprint abgeschlossen wurden (Velocity).",
             example = "52"
     )
-    private Long averageVelocity;
+    private Long averageVelocity = 0L;
 
     public ScrumProjectStatisticsDto(Long finishedSprints, Long totalCompletedPoints) {
         this.finishedSprints = finishedSprints;
