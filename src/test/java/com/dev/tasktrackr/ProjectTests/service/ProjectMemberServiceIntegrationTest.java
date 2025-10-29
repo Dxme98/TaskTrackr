@@ -1,4 +1,4 @@
-package com.dev.tasktrackr.ProjectTests.service; // Ggf. Paket anpassen
+package com.dev.tasktrackr.ProjectTests.service;
 
 import com.dev.tasktrackr.ProjectManagementBaseTest;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectMemberDto;
@@ -152,6 +152,7 @@ public class ProjectMemberServiceIntegrationTest extends ProjectManagementBaseTe
         @DisplayName("Should throw exception when user tries to remove self")
         void shouldThrowExceptionWhenUserTriesToRemoveSelf() {
             // When & Then
+            // Service-Logik `if(memberToRemove.getUser().getId().equals(jwtUserId))`
             assertThatThrownBy(() -> projectMemberService.removeMemberFromProject(
                     ownerUser.getId(),
                     testProject.getId(),
@@ -162,7 +163,6 @@ public class ProjectMemberServiceIntegrationTest extends ProjectManagementBaseTe
         @Test
         @DisplayName("Should throw exception when trying to remove the owner (by another user)")
         void shouldThrowExceptionWhenTryingToRemoveOwner() {
-
 
             // Setup: Erstelle einen "AdminUser", der auch Owner-Rechte hat
             UserEntity adminUser = createTestUser("admin999", "admin");
@@ -178,7 +178,6 @@ public class ProjectMemberServiceIntegrationTest extends ProjectManagementBaseTe
                     testProject.getId(),
                     ownerMember.getId()   // Das Ziel (ist Owner)
             ))
-                    // Die `canBeRemovedFromProject()`-Logik in ProjectMember sollte dies verhindern
                     .isInstanceOf(InvalidMemberRemovalException.class);
         }
 
@@ -190,7 +189,7 @@ public class ProjectMemberServiceIntegrationTest extends ProjectManagementBaseTe
                     ownerUser.getId(),
                     testProject.getId(),
                     9999L // Falsche Member-ID
-            )).isInstanceOf(ProjectMemberNotFoundException.class); // Annahme: projectAccessService wirft dies
+            )).isInstanceOf(ProjectMemberNotFoundException.class);
         }
     }
 }

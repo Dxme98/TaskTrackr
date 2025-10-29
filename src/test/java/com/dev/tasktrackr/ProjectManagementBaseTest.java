@@ -8,7 +8,6 @@ import com.dev.tasktrackr.project.domain.ProjectInvite;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.ProjectRole;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
-import com.dev.tasktrackr.project.domain.enums.RoleType;
 import com.dev.tasktrackr.project.repository.ProjectInviteRepository;
 import com.dev.tasktrackr.project.repository.ProjectMemberRepository;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
@@ -46,9 +45,6 @@ public abstract class ProjectManagementBaseTest extends BaseTestContainerConfig 
 
     @Autowired
     protected ProjectMemberRepository projectMemberRepository;
-
-    @Autowired
-    protected ProjectMemberService projectMemberService;
 
     /**
      * Standard Test-User erstellen
