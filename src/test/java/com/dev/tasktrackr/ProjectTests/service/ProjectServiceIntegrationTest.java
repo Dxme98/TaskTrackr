@@ -1,15 +1,17 @@
 package com.dev.tasktrackr.ProjectTests.service;
 
-import com.dev.tasktrackr.BaseIntegrationTest;
+import com.dev.tasktrackr.ProjectFeatureBaseTest;
 import com.dev.tasktrackr.project.api.dtos.request.ProjectRequest;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectOverviewDto;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
 import com.dev.tasktrackr.project.domain.enums.RoleType;
-import com.dev.tasktrackr.project.service.ProjectServiceImpl;
+import com.dev.tasktrackr.project.service.*;
+import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.UserNotProjectMemberException;
+import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.ProjectNotFoundException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.UserNotFoundException;
-import com.dev.tasktrackr.user.UserEntity;
+import com.dev.tasktrackr.user.domain.UserEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -17,19 +19,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.annotation.Rollback;
-
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
 @DisplayName("ProjectService Integration Tests")
-public class ProjectServiceIntegrationTest extends BaseIntegrationTest {
+public class ProjectServiceIntegrationTest extends ProjectFeatureBaseTest {
 
     @Autowired
-    private ProjectServiceImpl projectService;
+    private ProjectService projectService;
 
     private UserEntity testUser;
     private UserEntity anotherUser;
@@ -46,7 +44,6 @@ public class ProjectServiceIntegrationTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("Should create project successfully")
-        @Rollback
         void shouldCreateProjectSuccessfully() {
             // Given
             ProjectRequest request = new ProjectRequest("Basic Test Project", ProjectType.BASIC);
@@ -60,18 +57,14 @@ public class ProjectServiceIntegrationTest extends BaseIntegrationTest {
             assertEquals(ProjectType.BASIC, result.getProjectType());
             assertNotNull(result.getCreatedAt());
 
-
             // Verify in database
-            Optional<Project> savedProject = projectRepository.findById(result.getId());
-            assertTrue(savedProject.isPresent());
-            assertEquals(1, savedProject.get().getProjectMembers().size());
-            assertEquals(2, savedProject.get().getProjectRoles().size()); // OWNER + BASE
-            assertNotNull(savedProject.get().getId());
+            Project savedProject = projectRepository.findById(result.getId()).orElseThrow();
+            assertEquals(1, savedProject.getProjectMembers().size());
+            assertEquals(2, savedProject.getProjectRoles().size()); // OWNER + BASE
         }
 
         @Test
         @DisplayName("Should throw exception for non-existent user")
-        @Rollback
         void shouldThrowIfUserDoesNotExists() {
             ProjectRequest request = new ProjectRequest("Basic Test Project", ProjectType.BASIC);
             assertThrows(UserNotFoundException.class, () -> projectService.createProject("NonExistingID", request));
@@ -79,7 +72,6 @@ public class ProjectServiceIntegrationTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("Should initialize owner as project member")
-        @Rollback
         void shouldInitializeOwnerAsProjectMember() {
             // Given
             ProjectRequest request = new ProjectRequest("Owner Test Project", ProjectType.BASIC);
@@ -88,7 +80,7 @@ public class ProjectServiceIntegrationTest extends BaseIntegrationTest {
             ProjectOverviewDto result = projectService.createProject(testUser.getId(), request);
 
             // Then
-            Project savedProject = projectRepository.findProjectWithInvitesAndMember(result.getId()).get();
+            Project savedProject = projectRepository.findById(result.getId()).orElseThrow();
             ProjectMember ownerMember = savedProject.getProjectMembers().iterator().next();
 
             assertEquals(1, savedProject.getProjectMembers().size());
@@ -99,24 +91,17 @@ public class ProjectServiceIntegrationTest extends BaseIntegrationTest {
 
     @Nested
     @DisplayName("Find Projects Tests")
-    class findProjectsTest {
+    class FindProjectsTest {
 
-
-            private Project project1;
-            private Project project2;
-            private Project project3;
-
-            @BeforeEach
-            void setUpProjects() {
-                project1 = createTestProject("Project 1", ProjectType.BASIC, testUser);
-                project2 = createTestProject("Project 2", ProjectType.SCRUM, testUser);
-                project3 = createTestProject("Other Project", ProjectType.BASIC, anotherUser);
-            }
-
+        @BeforeEach
+        void setUpProjects() {
+            createTestProject("Project 1", ProjectType.BASIC, testUser);
+            createTestProject("Project 2", ProjectType.SCRUM, testUser);
+            createTestProject("Other Project", ProjectType.BASIC, anotherUser);
+        }
 
         @Test
         @DisplayName("Should find projects by user ID with pagination")
-        @Rollback
         void shouldFindProjectsByUserIdWithPagination() {
             // Given
             PageRequest pageRequest = PageRequest.of(0, 10);
@@ -135,7 +120,6 @@ public class ProjectServiceIntegrationTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("Should return empty page for user with no projects")
-        @Rollback
         void shouldReturnEmptyPageForUserWithNoProjects() {
             // Given
             UserEntity userWithoutProjects = createTestUser("noproject123", "noprojects");
@@ -149,53 +133,44 @@ public class ProjectServiceIntegrationTest extends BaseIntegrationTest {
             assertThat(result.getContent()).isEmpty();
             assertThat(result.getTotalElements()).isEqualTo(0);
         }
+    }
 
-        @Test
-        @DisplayName("Should handle pagination correctly")
-        @Rollback
-        void shouldHandlePaginationCorrectly() {
-            // Create more projects
-            for (int i = 3; i <= 15; i++) {
-                createTestProject("Project " + i, ProjectType.BASIC, testUser);
-            }
-            // Given - Request first page with size 5
-            PageRequest firstPage = PageRequest.of(0, 5);
-            PageRequest secondPage = PageRequest.of(1, 5);
+    @Nested
+    @DisplayName("Get Project Details Tests")
+    class GetProjectDetailsTests {
 
-            // When
-            Page<ProjectOverviewDto> page1 = projectService.findProjectsByUserId(testUser.getId(), firstPage);
-            Page<ProjectOverviewDto> page2 = projectService.findProjectsByUserId(testUser.getId(), secondPage);
+        private Project project;
 
-            // Then
-            assertThat(page1.getContent()).hasSize(5);
-            assertThat(page1.getTotalElements()).isEqualTo(15); // 2 from setup + 13 created
-            assertThat(page1.getTotalPages()).isEqualTo(3);
-            assertThat(page1.isFirst()).isTrue();
-            assertThat(page1.isLast()).isFalse();
-
-            assertThat(page2.getContent()).hasSize(5);
-            assertThat(page2.isFirst()).isFalse();
-            assertThat(page2.isLast()).isFalse();
+        @BeforeEach
+        void setUpProject() {
+            project = createTestProject("Detail Project", ProjectType.BASIC, testUser);
         }
 
         @Test
-        @DisplayName("Should only return projects where user is member")
-        @Rollback
-        void shouldOnlyReturnProjectsWhereUserIsMember() {
-            // Given - Add testUser as member to project3
-            project3.addMember(testUser);
-            projectRepository.save(project3);
-            PageRequest pageRequest = PageRequest.of(0, 10);
-
+        @DisplayName("Should get project details successfully if user is member")
+        void shouldGetProjectDetailsSuccessfully() {
             // When
-            Page<ProjectOverviewDto> result = projectService.findProjectsByUserId(testUser.getId(), pageRequest);
+            ProjectOverviewDto result = projectService.getProjectDetails(project.getId(), testUser.getId());
 
             // Then
-            assertThat(result.getContent()).hasSize(3);
-            assertThat(result.getContent())
-                    .extracting(ProjectOverviewDto::getName)
-                    .containsExactlyInAnyOrder("Project 1", "Project 2", "Other Project");
+            assertThat(result).isNotNull();
+            assertThat(result.getName()).isEqualTo("Detail Project");
+            assertThat(result.getId()).isEqualTo(project.getId());
+        }
+
+        @Test
+        @DisplayName("Should throw exception if user is not a project member")
+        void shouldThrowExceptionIfUserIsNotProjectMember() {
+            assertThrows(UserNotProjectMemberException.class, // Annahme, dass checkProjectMemberShip dies wirft
+                    () -> projectService.getProjectDetails(project.getId(), anotherUser.getId()));
+        }
+
+        @Test
+        @DisplayName("Should throw exception if project does not exist")
+        void shouldThrowExceptionIfProjectDoesNotExist() {
+            // When/Then
+            assertThrows(ProjectNotFoundException.class,
+                    () -> projectService.getProjectDetails(999L, testUser.getId()));
         }
     }
 }
-*/

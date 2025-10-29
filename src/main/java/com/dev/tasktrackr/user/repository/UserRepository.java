@@ -1,6 +1,6 @@
-package com.dev.tasktrackr.user;
+package com.dev.tasktrackr.user.repository;
 
-import org.apache.catalina.User;
+import com.dev.tasktrackr.user.domain.UserEntity;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

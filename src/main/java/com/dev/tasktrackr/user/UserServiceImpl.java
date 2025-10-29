@@ -1,7 +1,8 @@
 package com.dev.tasktrackr.user;
 
 
-import lombok.Setter;
+import com.dev.tasktrackr.user.domain.UserEntity;
+import com.dev.tasktrackr.user.repository.UserRepository;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 

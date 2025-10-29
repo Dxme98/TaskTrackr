@@ -1,22 +1,5 @@
 package com.dev.tasktrackr.ActivityTests;
 
-import com.dev.tasktrackr.BaseIntegrationTest;
-import com.dev.tasktrackr.activity.*;
-import com.dev.tasktrackr.project.domain.Project;
-import com.dev.tasktrackr.project.domain.enums.ProjectType;
-import com.dev.tasktrackr.user.UserEntity;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.test.annotation.Rollback;
-
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

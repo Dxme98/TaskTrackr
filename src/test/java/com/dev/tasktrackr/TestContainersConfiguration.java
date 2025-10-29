@@ -9,7 +9,7 @@ import org.testcontainers.utility.DockerImageName;
 import java.util.Map;
 
 @TestConfiguration(proxyBeanMethods = false)
-class TestContainersConfiguration {
+public class TestContainersConfiguration {
 
     @Bean
     @ServiceConnection

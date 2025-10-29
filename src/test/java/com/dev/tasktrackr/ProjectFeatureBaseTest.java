@@ -1,33 +1,34 @@
 package com.dev.tasktrackr;
 
+import com.dev.EnableDatabaseTest;
+import com.dev.tasktrackr.project.api.dtos.mapper.*;
 import com.dev.tasktrackr.project.api.dtos.request.ProjectRequest;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
 import com.dev.tasktrackr.project.repository.ProjectRepository;
+import com.dev.tasktrackr.project.service.*;
 import com.dev.tasktrackr.user.domain.UserEntity;
 import com.dev.tasktrackr.user.repository.UserRepository;
-import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
-@SpringBootTest(classes = {UserRepository.class, ProjectRepository.class})
-@Import(TestContainersConfiguration.class)
-@Testcontainers
-@Transactional
-@ActiveProfiles("test")
-public class BaseIntegrationTest {
-    @Container
-    static PostgreSQLContainer<?> postgres = TestContainersConfiguration.postgresContainer();
 
-    @Autowired
-    protected EntityManager entityManager;
+@EnableDatabaseTest
+@SpringBootTest(classes = {
+        // Services:
+        ProjectServiceImpl.class,
+        ProjectMemberServiceImpl.class,
+        ProjectInviteServiceImpl.class,
+        ProjectRoleServiceImpl.class,
+        ProjectAccessService.class,
 
+        // Mappers:
+        ProjectMapperImpl.class,
+        ProjectMemberMapperImpl.class,
+        ProjectInviteMapperImpl.class,
+        RoleMapperImpl.class,
+})
+public abstract class ProjectFeatureBaseTest extends BaseTestContainerConfig {
     @Autowired
     protected UserRepository userRepository;
 

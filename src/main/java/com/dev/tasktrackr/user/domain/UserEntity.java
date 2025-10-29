@@ -1,4 +1,4 @@
-package com.dev.tasktrackr.user;
+package com.dev.tasktrackr.user.domain;
 
 import com.dev.tasktrackr.project.domain.ProjectInvite;
 import com.dev.tasktrackr.project.domain.ProjectMember;
@@ -8,7 +8,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
