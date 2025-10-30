@@ -1,5 +1,7 @@
 package com.dev.tasktrackr.activity;
 
+import com.dev.tasktrackr.activity.domain.ProjectActivity;
+import com.dev.tasktrackr.activity.repository.ProjectActivityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

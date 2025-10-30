@@ -1,17 +1,40 @@
 package com.dev.tasktrackr.ActivityTests;
 
+import com.dev.tasktrackr.ProjectTests.service.shared.ProjectManagementBaseTest;
+import com.dev.tasktrackr.activity.*;
+import com.dev.tasktrackr.activity.domain.ProjectActivity;
+import com.dev.tasktrackr.activity.repository.ProjectActivityRepository;
+import com.dev.tasktrackr.project.domain.Project;
+import com.dev.tasktrackr.project.domain.ProjectMember;
+import com.dev.tasktrackr.project.domain.enums.ProjectType;
+import com.dev.tasktrackr.project.repository.ProjectMemberRepository;
+import com.dev.tasktrackr.user.domain.UserEntity;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/**
+
 @DisplayName("ProjectActivityService Integration Tests")
-public class ProjectActivityServiceIntegrationTest extends BaseIntegrationTest {
+public class ProjectActivityServiceIntegrationTest extends ProjectManagementBaseTest {
 
     @Autowired
     private ProjectActivityServiceImpl projectActivityService;
 
     @Autowired
     private ProjectActivityRepository projectActivityRepository;
+
+    @Autowired
+    private ProjectMemberRepository projectMemberRepository;
 
     private UserEntity testUser;
     private UserEntity anotherUser;
@@ -22,16 +45,16 @@ public class ProjectActivityServiceIntegrationTest extends BaseIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        testUser = createTestUser("user-activity-1", "activityUser1");
-        anotherUser = createTestUser("user-activity-2", "activityUser2");
-        testProject = createTestProject("Activity Project", ProjectType.BASIC, testUser);
+        testUser = testDataFactory.createTestUser("user-activity-1", "activityUser1");
+        anotherUser = testDataFactory.createTestUser("user-activity-2", "activityUser2");
+        testProject = testDataFactory.createTestProject("Activity Project", ProjectType.BASIC, testUser);
 
-        ownerMemberId = testProject.findProjectMember(testUser.getId()).getId();
+        ProjectMember ownerMember = projectMemberRepository.findProjectMemberByUserIdAndProjectId(testUser.getId(), testProject.getId())
+                .orElseThrow(() -> new IllegalStateException("Owner-Mitglied wurde nicht korrekt erstellt."));
+        ownerMemberId = ownerMember.getId();
 
-        testProject.addMember(anotherUser);
-        projectRepository.save(testProject);
-
-        anotherMemberId = testProject.findProjectMember(anotherUser.getId()).getId();
+        ProjectMember anotherMember = testDataFactory.createTestMember(testProject, anotherUser);
+        anotherMemberId = anotherMember.getId();
     }
 
     @Nested
@@ -40,7 +63,6 @@ public class ProjectActivityServiceIntegrationTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("Should record TaskCompletedEvent successfully")
-        @Rollback
         void shouldRecordTaskCompletedEvent() {
             // Given: Ein Event, das den Abschluss einer Aufgabe repräsentiert
             var event = new ProjectActivityEvents.TaskCompletedEvent(
@@ -68,7 +90,6 @@ public class ProjectActivityServiceIntegrationTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("Should record ProjectNameChangedEvent with JSON context")
-        @Rollback
         void shouldRecordProjectNameChangedEventWithJsonContext() {
             // Given: Ein Event für die Änderung des Projektnamens
             var event = new ProjectActivityEvents.ProjectNameChangedEvent(
@@ -108,7 +129,6 @@ public class ProjectActivityServiceIntegrationTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("Should find activities by project ID with pagination")
-        @Rollback
         void shouldFindActivitiesByProjectIdWithPagination() {
             // Given
             Pageable pageRequest = PageRequest.of(0, 10);
@@ -127,10 +147,9 @@ public class ProjectActivityServiceIntegrationTest extends BaseIntegrationTest {
 
         @Test
         @DisplayName("Should return empty page for project with no activities")
-        @Rollback
         void shouldReturnEmptyPageForProjectWithNoActivities() {
             // Given
-            Project projectWithoutActivities = createTestProject("Empty Project", ProjectType.BASIC, testUser);
+            Project projectWithoutActivities = testDataFactory.createTestProject("Empty Project", ProjectType.BASIC, testUser);
             Pageable pageRequest = PageRequest.of(0, 10);
 
             // When
@@ -143,4 +162,3 @@ public class ProjectActivityServiceIntegrationTest extends BaseIntegrationTest {
         }
     }
 }
-*/

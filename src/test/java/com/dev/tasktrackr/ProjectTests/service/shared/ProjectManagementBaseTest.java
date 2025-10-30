@@ -1,6 +1,7 @@
 package com.dev.tasktrackr.ProjectTests.service.shared;
 
 import com.dev.tasktrackr.ProjectTests.service.TestDataFactory;
+import com.dev.tasktrackr.activity.ProjectActivityServiceImpl;
 import com.dev.tasktrackr.project.api.dtos.mapper.*;
 import com.dev.tasktrackr.project.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.Import;
         ProjectInviteServiceImpl.class,
         ProjectRoleServiceImpl.class,
         ProjectAccessService.class,
+        ProjectActivityServiceImpl.class,
 
         // Mappers:
         ProjectMapperImpl.class,

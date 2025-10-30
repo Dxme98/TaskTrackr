@@ -16,8 +16,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 
-@EnableJpaRepositories(basePackages = {"com.dev.tasktrackr.project.repository", "com.dev.tasktrackr.user.repository"})
-@EntityScan(basePackages = {"com.dev.tasktrackr.project.domain", "com.dev.tasktrackr.user.domain"})
+@EnableJpaRepositories(basePackages = {"com.dev.tasktrackr.project.repository", "com.dev.tasktrackr.user.repository", "com.dev.tasktrackr.activity.repository"})
+@EntityScan(basePackages = {"com.dev.tasktrackr.project.domain", "com.dev.tasktrackr.user.domain", "com.dev.tasktrackr.activity.domain"})
 @Import(JpaAuditingConfig.class)
 @AutoConfigureDataJpa
 @AutoConfigureTestEntityManager

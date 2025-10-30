@@ -1,5 +1,7 @@
-package com.dev.tasktrackr.activity;
+package com.dev.tasktrackr.activity.repository;
 
+import com.dev.tasktrackr.activity.ProjectActivityDto;
+import com.dev.tasktrackr.activity.domain.ProjectActivity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
