@@ -277,7 +277,6 @@ class SprintControllerWebMvcTest {
         void startSprint_whenInvalidState_shouldReturn400() throws Exception {
             // Given
             Long sprintId = 11L;
-            // Der Service wirft eine Exception (z.B. IllegalStateException), die der ExceptionHandler in 400 umwandelt
             when(sprintService.startSprint(eq(sprintId), eq(testProjectId), eq(testUserId)))
                     .thenThrow(new SprintNotActiveException(sprintId));
 

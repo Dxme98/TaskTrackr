@@ -72,7 +72,7 @@ public class CreateSprintRequest {
     // --- Klassen-Level Validierung ---
 
     @AssertTrue(message = "Das Enddatum (endDate) muss nach dem Startdatum (startDate) liegen.")
-    @Schema(hidden = true) // Versteckt diese Methode in der Swagger-UI
+    @Schema(hidden = true)
     public boolean isEndDateAfterStartDate() {
         if (startDate == null || endDate == null) {
             return true;
