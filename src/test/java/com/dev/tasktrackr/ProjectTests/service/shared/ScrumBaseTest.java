@@ -9,19 +9,27 @@ import org.springframework.context.annotation.Import;
 
 @EnableDatabaseTest
 @SpringBootTest(classes = {
-        // 1. Management-Services
+        // 1. Management-Services,
         ProjectAccessService.class,
 
-        // 2. BasicDetails-Services
-        TaskServiceImpl.class,
-        ProjectInformationServiceImpl.class,
+        // 2. Scrum-Services
+        ScrumBoardServiceImpl.class,
+        ScrumReportsService.class,
+        SprintServiceImpl.class,
+        UserStoryServiceImpl.class,
 
         // 3. Mapper
+        UserStoryMapper.class,
+        ProjectMapperImpl.class,
         ProjectMemberMapperImpl.class,
-        TaskMapperImpl.class
+        ScrumBoardMapper.class,
+        SprintBacklogItemMapper.class,
+        CommentMapperImpl.class,
+        SprintMapper.class,
+        SprintSummaryItemMapperImpl.class
 })
 @Import(TestDataFactory.class)
-public abstract class BasicDetailsBaseTest extends BaseTestContainerConfig {
+public abstract class ScrumBaseTest extends BaseTestContainerConfig{
 
     @Autowired
     protected TestDataFactory testDataFactory;
