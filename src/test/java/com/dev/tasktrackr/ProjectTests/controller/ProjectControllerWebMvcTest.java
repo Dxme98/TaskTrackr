@@ -143,4 +143,37 @@ class ProjectControllerWebMvcTest {
 
         verify(projectService).findProjectsByUserId(eq(testUserId), any(PageRequest.class));
     }
+
+    @Test
+    @DisplayName("GET /projects/{projectId} - Sollte 200 OK zurückgeben und Projektdetails bei gültiger ID laden")
+    void getProjectDetails_whenValidRequest_shouldReturn200AndProjectDetails() throws Exception {
+        // Given
+        Long projectId = 1L;
+        ProjectOverviewDto expectedResponse = ProjectOverviewDto.builder()
+                .id(projectId)
+                .name("Test Projekt Details")
+                .projectType(ProjectType.SCRUM)
+                .createdAt(Instant.parse("2024-10-10T10:00:00Z"))
+                .build();
+
+        // Mocken des Service-Aufrufs
+        when(projectService.getProjectDetails(eq(projectId), eq(testUserId)))
+                .thenReturn(expectedResponse);
+
+        // When & Then
+        mockMvc.perform(get(API_BASE_URL + "/{projectId}", projectId)
+                        .with(jwt().jwt(jwt -> jwt
+                                .claim("sub", testUserId)
+                                .claim("preferred_username", testUsername)
+                        )))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(projectId))
+                .andExpect(jsonPath("$.name").value("Test Projekt Details"))
+                .andExpect(jsonPath("$.projectType").value(ProjectType.SCRUM.toString()))
+                .andExpect(jsonPath("$.createdAt").value("2024-10-10T10:00:00Z"));
+
+        // Verifizieren, dass der Service korrekt aufgerufen wurde
+        verify(projectService).getProjectDetails(eq(projectId), eq(testUserId));
+    }
 }
