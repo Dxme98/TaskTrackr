@@ -13,17 +13,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
-/**
- * Eine Spring-Bean, die als zentrale Fabrik für die Erstellung
- * von Testdaten-Entitäten dient. Sie kann in jeden Test-Slice
- * injiziert werden.
- *
- * Dies vermeidet Code-Duplikation in Test-Basisklassen.
- */
 @Component
 public class TestDataFactory {
 
-    // Alle Repositories, die zum Erstellen von Daten benötigt werden
     @Autowired
     protected UserRepository userRepository;
     @Autowired
