@@ -58,7 +58,7 @@ public class SprintBacklogItem {
                 .build();
     }
 
-    SprintBacklogItem assignMember(ProjectMember member) {
+    public SprintBacklogItem assignMember(ProjectMember member) {
         if(userStory.getStatus() != StoryStatus.SPRINT_BACKLOG) {
             throw new InvalidMemberAssignmentException();
         }
@@ -67,7 +67,7 @@ public class SprintBacklogItem {
         return this;
     }
 
-    SprintBacklogItem unassignMember(ProjectMember member) {
+    public SprintBacklogItem unassignMember(ProjectMember member) {
         if(userStory.getStatus() != StoryStatus.SPRINT_BACKLOG) {
             throw new InvalidMemberAssignmentException();
         }
@@ -76,49 +76,35 @@ public class SprintBacklogItem {
         return this;
     }
 
-    Comment addComment(ProjectMember member, CreateCommentRequest commentRequest) {
+    public Comment addComment(ProjectMember member, CreateCommentRequest commentRequest) {
         Comment comment = Comment.createComment(member, commentRequest, this);
         this.comments.add(comment);
         return comment;
     }
 
-    Comment addBlocker(ProjectMember member, CreateCommentRequest commentRequest) {
+    public Comment addBlocker(ProjectMember member, CreateCommentRequest commentRequest) {
         Comment comment = Comment.createBlocker(member, commentRequest, this);
         this.comments.add(comment);
         return comment;
     }
 
-    Comment removeComment(Comment commentToRemove) {
+    public Comment removeComment(Comment commentToRemove) {
         this.comments.remove(commentToRemove);
 
         return commentToRemove;
     }
 
 
-    void detachFromSprint() {
+    public void detachFromSprint() {
         userStory.detachBacklogItem();
     }
 
-    boolean isCompleted() {
+    public boolean isCompleted() {
         return this.userStory.getStatus().equals(StoryStatus.DONE);
     }
 
     public boolean memberIsAssigned(ProjectMember member) {
         return assignedMembers.contains(member);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        SprintBacklogItem that = (SprintBacklogItem) o;
-        // Die Gleichheit wird ausschließlich durch die zugehörige UserStory bestimmt.
-        return Objects.equals(userStory, that.userStory);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(userStory);
     }
 }
 

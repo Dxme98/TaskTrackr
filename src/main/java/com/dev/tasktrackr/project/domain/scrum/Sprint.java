@@ -159,25 +159,6 @@ public class Sprint {
         return backlogItem.removeComment(comment);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Sprint sprint = (Sprint) o;
-        return Objects.equals(scrumDetails, sprint.scrumDetails) &&
-                Objects.equals(name, sprint.name) &&
-                Objects.equals(description, sprint.description) &&
-                Objects.equals(goal, sprint.goal) &&
-                status == sprint.status &&
-                Objects.equals(startDate, sprint.startDate) &&
-                Objects.equals(endDate, sprint.endDate);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(scrumDetails, name, description, goal, status, startDate, endDate);
-    }
-
     void sprintIsActive() {
         if(!isActive()) throw new SprintNotActiveException(this.id);
     }

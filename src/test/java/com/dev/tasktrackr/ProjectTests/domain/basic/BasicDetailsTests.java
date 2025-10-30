@@ -1,4 +1,4 @@
-package com.dev.tasktrackr.ProjectTests.domain;
+package com.dev.tasktrackr.ProjectTests.domain.basic;
 
 
 import com.dev.tasktrackr.project.domain.*;

@@ -80,16 +80,4 @@ public class UserStory {
     public void updateStatus(StoryStatus status) {
         this.status = status;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof UserStory that)) return false;
-        return id != null && Objects.equals(id, that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return id != null ? Objects.hash(id) : getClass().hashCode();
-    }
 }
