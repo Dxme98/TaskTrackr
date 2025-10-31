@@ -6,6 +6,7 @@ import com.dev.tasktrackr.project.api.dtos.response.ScrumProjectStatisticsDto;
 import com.dev.tasktrackr.project.domain.scrum.Sprint;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public interface ScrumReportRepository extends JpaRepository<Sprint, Long> {
         WHERE s.scrumDetails.project.id = :projectId AND s.status = 'ACTIVE'
         GROUP BY s.id, s.startDate, s.endDate
     """)
-    Optional<ActiveSprintData> getActiveSprintData(Long projectId);
+    Optional<ActiveSprintData> getActiveSprintData(@Param("projectId")Long projectId);
 
 
     @Query("""
@@ -42,7 +43,7 @@ public interface ScrumReportRepository extends JpaRepository<Sprint, Long> {
     WHERE s.scrumDetails.project.id = :projectId
     GROUP BY s.scrumDetails.project.id
 """)
-    Optional<ScrumProjectStatisticsDto> getScrumProjectStatisticsDto(Long projectId);
+    Optional<ScrumProjectStatisticsDto> getScrumProjectStatisticsDto(@Param("projectId")Long projectId);
 
 
     @Query("""
@@ -70,7 +71,7 @@ public interface ScrumReportRepository extends JpaRepository<Sprint, Long> {
     
     GROUP BY pm.id, pm.user.username
 """)
-    List<ScrumMemberStatisticDto> getScrumMemberStatisticsForActiveSprint(Long projectId);
+    List<ScrumMemberStatisticDto> getScrumMemberStatisticsForActiveSprint(@Param("projectId") Long projectId);
 
 
 
