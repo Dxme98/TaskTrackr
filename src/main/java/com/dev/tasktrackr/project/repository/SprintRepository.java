@@ -22,7 +22,7 @@ public interface SprintRepository extends JpaRepository<Sprint, Long> {
 
     @EntityGraph(attributePaths = {"backlogItems", "backlogItems.userStory"})
     @Query("SELECT s FROM Sprint s WHERE s.status = 'ACTIVE' AND s.scrumDetails.id = :projectId")
-    Optional<Sprint> findActiveSprintByProjectId(Long projectId);
+    Optional<Sprint> findActiveSprintByProjectId(@Param("projectId")Long projectId);
 
     @EntityGraph(attributePaths = {"sprintSummaryItems", "backlogItems", "backlogItems.userStory"})
     Optional<Sprint> findSprintById(Long id);
