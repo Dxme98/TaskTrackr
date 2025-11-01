@@ -224,8 +224,7 @@ class ScrumBoardControllerWebMvcTest {
         void addComment_whenValid_shouldReturn201() throws Exception {
             // Given
             Long backlogItemId = 42L;
-            CreateCommentRequest request = new CreateCommentRequest();
-            request.setMessage("Test kommentar");
+            CreateCommentRequest request = new CreateCommentRequest("Test kommentar");
 
             when(scrumBoardService.addCommentToStory(eq(testProjectId), eq(backlogItemId), any(CreateCommentRequest.class), eq(testUserId)))
                     .thenReturn(mockItemResponse);
@@ -267,8 +266,7 @@ class ScrumBoardControllerWebMvcTest {
         void addBlocker_whenValid_shouldReturn201() throws Exception {
             // Given
             Long backlogItemId = 42L;
-            CreateCommentRequest request = new CreateCommentRequest();
-            request.setMessage("Test blocker");
+            CreateCommentRequest request = new CreateCommentRequest("Test blocker");
 
             when(scrumBoardService.addBlockerToStory(eq(testProjectId), eq(backlogItemId), any(CreateCommentRequest.class), eq(testUserId)))
                     .thenReturn(mockItemResponse);
