@@ -29,6 +29,9 @@ public class ScrumProjectStatisticsDto {
     public ScrumProjectStatisticsDto(Long finishedSprints, Long totalCompletedPoints) {
         this.finishedSprints = finishedSprints;
         this.totalCompletedPoints = totalCompletedPoints;
-        this.averageVelocity = totalCompletedPoints / finishedSprints;
+
+        if(finishedSprints != 0) this.averageVelocity = totalCompletedPoints / finishedSprints;
+
+        else this.averageVelocity = totalCompletedPoints;
     }
 }
