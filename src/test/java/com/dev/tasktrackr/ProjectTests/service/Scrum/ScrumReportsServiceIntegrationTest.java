@@ -1,11 +1,11 @@
 package com.dev.tasktrackr.ProjectTests.service.Scrum;
 
 import com.dev.tasktrackr.ProjectTests.service.shared.ScrumBaseTest;
-import com.dev.tasktrackr.project.api.dtos.response.ScrumMemberStatisticDto;
-import com.dev.tasktrackr.project.api.dtos.response.ScrumReportsDto;
+import com.dev.tasktrackr.scrumdetails.api.dtos.response.ScrumMemberStatisticDto;
+import com.dev.tasktrackr.scrumdetails.api.dtos.response.ScrumReportsDto;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
-import com.dev.tasktrackr.project.service.ScrumReportsService;
+import com.dev.tasktrackr.scrumdetails.service.ScrumReportsService;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.UserNotProjectMemberException;
 import com.dev.tasktrackr.user.domain.UserEntity;
 import org.junit.jupiter.api.BeforeEach;

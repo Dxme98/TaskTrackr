@@ -1,11 +1,11 @@
 package com.dev.tasktrackr.ProjectTests.domain.scrum;
 
-import com.dev.tasktrackr.project.api.dtos.request.CreateUserStoryRequest;
+import com.dev.tasktrackr.scrumdetails.api.dtos.request.CreateUserStoryRequest;
 import com.dev.tasktrackr.project.domain.enums.Priority;
-import com.dev.tasktrackr.project.domain.scrum.ScrumDetails;
-import com.dev.tasktrackr.project.domain.scrum.SprintBacklogItem;
-import com.dev.tasktrackr.project.domain.scrum.StoryStatus;
-import com.dev.tasktrackr.project.domain.scrum.UserStory;
+import com.dev.tasktrackr.scrumdetails.domain.ScrumDetails;
+import com.dev.tasktrackr.scrumdetails.domain.SprintBacklogItem;
+import com.dev.tasktrackr.scrumdetails.domain.StoryStatus;
+import com.dev.tasktrackr.scrumdetails.domain.UserStory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

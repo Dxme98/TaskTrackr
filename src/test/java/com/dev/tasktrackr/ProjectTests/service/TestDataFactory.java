@@ -1,12 +1,16 @@
 package com.dev.tasktrackr.ProjectTests.service;
 
-import com.dev.tasktrackr.project.api.dtos.request.CreateTaskRequest;
+import com.dev.tasktrackr.basicdetails.api.dtos.request.CreateTaskRequest;
+import com.dev.tasktrackr.basicdetails.domain.Task;
+import com.dev.tasktrackr.basicdetails.repository.TaskRepository;
 import com.dev.tasktrackr.project.api.dtos.request.ProjectRequest;
 import com.dev.tasktrackr.project.domain.*;
 import com.dev.tasktrackr.project.domain.enums.Priority;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
-import com.dev.tasktrackr.project.domain.scrum.*;
 import com.dev.tasktrackr.project.repository.*;
+import com.dev.tasktrackr.scrumdetails.domain.*;
+import com.dev.tasktrackr.scrumdetails.repository.SprintRepository;
+import com.dev.tasktrackr.scrumdetails.repository.UserStoryRepository;
 import com.dev.tasktrackr.user.domain.UserEntity;
 import com.dev.tasktrackr.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

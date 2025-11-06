@@ -2,7 +2,7 @@ package com.dev.tasktrackr.ProjectTests.domain.basic;
 
 
 import com.dev.tasktrackr.project.domain.*;
-import com.dev.tasktrackr.project.domain.basic.BasicDetails;
+import com.dev.tasktrackr.basicdetails.domain.BasicDetails;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

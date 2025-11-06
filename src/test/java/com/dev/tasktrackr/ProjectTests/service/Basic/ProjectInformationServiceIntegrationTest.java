@@ -1,18 +1,18 @@
 package com.dev.tasktrackr.ProjectTests.service.Basic;
 
 import com.dev.tasktrackr.ProjectTests.service.shared.BasicDetailsBaseTest;
-import com.dev.tasktrackr.project.api.dtos.request.CreateLinkRequest;
-import com.dev.tasktrackr.project.api.dtos.request.UpdateInformationContentRequest;
+import com.dev.tasktrackr.basicdetails.api.dtos.request.CreateLinkRequest;
+import com.dev.tasktrackr.basicdetails.api.dtos.request.UpdateInformationContentRequest;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
-import com.dev.tasktrackr.project.domain.basic.Information;
-import com.dev.tasktrackr.project.domain.basic.Link;
-import com.dev.tasktrackr.project.domain.basic.LinkType;
+import com.dev.tasktrackr.basicdetails.domain.Information;
+import com.dev.tasktrackr.basicdetails.domain.Link;
+import com.dev.tasktrackr.basicdetails.domain.LinkType;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
-import com.dev.tasktrackr.project.repository.LinkRepository;
-import com.dev.tasktrackr.project.repository.ProjectInformationRepository;
+import com.dev.tasktrackr.basicdetails.repository.LinkRepository;
+import com.dev.tasktrackr.basicdetails.repository.ProjectInformationRepository;
 import com.dev.tasktrackr.project.repository.ProjectMemberRepository;
-import com.dev.tasktrackr.project.service.ProjectInformationService;
+import com.dev.tasktrackr.basicdetails.service.ProjectInformationService;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.PermissionDeniedException;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.UserNotProjectMemberException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.LinkNotFoundException;

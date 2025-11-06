@@ -1,13 +1,12 @@
 package com.dev.tasktrackr.ProjectTests.controller;
 
 import com.dev.tasktrackr.config.JpaAuditingConfig;
-import com.dev.tasktrackr.project.api.controller.ScrumReportsController;
-import com.dev.tasktrackr.project.api.dtos.response.ActiveSprintData;
-import com.dev.tasktrackr.project.api.dtos.response.ScrumMemberStatisticDto;
-import com.dev.tasktrackr.project.api.dtos.response.ScrumProjectStatisticsDto;
-import com.dev.tasktrackr.project.api.dtos.response.ScrumReportsDto;
-import com.dev.tasktrackr.project.service.ScrumReportsService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.dev.tasktrackr.scrumdetails.api.controller.ScrumReportsController;
+import com.dev.tasktrackr.scrumdetails.api.dtos.response.ActiveSprintData;
+import com.dev.tasktrackr.scrumdetails.api.dtos.response.ScrumMemberStatisticDto;
+import com.dev.tasktrackr.scrumdetails.api.dtos.response.ScrumProjectStatisticsDto;
+import com.dev.tasktrackr.scrumdetails.api.dtos.response.ScrumReportsDto;
+import com.dev.tasktrackr.scrumdetails.service.ScrumReportsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

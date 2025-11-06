@@ -1,10 +1,10 @@
 package com.dev.tasktrackr.ProjectTests.domain.scrum;
 
 import com.dev.tasktrackr.project.domain.Project;
-import com.dev.tasktrackr.project.domain.scrum.ScrumDetails;
-import com.dev.tasktrackr.project.domain.scrum.Sprint;
-import com.dev.tasktrackr.project.domain.scrum.SprintSummaryItem;
-import com.dev.tasktrackr.project.domain.scrum.UserStory;
+import com.dev.tasktrackr.scrumdetails.domain.ScrumDetails;
+import com.dev.tasktrackr.scrumdetails.domain.Sprint;
+import com.dev.tasktrackr.scrumdetails.domain.SprintSummaryItem;
+import com.dev.tasktrackr.scrumdetails.domain.UserStory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

@@ -1,6 +1,9 @@
 package com.dev.tasktrackr.ProjectTests.service.shared;
 
 import com.dev.tasktrackr.ProjectTests.service.TestDataFactory;
+import com.dev.tasktrackr.basicdetails.api.dtos.mapper.TaskMapperImpl;
+import com.dev.tasktrackr.basicdetails.service.ProjectInformationServiceImpl;
+import com.dev.tasktrackr.basicdetails.service.TaskServiceImpl;
 import com.dev.tasktrackr.project.api.dtos.mapper.*;
 import com.dev.tasktrackr.project.service.*;
 import org.springframework.beans.factory.annotation.Autowired;

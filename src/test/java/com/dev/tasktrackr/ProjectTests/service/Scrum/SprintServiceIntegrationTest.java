@@ -1,15 +1,15 @@
 package com.dev.tasktrackr.ProjectTests.service.Scrum;
 
 import com.dev.tasktrackr.ProjectTests.service.shared.ScrumBaseTest;
-import com.dev.tasktrackr.project.api.dtos.request.CreateSprintRequest;
-import com.dev.tasktrackr.project.api.dtos.response.SprintResponseDto;
+import com.dev.tasktrackr.scrumdetails.api.dtos.request.CreateSprintRequest;
+import com.dev.tasktrackr.scrumdetails.api.dtos.response.SprintResponseDto;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
-import com.dev.tasktrackr.project.domain.scrum.*;
-import com.dev.tasktrackr.project.repository.SprintBacklogItemRepository;
-import com.dev.tasktrackr.project.repository.SprintRepository;
-import com.dev.tasktrackr.project.repository.UserStoryRepository;
-import com.dev.tasktrackr.project.service.SprintService;
+import com.dev.tasktrackr.scrumdetails.repository.SprintBacklogItemRepository;
+import com.dev.tasktrackr.scrumdetails.repository.SprintRepository;
+import com.dev.tasktrackr.scrumdetails.repository.UserStoryRepository;
+import com.dev.tasktrackr.scrumdetails.service.SprintService;
+import com.dev.tasktrackr.scrumdetails.domain.*;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.PermissionDeniedException;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.UserNotProjectMemberException;
 import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.ActiveSprintAlreadyExistsException;

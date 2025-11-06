@@ -1,9 +1,9 @@
 package com.dev.tasktrackr.ProjectTests.domain.basic;
 
-import com.dev.tasktrackr.project.api.dtos.request.CreateTaskRequest;
-import com.dev.tasktrackr.project.domain.basic.BasicDetails;
+import com.dev.tasktrackr.basicdetails.api.dtos.request.CreateTaskRequest;
+import com.dev.tasktrackr.basicdetails.domain.BasicDetails;
 import com.dev.tasktrackr.project.domain.ProjectMember;
-import com.dev.tasktrackr.project.domain.Task;
+import com.dev.tasktrackr.basicdetails.domain.Task;
 import com.dev.tasktrackr.project.domain.enums.Priority;
 import com.dev.tasktrackr.project.domain.enums.Status;
 // Import ist nicht mehr nötig, da die Entität keine Exceptions mehr wirft

@@ -1,15 +1,19 @@
 package com.dev.tasktrackr.ProjectTests.service.Scrum;
 
 import com.dev.tasktrackr.ProjectTests.service.shared.ScrumBaseTest;
-import com.dev.tasktrackr.project.api.dtos.request.CreateCommentRequest;
-import com.dev.tasktrackr.project.api.dtos.response.ScrumBoardResponseDto;
-import com.dev.tasktrackr.project.api.dtos.response.SprintBacklogItemResponse;
+import com.dev.tasktrackr.basicdetails.repository.CommentRepository;
+import com.dev.tasktrackr.scrumdetails.api.dtos.request.CreateCommentRequest;
+import com.dev.tasktrackr.scrumdetails.api.dtos.response.ScrumBoardResponseDto;
+import com.dev.tasktrackr.scrumdetails.api.dtos.response.SprintBacklogItemResponse;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
-import com.dev.tasktrackr.project.domain.scrum.*;
 import com.dev.tasktrackr.project.repository.*;
-import com.dev.tasktrackr.project.service.ScrumBoardService;
+import com.dev.tasktrackr.scrumdetails.service.ScrumBoardService;
+import com.dev.tasktrackr.scrumdetails.domain.*;
+import com.dev.tasktrackr.scrumdetails.repository.SprintBacklogItemRepository;
+import com.dev.tasktrackr.scrumdetails.repository.SprintSummaryItemRepository;
+import com.dev.tasktrackr.scrumdetails.repository.UserStoryRepository;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.PermissionDeniedException;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.UserNotProjectMemberException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.NoActiveSprintFoundException;

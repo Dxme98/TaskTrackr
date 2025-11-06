@@ -1,9 +1,9 @@
 package com.dev.tasktrackr.ProjectTests.domain.scrum;
 
-import com.dev.tasktrackr.project.api.dtos.request.CreateCommentRequest;
-import com.dev.tasktrackr.project.api.dtos.request.CreateSprintRequest;
+import com.dev.tasktrackr.scrumdetails.api.dtos.request.CreateCommentRequest;
+import com.dev.tasktrackr.scrumdetails.api.dtos.request.CreateSprintRequest;
 import com.dev.tasktrackr.project.domain.ProjectMember;
-import com.dev.tasktrackr.project.domain.scrum.*;
+import com.dev.tasktrackr.scrumdetails.domain.*;
 import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.SprintNotActiveException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

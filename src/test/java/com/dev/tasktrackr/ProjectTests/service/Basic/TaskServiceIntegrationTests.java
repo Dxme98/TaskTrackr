@@ -1,17 +1,17 @@
 package com.dev.tasktrackr.ProjectTests.service.Basic;
 
 import com.dev.tasktrackr.ProjectTests.service.shared.BasicDetailsBaseTest;
-import com.dev.tasktrackr.project.api.dtos.request.CreateTaskRequest;
-import com.dev.tasktrackr.project.api.dtos.response.TaskResponseDto;
+import com.dev.tasktrackr.basicdetails.api.dtos.request.CreateTaskRequest;
+import com.dev.tasktrackr.basicdetails.api.dtos.response.TaskResponseDto;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
-import com.dev.tasktrackr.project.domain.Task;
+import com.dev.tasktrackr.basicdetails.domain.Task;
 import com.dev.tasktrackr.project.domain.enums.Priority;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
 import com.dev.tasktrackr.project.domain.enums.Status;
 import com.dev.tasktrackr.project.repository.ProjectMemberRepository;
-import com.dev.tasktrackr.project.repository.TaskRepository;
-import com.dev.tasktrackr.project.service.TaskService;
+import com.dev.tasktrackr.basicdetails.repository.TaskRepository;
+import com.dev.tasktrackr.basicdetails.service.TaskService;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.PermissionDeniedException;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.ProjectMemberNotAllowedToCompleteTaskException;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.UserNotProjectMemberException;

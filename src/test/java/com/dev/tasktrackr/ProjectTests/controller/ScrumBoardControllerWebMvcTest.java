@@ -1,16 +1,16 @@
 package com.dev.tasktrackr.ProjectTests.controller;
 
 import com.dev.tasktrackr.config.JpaAuditingConfig;
-import com.dev.tasktrackr.project.api.controller.ScrumBoardController;
-import com.dev.tasktrackr.project.api.dtos.request.AssignMemberRequest;
-import com.dev.tasktrackr.project.api.dtos.request.CreateCommentRequest;
-import com.dev.tasktrackr.project.api.dtos.request.UpdateStatusRequest;
+import com.dev.tasktrackr.scrumdetails.api.controller.ScrumBoardController;
+import com.dev.tasktrackr.scrumdetails.api.dtos.request.AssignMemberRequest;
+import com.dev.tasktrackr.scrumdetails.api.dtos.request.CreateCommentRequest;
+import com.dev.tasktrackr.scrumdetails.api.dtos.request.UpdateStatusRequest;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectMemberDto;
-import com.dev.tasktrackr.project.api.dtos.response.ScrumBoardResponseDto;
-import com.dev.tasktrackr.project.api.dtos.response.SprintBacklogItemResponse;
+import com.dev.tasktrackr.scrumdetails.api.dtos.response.ScrumBoardResponseDto;
+import com.dev.tasktrackr.scrumdetails.api.dtos.response.SprintBacklogItemResponse;
 import com.dev.tasktrackr.project.domain.enums.Priority;
-import com.dev.tasktrackr.project.domain.scrum.StoryStatus;
-import com.dev.tasktrackr.project.service.ScrumBoardService;
+import com.dev.tasktrackr.scrumdetails.domain.StoryStatus;
+import com.dev.tasktrackr.scrumdetails.service.ScrumBoardService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

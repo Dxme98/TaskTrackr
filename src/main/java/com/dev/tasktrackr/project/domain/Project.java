@@ -1,10 +1,10 @@
 package com.dev.tasktrackr.project.domain;
 
 import com.dev.tasktrackr.project.api.dtos.request.ProjectRequest;
-import com.dev.tasktrackr.project.domain.basic.BasicDetails;
+import com.dev.tasktrackr.basicdetails.domain.BasicDetails;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
 import com.dev.tasktrackr.project.domain.enums.RoleType;
-import com.dev.tasktrackr.project.domain.scrum.ScrumDetails;
+import com.dev.tasktrackr.scrumdetails.domain.ScrumDetails;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.InvalidProjectTypeException;
 import com.dev.tasktrackr.shared.exception.custom.NotFoundExceptions.RoleNotFoundException;
 import com.dev.tasktrackr.user.domain.UserEntity;

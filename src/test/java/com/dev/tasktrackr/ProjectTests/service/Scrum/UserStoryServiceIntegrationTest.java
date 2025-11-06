@@ -1,17 +1,17 @@
 package com.dev.tasktrackr.ProjectTests.service.Scrum;
 
 import com.dev.tasktrackr.ProjectTests.service.shared.ScrumBaseTest;
-import com.dev.tasktrackr.project.api.dtos.request.CreateUserStoryRequest;
-import com.dev.tasktrackr.project.api.dtos.response.UserStoryResponseDto;
+import com.dev.tasktrackr.scrumdetails.api.dtos.request.CreateUserStoryRequest;
+import com.dev.tasktrackr.scrumdetails.api.dtos.response.UserStoryResponseDto;
 import com.dev.tasktrackr.project.domain.Project;
 import com.dev.tasktrackr.project.domain.ProjectMember;
 import com.dev.tasktrackr.project.domain.enums.Priority;
 import com.dev.tasktrackr.project.domain.enums.ProjectType;
-import com.dev.tasktrackr.project.domain.scrum.ScrumDetails;
-import com.dev.tasktrackr.project.domain.scrum.StoryStatus;
-import com.dev.tasktrackr.project.domain.scrum.UserStory;
-import com.dev.tasktrackr.project.repository.UserStoryRepository;
-import com.dev.tasktrackr.project.service.UserStoryService;
+import com.dev.tasktrackr.scrumdetails.domain.ScrumDetails;
+import com.dev.tasktrackr.scrumdetails.domain.StoryStatus;
+import com.dev.tasktrackr.scrumdetails.domain.UserStory;
+import com.dev.tasktrackr.scrumdetails.repository.UserStoryRepository;
+import com.dev.tasktrackr.scrumdetails.service.UserStoryService;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.PermissionDeniedException;
 import com.dev.tasktrackr.shared.exception.custom.AccessDeniedExceptions.UserNotProjectMemberException;
 import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.UserStoryTitleAlreadyExistsException;

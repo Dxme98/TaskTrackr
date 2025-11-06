@@ -1,0 +1,12 @@
+package com.dev.tasktrackr.scrumdetails.service;
+
+import com.dev.tasktrackr.scrumdetails.api.dtos.request.CreateUserStoryRequest;
+import com.dev.tasktrackr.scrumdetails.api.dtos.response.UserStoryResponseDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+public interface UserStoryService {
+    UserStoryResponseDto createUserStory(Long projectId, CreateUserStoryRequest createUserStoryRequest, String jwtUserId);
+    void deleteUserStory(Long projectId, Long userStoryId, String jwtUserId);
+    Page<UserStoryResponseDto> getUserStoriesByProjectId(Long projectId, Pageable pageable, String jwtUserId, String filter);
+}

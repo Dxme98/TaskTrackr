@@ -1,13 +1,13 @@
 package com.dev.tasktrackr.ProjectTests.controller;
 
 import com.dev.tasktrackr.config.JpaAuditingConfig;
-import com.dev.tasktrackr.project.api.controller.TaskController;
-import com.dev.tasktrackr.project.api.dtos.request.CreateTaskRequest;
+import com.dev.tasktrackr.basicdetails.api.controller.TaskController;
+import com.dev.tasktrackr.basicdetails.api.dtos.request.CreateTaskRequest;
 import com.dev.tasktrackr.project.api.dtos.response.ProjectMemberOverviewDto;
-import com.dev.tasktrackr.project.api.dtos.response.TaskResponseDto;
+import com.dev.tasktrackr.basicdetails.api.dtos.response.TaskResponseDto;
 import com.dev.tasktrackr.project.domain.enums.Priority;
 import com.dev.tasktrackr.project.domain.enums.Status;
-import com.dev.tasktrackr.project.service.TaskService;
+import com.dev.tasktrackr.basicdetails.service.TaskService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

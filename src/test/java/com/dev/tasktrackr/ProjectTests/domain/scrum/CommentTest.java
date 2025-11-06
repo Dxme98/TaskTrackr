@@ -1,10 +1,10 @@
 package com.dev.tasktrackr.ProjectTests.domain.scrum;
 
-import com.dev.tasktrackr.project.api.dtos.request.CreateCommentRequest;
+import com.dev.tasktrackr.scrumdetails.api.dtos.request.CreateCommentRequest;
 import com.dev.tasktrackr.project.domain.ProjectMember;
-import com.dev.tasktrackr.project.domain.scrum.Comment;
-import com.dev.tasktrackr.project.domain.scrum.CommentType;
-import com.dev.tasktrackr.project.domain.scrum.SprintBacklogItem;
+import com.dev.tasktrackr.scrumdetails.domain.Comment;
+import com.dev.tasktrackr.scrumdetails.domain.CommentType;
+import com.dev.tasktrackr.scrumdetails.domain.SprintBacklogItem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

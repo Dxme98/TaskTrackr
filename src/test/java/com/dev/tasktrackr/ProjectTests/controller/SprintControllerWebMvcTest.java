@@ -1,11 +1,11 @@
 package com.dev.tasktrackr.ProjectTests.controller;
 
 import com.dev.tasktrackr.config.JpaAuditingConfig;
-import com.dev.tasktrackr.project.api.controller.SprintController;
-import com.dev.tasktrackr.project.api.dtos.request.CreateSprintRequest;
-import com.dev.tasktrackr.project.api.dtos.response.SprintResponseDto;
-import com.dev.tasktrackr.project.domain.scrum.SprintStatus;
-import com.dev.tasktrackr.project.service.SprintService;
+import com.dev.tasktrackr.scrumdetails.api.controller.SprintController;
+import com.dev.tasktrackr.scrumdetails.api.dtos.request.CreateSprintRequest;
+import com.dev.tasktrackr.scrumdetails.api.dtos.response.SprintResponseDto;
+import com.dev.tasktrackr.scrumdetails.domain.SprintStatus;
+import com.dev.tasktrackr.scrumdetails.service.SprintService;
 import com.dev.tasktrackr.shared.exception.custom.ConflictExceptions.SprintNotActiveException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;

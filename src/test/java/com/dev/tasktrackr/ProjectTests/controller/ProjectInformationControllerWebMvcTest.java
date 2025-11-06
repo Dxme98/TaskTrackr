@@ -1,13 +1,13 @@
 package com.dev.tasktrackr.ProjectTests.controller;
 
 import com.dev.tasktrackr.config.JpaAuditingConfig;
-import com.dev.tasktrackr.project.api.controller.ProjectInformationController;
-import com.dev.tasktrackr.project.api.dtos.request.CreateLinkRequest;
-import com.dev.tasktrackr.project.api.dtos.request.UpdateInformationContentRequest;
-import com.dev.tasktrackr.project.domain.basic.Information;
-import com.dev.tasktrackr.project.domain.basic.Link;
-import com.dev.tasktrackr.project.domain.basic.LinkType;
-import com.dev.tasktrackr.project.service.ProjectInformationService;
+import com.dev.tasktrackr.basicdetails.api.controller.ProjectInformationController;
+import com.dev.tasktrackr.basicdetails.api.dtos.request.CreateLinkRequest;
+import com.dev.tasktrackr.basicdetails.api.dtos.request.UpdateInformationContentRequest;
+import com.dev.tasktrackr.basicdetails.domain.Information;
+import com.dev.tasktrackr.basicdetails.domain.Link;
+import com.dev.tasktrackr.basicdetails.domain.LinkType;
+import com.dev.tasktrackr.basicdetails.service.ProjectInformationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

@@ -1,8 +1,14 @@
 package com.dev.tasktrackr.ProjectTests.service.shared;
 
 import com.dev.tasktrackr.ProjectTests.service.TestDataFactory;
+import com.dev.tasktrackr.basicdetails.api.dtos.mapper.CommentMapperImpl;
 import com.dev.tasktrackr.project.api.dtos.mapper.*;
 import com.dev.tasktrackr.project.service.*;
+import com.dev.tasktrackr.scrumdetails.api.dtos.mapper.*;
+import com.dev.tasktrackr.scrumdetails.service.ScrumBoardServiceImpl;
+import com.dev.tasktrackr.scrumdetails.service.ScrumReportsService;
+import com.dev.tasktrackr.scrumdetails.service.SprintServiceImpl;
+import com.dev.tasktrackr.scrumdetails.service.UserStoryServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
