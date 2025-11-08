@@ -143,21 +143,12 @@ public class TaskTests {
         @Test
         @DisplayName("Should set status to COMPLETED when complete() is called")
         void shouldSetStatusToCompleted() {
-            // Stelle sicher, dass der Status vorher IN_PROGRESS ist
             assertEquals(Status.IN_PROGRESS, task.getStatus());
 
-            // Rufe die "dumme" Methode auf
             task.complete();
 
-            // Prüfe, ob der Status korrekt geändert wurde
             assertEquals(Status.COMPLETED, task.getStatus());
         }
-
-        /*
-         * GELÖSCHT: Alle Tests zur Berechtigungsprüfung (z.B. 'shouldThrowExceptionIfUserIsNotCreatorOrAssigned')
-         * GRUND: Diese Logik wurde korrekterweise aus der Entität in den Service-Layer verschoben.
-         * Die Tests gehören jetzt in 'TaskServiceImplTest'.
-         */
     }
 
     @Nested
