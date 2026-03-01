@@ -4,7 +4,7 @@
 
 TaskTrackr ist eine flexible Projektmanagement-Anwendung, die Teams dabei unterstützt, sowohl klassische To-do-Listen als auch komplexe agile Scrum-Workflows zu verwalten – inklusive Sprint-Management und Scrum Boards.
 
-Der technische Fokus lag auf sauberer Schichtentrennung, einem dynamischen RBAC-Rechtesystem sowie der gezielten Lösung von Performance-Engpässen (N+1 Problem, Batch Fetching, Entity Graphs). Alle Design-Entscheidungen sind detailliert im [GitHub Wiki](#) dokumentiert.
+Der technische Fokus lag auf sauberer Schichtentrennung, einem dynamischen RBAC-Rechtesystem sowie der gezielten Lösung von Performance-Engpässen (N+1 Problem, Batch Fetching, Entity Graphs). Alle Design-Entscheidungen sind detailliert im [GitHub Wiki](https://github.com/Dxme98/TaskTrackr/wiki) dokumentiert.
 
  **[Zum Projekt-Walkthrough-Video](#)**
 
@@ -90,4 +90,4 @@ Ein Projekt hat entweder `ScrumDetails` oder `BasicDetails` – niemals beides. 
 
 ## Wiki & Dokumentation
 
-Alle Architektur-Entscheidungen, Feature-Flows und Design-Muster sind im GitHub Wiki dokumentiert.
+Alle Architektur-Entscheidungen, Feature-Flows und Design-Muster sind im [GitHub Wiki](https://github.com/Dxme98/TaskTrackr/wiki) dokumentiert.
