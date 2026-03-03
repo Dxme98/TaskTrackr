@@ -56,7 +56,7 @@ resource "aws_iam_policy" "secrets_policy" {
       {
         Effect   = "Allow"
         Action   = ["secretsmanager:GetSecretValue"]
-        Resource = [aws_db_instance.main.master_user_secret[0].secret_arn]
+        Resource = [aws_db_instance.main.master_user_secret[0].secret_arn, aws_secretsmanager_secret.keycloak_creds.arn]
       }
     ]
   })
@@ -103,6 +103,10 @@ resource "aws_ecs_task_definition" "app_task" {
         {
           name      = "SPRING_DATASOURCE_USERNAME"
           valueFrom = "${aws_db_instance.main.master_user_secret[0].secret_arn}:username::"
+        },
+        {
+          name      = "KEYCLOAK_CLIENT_SECRET"
+          valueFrom = "${aws_secretsmanager_secret.keycloak_creds.arn}:client_secret::"
         }
       ]
 
@@ -125,6 +129,13 @@ resource "aws_ecs_task_definition" "app_task" {
   ])
 }
 
+resource "aws_secretsmanager_secret" "keycloak_creds" {
+  name        = "${var.project_name}-keycloak-client-secret"
+  description = "Manually managed secret for Keycloak client"
+
+  recovery_window_in_days = 0
+}
+
 resource "aws_ecs_service" "app_service" {
   name            = "${var.project_name}-service"
   cluster         = aws_ecs_cluster.main.id
@@ -141,15 +152,13 @@ resource "aws_ecs_service" "app_service" {
     assign_public_ip = false
   }
 
-  # ALB muss noch erstellt werden
-  /**
   load_balancer {
     target_group_arn = aws_lb_target_group.app_tg.arn
     container_name   = "spring-app"
     container_port   = 8080
   }
   depends_on = [aws_lb_listener.http]
-   */
+
 }
 
 resource "aws_ecs_task_definition" "keycloak_task" {
@@ -166,8 +175,8 @@ resource "aws_ecs_task_definition" "keycloak_task" {
     {
       name  = "keycloak"
       image = "quay.io/keycloak/keycloak:26.2.5"
-      args  = ["start-dev"] # später start
-
+      entryPoint = ["/opt/keycloak/bin/kc.sh"]
+      command  = ["start-dev"] # später start
       essential = true
 
       portMappings = [
@@ -179,9 +188,14 @@ resource "aws_ecs_task_definition" "keycloak_task" {
 
       environment = [
         { name = "KC_DB", value = "postgres" },
-        { name = "KC_DB_URL", value = "jdbc:postgresql://${aws_db_instance.main.address}:${aws_db_instance.main.port}/keycloak" },
+        # Wir nutzen hier die Variablen der RDS Instanz direkt:
+        {
+          name  = "KC_DB_URL",
+          value = "jdbc:postgresql://${aws_db_instance.main.address}:${aws_db_instance.main.port}/${aws_db_instance.main.db_name}"
+        },
         { name = "KC_HEALTH_ENABLED", value = "true" },
-        { name = "KEYCLOAK_ADMIN", value = "admin" } # Initialer Admin-User
+        { name = "KEYCLOAK_ADMIN", value = "admin" },
+        { name = "KC_HTTP_RELATIVE_PATH", value = "/auth" }
       ]
 
       secrets = [
@@ -198,6 +212,7 @@ resource "aws_ecs_task_definition" "keycloak_task" {
           valueFrom = "${aws_db_instance.main.master_user_secret[0].secret_arn}:password::"
         }
       ]
+
 
       logConfiguration = {
         logDriver = "awslogs"
@@ -226,6 +241,12 @@ resource "aws_ecs_service" "keycloak_service" {
 
   service_registries {
     registry_arn = aws_service_discovery_service.auth.arn
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.keycloak_tg.arn
+    container_name   = "keycloak"
+    container_port   = 8080
   }
 }
 

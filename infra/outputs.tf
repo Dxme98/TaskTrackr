@@ -24,3 +24,13 @@ output "rds_db_name" {
   description = "Der Name der Initial-Datenbank"
   value       = aws_db_instance.main.db_name
 }
+
+output "app_url" {
+  value       = "http://${aws_lb.main.dns_name}"
+  description = "Hier klicken um die App zu sehen"
+}
+
+output "keycloak_url" {
+  description = "Die Adresse zur Keycloak Admin-Konsole (Pfad-Routing)"
+  value       = "http://${aws_lb.main.dns_name}/auth"
+}

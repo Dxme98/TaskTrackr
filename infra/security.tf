@@ -58,6 +58,13 @@ resource "aws_security_group" "keycloak_sg" {
     security_groups = [aws_security_group.app_sg.id]
   }
 
+  ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    security_groups = [aws_security_group.alb_sg.id]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
