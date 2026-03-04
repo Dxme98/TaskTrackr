@@ -12,7 +12,7 @@ ALTER TABLE projects
     ALTER COLUMN created_at DROP DEFAULT;
 
 -- ProjectMember: created_at hinzufügen
-ALTER TABLE public.project_member
+ALTER TABLE project_member
     ADD COLUMN created_at TIMESTAMP WITH TIME ZONE;
 
 -- Project_Invite: beide Spalten von Default befreien

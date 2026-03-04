@@ -34,3 +34,8 @@ output "keycloak_url" {
   description = "Die Adresse zur Keycloak Admin-Konsole (Pfad-Routing)"
   value       = "http://${aws_lb.main.dns_name}/auth"
 }
+
+output "cloudfront_url" {
+  description = "Die Haupt-URL des Projekts (HTTPS via CloudFront)"
+  value       = "https://${aws_cloudfront_distribution.main.domain_name}"
+}

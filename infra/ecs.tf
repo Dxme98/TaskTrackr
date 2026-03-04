@@ -115,18 +115,39 @@ resource "aws_ecs_task_definition" "app_task" {
           name  = "SPRING_PROFILES_ACTIVE"
           value = "prod"
         },
+        /**
         {
           name  = "SPRING_DATASOURCE_URL"
           value = "jdbc:postgresql://${aws_db_instance.main.address}:${aws_db_instance.main.port}/${aws_db_instance.main.db_name}"
+        } */
+        {
+          name  = "SPRING_DATASOURCE_URL"
+          value = "jdbc:postgresql://${aws_db_instance.main.address}:${aws_db_instance.main.port}/${aws_db_instance.main.db_name}?currentSchema=tasktrackr"
         },
         {
           name  = "KEYCLOAK_ISSUER_URI"
-          value = "http://${aws_lb.main.dns_name}/auth/realms/tasktrackr-realm"
+         // value = "http://${aws_lb.main.dns_name}/auth/realms/tasktrackr-realm"
+          value = "https://${aws_cloudfront_distribution.main.domain_name}/auth/realms/tasktrackr-realm"
         },
         {
           name  = "KEYCLOAK_INTERNAL_URL"
           value = "http://auth.tasktrackr.local:8080/auth/realms/tasktrackr-realm/protocol/openid-connect"
-        }
+        }, {
+          name  = "SPRING_FLYWAY_SCHEMAS"
+          value = "tasktrackr"
+        },
+        {
+          name  = "SPRING_FLYWAY_CREATE_SCHEMAS"
+          value = "true"
+        },
+        {
+          name  = "SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA"
+          value = "tasktrackr"
+        },
+        {
+          name  = "SPRING_JPA_HIBERNATE_DDL_AUTO"
+          value = "none"
+        },
       ]
 
 
@@ -154,7 +175,7 @@ resource "aws_ecs_service" "app_service" {
   task_definition = aws_ecs_task_definition.app_task.arn
   launch_type     = "FARGATE"
 
-  desired_count = 2
+  desired_count = 1
 
   health_check_grace_period_seconds = 120
 
@@ -200,14 +221,20 @@ resource "aws_ecs_task_definition" "keycloak_task" {
 
       environment = [
         { name = "KC_DB", value = "postgres" },
-        # Wir nutzen hier die Variablen der RDS Instanz direkt:
         {
           name  = "KC_DB_URL",
           value = "jdbc:postgresql://${aws_db_instance.main.address}:${aws_db_instance.main.port}/${aws_db_instance.main.db_name}"
         },
         { name = "KC_HEALTH_ENABLED", value = "true" },
         { name = "KEYCLOAK_ADMIN", value = "admin" },
-        { name = "KC_HTTP_RELATIVE_PATH", value = "/auth" }
+        { name = "KC_HTTP_RELATIVE_PATH", value = "/auth" },
+
+        { name = "KC_PROXY_HEADERS", value = "xforwarded" },
+        {
+          name  = "KC_HOSTNAME",
+          value = "https://${aws_cloudfront_distribution.main.domain_name}/auth"
+        },
+        { name = "KC_HOSTNAME_STRICT", value = "true" }
       ]
 
       secrets = [
@@ -244,6 +271,7 @@ resource "aws_ecs_service" "keycloak_service" {
   task_definition = aws_ecs_task_definition.keycloak_task.arn
   launch_type     = "FARGATE"
   desired_count   = 1
+  health_check_grace_period_seconds = 500
 
   network_configuration {
     subnets         = module.vpc.private_subnets
