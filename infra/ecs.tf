@@ -112,8 +112,20 @@ resource "aws_ecs_task_definition" "app_task" {
 
       environment = [
         {
-          name = "SPRING_DATASOURCE_URL"
+          name  = "SPRING_PROFILES_ACTIVE"
+          value = "prod"
+        },
+        {
+          name  = "SPRING_DATASOURCE_URL"
           value = "jdbc:postgresql://${aws_db_instance.main.address}:${aws_db_instance.main.port}/${aws_db_instance.main.db_name}"
+        },
+        {
+          name  = "KEYCLOAK_ISSUER_URI"
+          value = "http://${aws_lb.main.dns_name}/auth/realms/tasktrackr-realm"
+        },
+        {
+          name  = "KEYCLOAK_INTERNAL_URL"
+          value = "http://auth.tasktrackr.local:8080/auth/realms/tasktrackr-realm/protocol/openid-connect"
         }
       ]
 
