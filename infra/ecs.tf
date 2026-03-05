@@ -149,7 +149,7 @@ resource "aws_ecs_task_definition" "app_task" {
           value = "none"
         },
         {
-          name  = "APP_CORS_ALLOWED-ORIGINS",
+          name  = "APP_CORS_ALLOWED_ORIGINS",
           value = "http://localhost:3000,https://${aws_cloudfront_distribution.main.domain_name}"
         }
       ]
