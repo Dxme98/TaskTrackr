@@ -12,11 +12,8 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        generate_statistics: true
         jdbc:
           batch_size: 20
-    show-sql: true
-
 management:
   endpoints:
     web:
