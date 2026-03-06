@@ -100,7 +100,41 @@ resource "aws_cloudfront_distribution" "main" {
     viewer_protocol_policy = "redirect-to-https"
   }
 
-  # 3. Default (S3 Frontend)
+  # 3. Swagger UI -> ALB
+  ordered_cache_behavior {
+    path_pattern     = "/swagger-ui*"
+    target_origin_id = "ALB-Backend"
+
+    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
+    cached_methods   = ["GET", "HEAD"]
+
+    forwarded_values {
+      query_string = true
+      headers      = ["*"]
+      cookies { forward = "all" }
+    }
+
+    viewer_protocol_policy = "redirect-to-https"
+  }
+
+  # 4. OpenAPI JSON Docs -> ALB
+  ordered_cache_behavior {
+    path_pattern     = "/v3/api-docs*"
+    target_origin_id = "ALB-Backend"
+
+    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
+    cached_methods   = ["GET", "HEAD"]
+
+    forwarded_values {
+      query_string = true
+      headers      = ["*"]
+      cookies { forward = "all" }
+    }
+
+    viewer_protocol_policy = "redirect-to-https"
+  }
+
+  # 5. Default (S3 Frontend)
   default_cache_behavior {
     target_origin_id = "S3-Frontend"
     allowed_methods  = ["GET", "HEAD"]
